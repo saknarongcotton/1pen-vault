@@ -55,11 +55,25 @@
         .tab-btn.active, .tab-btn:hover { background: rgba(212, 175, 55, 0.2); border-color: var(--brass-light); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
         
         .container { max-width: 1300px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--brass-dark); padding: 30px; box-shadow: inset 0 0 20px var(--shadow-color), 0 5px 15px var(--shadow-color); transition: background-color 0.4s; }
+        
+        /* Setup & Meta */
+        .setup-card { background: var(--readonly-bg); border: 1px dashed var(--brass-light); padding: 20px; margin-bottom: 20px; border-radius: 4px; }
+        .setup-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
+        .setup-row label { font-family: 'Cinzel', serif; color: var(--copper); font-size: 1.1rem; }
+        .color-checkboxes { display: flex; gap: 15px; flex-wrap: wrap; }
+        .color-label { display: flex; align-items: center; gap: 5px; color: var(--text-main); font-family: 'Playfair Display', serif; cursor: pointer; }
+        .color-label input { width: 18px; height: 18px; accent-color: var(--brass-light); cursor: pointer; }
+        
         .game-meta { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 20px; }
         .input-group { display: flex; flex-direction: column; width: 48%; }
         label { font-family: 'Cinzel', serif; color: var(--copper); margin-bottom: 5px; }
-        input[type="text"], input[type="date"], input[type="number"] { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; font-family: 'Playfair Display', serif; font-size: 1.1rem; transition: 0.4s; }
+        input[type="text"], input[type="date"], input[type="number"], select { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; font-family: 'Playfair Display', serif; font-size: 1.1rem; transition: 0.4s; }
         input:focus, select:focus { outline: none; border-color: var(--brass-light); }
+
+        /* --- QUICK TOOLS BAR (Icons) --- */
+        .quick-tools { display: flex; gap: 15px; margin-bottom: 20px; }
+        .tool-icon-btn { flex: 1; background: var(--col-btn-bg); color: var(--brass-light); border: 1px solid var(--brass-dark); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.3rem; cursor: pointer; border-radius: 4px; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .tool-icon-btn:hover { background: var(--brass-dark); color: #fff; box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
         
         /* Collapsible Sections */
         .collapsible-btn { background: var(--col-btn-bg); color: var(--brass-light); cursor: pointer; padding: 15px 20px; width: 100%; border: 1px solid var(--brass-dark); text-align: center; outline: none; font-family: 'Cinzel', serif; font-size: 1.5rem; transition: 0.4s; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
@@ -68,7 +82,7 @@
         .collapsible-content.expanded { padding: 20px 15px; border-color: var(--brass-dark); border-top: none; margin-bottom: 20px; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; }
         
         /* Tables */
-        .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
+        .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: center; }
         th { background: var(--th-bg); color: var(--copper); font-family: 'Cinzel', serif; padding: 15px 10px; border: 1px solid var(--brass-dark); font-size: 0.9rem; transition: 0.4s; }
         td { padding: 0; border: 1px solid var(--border-color); transition: 0.4s; position: relative; }
@@ -76,45 +90,60 @@
         td input[type="checkbox"] { transform: scale(1.6); cursor: pointer; accent-color: var(--brass-light); margin: 0 auto; display: block; transition: 0.4s; }
         .readonly-cell { padding: 15px 5px; background: var(--readonly-bg); font-weight: bold; color: var(--brass-light); font-size: 1.1rem; transition: 0.4s; }
         
+        /* SCORE HIGHLIGHTING */
+        .highlight-col { background-color: rgba(212, 175, 55, 0.12) !important; border-left: 2px solid var(--brass-light) !important; border-right: 2px solid var(--brass-light) !important; font-size: 1.3rem !important; color: #fff !important; }
+        th.highlight-col { background-color: var(--brass-dark) !important; font-size: 1.1rem !important; color: #fff !important; }
+
+        /* Income Table Custom Header Input */
+        th input.income-player-name { width: 100%; padding: 5px 5px 5px 25px; background: transparent; border: none; border-bottom: 1px dashed transparent; color: var(--copper); font-family: 'Cinzel', serif; font-weight: bold; font-size: 1.05rem; text-align: center; outline: none; transition: 0.3s; }
+        th input.income-player-name:focus { border-bottom-color: var(--brass-light); color: var(--brass-light); }
+
         /* Player Color Dot Indicator */
         .color-dot { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); pointer-events: none; }
 
-        /* --- CARDS & TIMER LAYOUT --- */
-        .split-layout { display: flex; gap: 20px; align-items: flex-start; }
-        .card-tracker { flex: 3; background: var(--readonly-bg); padding: 15px; border: 1px solid var(--brass-dark); border-radius: 5px; }
-        .timer-tool { flex: 2; background: var(--readonly-bg); padding: 15px; border: 1px solid var(--brass-dark); border-radius: 5px; }
-        @media (max-width: 900px) { .split-layout { flex-direction: column; } .card-tracker, .timer-tool { width: 100%; } }
+        /* --- SPLIT LAYOUT (Timer & Income) --- */
+        .split-layout { display: flex; gap: 30px; align-items: stretch; margin-top: 15px; }
+        .timer-tool { flex: 1.6; background: var(--readonly-bg); padding: 25px; border: 1px solid var(--brass-dark); border-radius: 5px; min-width: 350px; display: flex; flex-direction: column; }
+        .income-tool { flex: 1; background: var(--readonly-bg); padding: 15px 25px; border: 1px solid var(--brass-dark); border-radius: 5px; overflow-x: auto;}
+        @media (max-width: 900px) { .split-layout { flex-direction: column; } .timer-tool, .income-tool { width: 100%; } }
 
         /* Card Tracker UI */
-        .pc-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .pc-btn { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 20px; cursor: pointer; font-family: 'Cinzel', serif; border-radius: 4px; transition: 0.3s; font-size: 1.1rem; }
-        .pc-btn.active, .pc-btn:hover { background: var(--brass-dark); color: #fff; border-color: var(--brass-light); box-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
-        
         .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-bottom: 15px; }
         .card-btn { background: var(--input-bg); border: 1px solid var(--copper); color: var(--brass-light); padding: 10px 5px; border-radius: 4px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 0.85rem; transition: 0.3s; text-align: center; user-select: none; }
         .card-btn:hover { background: var(--brass-dark); color: #fff; }
         .card-btn.depleted { opacity: 0.4; text-decoration: line-through; border-color: red; }
         .card-section-title { font-family: 'Cinzel', serif; color: var(--copper); border-bottom: 1px solid var(--border-color); margin-bottom: 10px; padding-bottom: 5px; }
 
-        /* Timer UI */
-        .timer-row { display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); padding: 10px; margin-bottom: 10px; border-radius: 5px; opacity: 0.5; transition: 0.3s; cursor: pointer; }
-        .timer-row:hover { border-color: var(--brass-light); opacity: 0.8; }
-        .timer-row.active { opacity: 1; border-color: var(--brass-light); box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); background: rgba(212, 175, 55, 0.15); transform: scale(1.02); }
-        .timer-name { font-family: 'Cinzel', serif; font-weight: bold; width: 35%; display: flex; align-items: center; gap: 8px;}
-        .timer-dot { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
-        .timer-times { display: flex; flex-direction: column; align-items: flex-end; width: 60%; }
-        .t-round { font-size: 1.6rem; font-weight: bold; color: var(--brass-light); font-family: monospace; }
-        .t-reserve { font-size: 0.95rem; color: var(--copper); font-family: monospace; }
-        .t-round.danger, .t-reserve.danger { color: red; }
+        /* --- Timer UI Overhaul (Massive Active Player) --- */
+        .timer-row { display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); padding: 15px 20px; margin-bottom: 15px; border-radius: 5px; opacity: 0.5; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .timer-row:hover { border-color: var(--brass-light); opacity: 0.9; }
         
-        .timer-controls { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;}
-        .t-btn { flex: 1; min-width: 30%; padding: 10px; background: var(--brass-dark); color: #fff; border: 1px solid var(--brass-light); font-family: 'Cinzel', serif; cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.3s; }
-        .t-btn:hover { background: var(--brass-light); color: #000; }
+        .timer-row.active { opacity: 1; border-color: var(--brass-light); box-shadow: 0 0 25px rgba(212, 175, 55, 0.5); background: rgba(212, 175, 55, 0.15); transform: scale(1.05); padding: 30px 25px; margin-bottom: 20px; }
+        
+        .timer-name { font-family: 'Cinzel', serif; font-weight: bold; font-size: 1.3rem; width: 40%; display: flex; align-items: center; gap: 12px; transition: 0.4s; }
+        .timer-row.active .timer-name { font-size: 1.8rem; color: #fff; }
+        
+        .timer-dot { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); transition: 0.4s;}
+        .timer-row.active .timer-dot { width: 20px; height: 20px; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+        .timer-times { display: flex; flex-direction: column; align-items: flex-end; width: 60%; }
+        
+        .t-round { font-size: 2.2rem; font-weight: bold; color: var(--brass-light); font-family: monospace; transition: 0.4s; }
+        .timer-row.active .t-round { font-size: 4.5rem; color: #fff; text-shadow: 0 0 20px var(--brass-light); line-height: 1; margin-bottom: 5px;}
+        
+        .t-reserve { font-size: 1.1rem; color: var(--copper); font-family: monospace; transition: 0.4s; }
+        .timer-row.active .t-reserve { font-size: 1.5rem; color: var(--brass-light); }
+        
+        .t-round.danger, .t-reserve.danger { color: red !important; text-shadow: 0 0 15px red !important; }
+        
+        .timer-controls { display: flex; gap: 15px; margin-top: auto; padding-top: 20px; flex-wrap: wrap;}
+        .t-btn { flex: 1; min-width: 30%; padding: 15px; background: var(--brass-dark); color: #fff; border: 1px solid var(--brass-light); font-family: 'Cinzel', serif; cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.3s; font-size: 1.2rem; }
+        .t-btn:hover { background: var(--brass-light); color: #000; box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
         .t-btn.play { background: #27ae60; border-color: #2ecc71; }
         .t-btn.pause { background: #e67e22; border-color: #f39c12; }
         .t-btn.edit { background: var(--col-btn-bg); color: var(--brass-light); border-color: var(--copper); }
 
-        .save-btn { display: block; width: 100%; background: linear-gradient(145deg, var(--brass-dark), #5e4315); color: #fff; border: 1px solid var(--brass-light); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.5rem; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        .save-btn { display: block; width: 100%; background: linear-gradient(145deg, var(--brass-dark), #5e4315); color: #fff; border: 1px solid var(--brass-light); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.5rem; cursor: pointer; transition: 0.3s; margin-top: 20px; border-radius: 4px; }
         .save-btn:hover { background: var(--brass-light); color: var(--bg-dark); }
         
         /* History & Filter Controls */
@@ -126,9 +155,11 @@
         .history-header { display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: var(--brass-light); margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; }
         
         /* Modals */
-        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-overlay); align-items: center; justify-content: center; }
-        .modal-content { background: linear-gradient(145deg, var(--celeb-bg-1), var(--celeb-bg-2)); border: 2px solid var(--brass-light); padding: 40px; text-align: center; border-radius: 8px; box-shadow: 0 0 50px rgba(212, 175, 55, 0.3); animation: popIn 0.3s forwards; transition: 0.4s; max-width: 90%; }
-        .modal-content h2, .modal-content h3 { font-family: 'Cinzel', serif; color: var(--brass-light); margin-bottom: 15px; }
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-overlay); align-items: center; justify-content: center; padding: 15px; }
+        .modal-content { background: linear-gradient(145deg, var(--celeb-bg-1), var(--celeb-bg-2)); border: 2px solid var(--brass-light); padding: 30px; border-radius: 8px; box-shadow: 0 0 50px rgba(212, 175, 55, 0.3); animation: popIn 0.3s forwards; transition: 0.4s; max-width: 1000px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal-content h2, .modal-content h3 { font-family: 'Cinzel', serif; color: var(--brass-light); margin-bottom: 15px; text-align: center; }
+        .close-modal-btn { display: block; width: 100%; background: var(--brass-dark); color: #fff; border: 1px solid var(--brass-light); padding: 12px; margin-top: 20px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 1.2rem; border-radius: 4px; transition: 0.3s; }
+        .close-modal-btn:hover { background: var(--brass-light); color: var(--bg-dark); }
         
         .time-edit-group { display: flex; justify-content: space-around; gap: 20px; margin-bottom: 20px; }
         .time-edit-group div { display: flex; flex-direction: column; align-items: center; }
@@ -139,9 +170,9 @@
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
     </style>
 </head>
-<body onload="checkTheme()">
+<body onload="initSetup()">
     <header>
-        <a href="index.html" class="back-btn">← Back to Vault</a>
+        <a href="index.html" class="back-btn">← Main Menu</a>
         <h1>Brass: Birmingham</h1>
         <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">☀️ Light Mode</button>
     </header>
@@ -154,85 +185,94 @@
     <div class="container">
         <!-- CURRENT GAME TAB -->
         <div id="new-section">
+            
+            <!-- GAME SETUP PANEL -->
+            <div class="setup-card">
+                <h3 style="font-family:'Cinzel', serif; color: var(--brass-light); margin-bottom: 15px; font-size: 1.5rem; text-align: center;">Game Setup</h3>
+                
+                <div class="setup-row">
+                    <label>Number of Players:</label>
+                    <select id="setup-pcount" onchange="handlePCountChange()">
+                        <option value="2">2 Players</option>
+                        <option value="3">3 Players</option>
+                        <option value="4" selected>4 Players</option>
+                    </select>
+                </div>
+
+                <div class="setup-row">
+                    <label>Active Colors:</label>
+                    <div class="color-checkboxes">
+                        <label class="color-label"><input type="checkbox" class="color-tick" value="0" checked onchange="handleColorTick(this)"> <div class="timer-dot" style="background:var(--p0-color)"></div> Yellow</label>
+                        <label class="color-label"><input type="checkbox" class="color-tick" value="1" checked onchange="handleColorTick(this)"> <div class="timer-dot" style="background:var(--p1-color)"></div> Purple</label>
+                        <label class="color-label"><input type="checkbox" class="color-tick" value="2" checked onchange="handleColorTick(this)"> <div class="timer-dot" style="background:var(--p2-color)"></div> Red</label>
+                        <label class="color-label"><input type="checkbox" class="color-tick" value="3" checked onchange="handleColorTick(this)"> <div class="timer-dot" style="background:var(--p3-color)"></div> White</label>
+                    </div>
+                </div>
+                <div id="setup-warning" style="color: #e74c3c; font-family: 'Playfair Display', serif; display: none;">Please select exact colors to match player count.</div>
+            </div>
+
             <div class="game-meta">
                 <div class="input-group"><label>Party Name</label><input type="text" id="party-name" placeholder="e.g. The Coal Barons"></div>
                 <div class="input-group"><label>Date</label><input type="date" id="game-date"></div>
             </div>
 
-            <!-- COLLAPSIBLE: CARDS & TIMER -->
+            <!-- QUICK TOOLS BAR -->
+            <div class="quick-tools">
+                <button class="tool-icon-btn" onclick="document.getElementById('card-modal').style.display='flex'">🎴 Card Log</button>
+                <button class="tool-icon-btn" onclick="document.getElementById('calc-modal').style.display='flex'">🧮 Real-Time Calculator</button>
+            </div>
+
+            <!-- COLLAPSIBLE: TIMER & INCOME -->
             <button class="collapsible-btn">
                 <span></span> 
-                <span>🎴 Cards & ⏱️ Timer</span>
+                <span>⏱️ Timer & 💰 Income Tracker</span>
                 <span class="toggle-icon">▼</span>
             </button>
             <div class="collapsible-content">
                 <div class="split-layout">
-                    <!-- Card Tracker -->
-                    <div class="card-tracker">
-                        <h3 style="text-align:center; color: var(--brass-light); font-family:'Cinzel', serif; margin-bottom:10px; font-size: 1.5rem;">Card Log</h3>
-                        <div class="pc-controls">
-                            <button class="pc-btn" id="pc-btn-2" onclick="setPlayerCount(2)">2 Players</button>
-                            <button class="pc-btn" id="pc-btn-3" onclick="setPlayerCount(3)">3 Players</button>
-                            <button class="pc-btn active" id="pc-btn-4" onclick="setPlayerCount(4)">4 Players</button>
-                        </div>
-                        <div class="card-section-title">City Cards</div>
-                        <div class="card-grid" id="city-cards-grid"></div>
-                        <div class="card-section-title" style="margin-top: 15px;">Industry Cards</div>
-                        <div class="card-grid" id="ind-cards-grid"></div>
-                    </div>
-
-                    <!-- Turn Timer -->
+                    <!-- Turn Timer (Massive Mode) -->
                     <div class="timer-tool">
                         <h3 style="text-align:center; color: var(--brass-light); font-family:'Cinzel', serif; margin-bottom:5px; font-size: 1.5rem;">Turn Timer</h3>
-                        <p style="text-align:center; color: #aaa; margin-bottom: 15px; font-size: 0.85rem; font-style: italic;">Select a player to begin.<br>Unused round time banks to Reserve.</p>
+                        <p style="text-align:center; color: #aaa; margin-bottom: 25px; font-size: 0.9rem; font-style: italic;">Tap a player to begin.<br>Unused round time banks to Reserve.</p>
                         <div id="timer-players">
                             <!-- Timer rows injected via JS -->
                         </div>
                         <div class="timer-controls">
                             <button class="t-btn play" id="global-timer-btn" onclick="toggleGlobalTimer()">Start Time</button>
                             <button class="t-btn" onclick="nextTurn()">End Turn</button>
-                            <button class="t-btn edit" onclick="openTimeEdit()">⚙️ Edit Time</button>
+                            <button class="t-btn edit" onclick="openTimeEdit()">⚙️ Edit</button>
+                        </div>
+                    </div>
+
+                    <!-- Income Tracker (Vertical Mode) -->
+                    <div class="income-tool">
+                        <h3 style="text-align:center; color: var(--copper); font-family:'Cinzel', serif; margin-bottom:5px; font-size: 1.5rem;">Income Tracker</h3>
+                        <p style="text-align:center; color: #aaa; margin-bottom: 15px; font-size: 0.9rem; font-style: italic;">Rounds automatically match Player Count.</p>
+                        <div class="table-wrapper">
+                            <table id="income-table">
+                                <thead>
+                                    <!-- Headers injected via JS (Round | Player 1 | Player 2...) -->
+                                </thead>
+                                <tbody id="income-body">
+                                    <!-- Checkboxes injected vertically -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- COLLAPSIBLE: INCOME TRACKER -->
-            <button class="collapsible-btn">
-                <span></span> 
-                <span>💰 Income Checkpoint Tool</span>
-                <span class="toggle-icon">▼</span>
-            </button>
-            <div class="collapsible-content">
-                <h3 style="text-align:center; color: var(--copper); font-family:'Cinzel', serif; margin-bottom:15px; font-size: 2rem; text-transform: uppercase;">Income</h3>
-                <div class="table-wrapper">
-                    <table id="income-table">
-                        <thead><tr><th>Player Name</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>R5</th><th>R6</th><th>R7</th><th>R8</th><th>R9</th><th>R10</th></tr></thead>
-                        <tbody id="income-body"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- COLLAPSIBLE: CALCULATOR -->
-            <button class="collapsible-btn">
-                <span></span> 
-                <span>🧮 Real-Time Calculator</span>
-                <span class="toggle-icon">▼</span>
-            </button>
-            <div class="collapsible-content">
-                <h3 style="text-align:center; color: var(--copper); font-family:'Cinzel', serif; margin-bottom:15px; font-size: 2rem; text-transform: uppercase;">Mid-Game Calculator</h3>
-                <div class="table-wrapper">
-                    <table id="calc-table">
-                        <thead><tr><th>Player Name</th><th>Canal Total (Auto)</th><th>Rail Link</th><th>Rail Industry</th><th>Rail Bonus</th><th>Calculated Total</th></tr></thead>
-                        <tbody id="calc-body"></tbody>
-                    </table>
-                </div>
-            </div>
-
             <!-- MAIN SCORING TABLE -->
-            <div class="table-wrapper" style="margin-top: 10px;">
+            <div class="table-wrapper" style="margin-top: 25px;">
+                <h3 style="color: var(--brass-light); font-family:'Cinzel', serif; margin-bottom:10px; font-size: 1.5rem;">Final Ledger</h3>
                 <table id="scoring-table">
-                    <thead><tr><th>Player Name</th><th>Canal Link</th><th>Canal Industry</th><th>Canal Bonus</th><th>Rail Link</th><th>Rail Industry</th><th>Rail Bonus</th><th>Final Score</th></tr></thead>
+                    <thead><tr>
+                        <th>Player Name</th>
+                        <th>Canal Link</th><th>Canal Industry</th><th>Canal Bonus</th>
+                        <th>Rail Link</th><th>Rail Industry</th><th>Rail Bonus</th>
+                        <th class="highlight-col">Final Score</th>
+                        <th>Final Income</th>
+                    </tr></thead>
                     <tbody id="scoring-body"></tbody>
                 </table>
             </div>
@@ -255,10 +295,41 @@
     </div>
     
     <!-- MODALS -->
-    <div id="celebration-modal" class="modal-overlay"><div class="modal-content"><h2 style="font-size:3.5rem;">Huzzah!</h2></div></div>
-    
-    <div id="time-modal" class="modal-overlay">
+
+    <!-- Card Log Modal -->
+    <div id="card-modal" class="modal-overlay">
         <div class="modal-content">
+            <h3>🎴 Interactive Card Log</h3>
+            <p style="text-align:center; color: #aaa; margin-bottom: 20px; font-size: 0.9rem; font-style: italic;">Deck size auto-synced with Game Setup.</p>
+            <div class="card-section-title">City Cards</div>
+            <div class="card-grid" id="city-cards-grid"></div>
+            <div class="card-section-title" style="margin-top: 20px;">Industry Cards</div>
+            <div class="card-grid" id="ind-cards-grid"></div>
+            <button class="close-modal-btn" onclick="document.getElementById('card-modal').style.display='none'">Close Card Log</button>
+        </div>
+    </div>
+
+    <!-- Calculator Modal -->
+    <div id="calc-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>🧮 Mid-Game Calculator</h3>
+            <p style="text-align:center; color: #aaa; margin-bottom: 20px; font-size: 0.9rem; font-style: italic;">Scores auto-sync with the Main Ledger.</p>
+            <div class="table-wrapper">
+                <table id="calc-table">
+                    <thead><tr><th>Player Name</th><th>Canal Total (Auto)</th><th>Rail Link</th><th>Rail Industry</th><th>Rail Bonus</th><th>Calculated Total</th></tr></thead>
+                    <tbody id="calc-body"></tbody>
+                </table>
+            </div>
+            <button class="close-modal-btn" onclick="document.getElementById('calc-modal').style.display='none'">Close Calculator</button>
+        </div>
+    </div>
+
+    <!-- Celebration Modal -->
+    <div id="celebration-modal" class="modal-overlay" style="z-index: 3000;"><div class="modal-content" style="max-width:400px; text-align:center;"><h2 style="font-size:3.5rem; margin:0;">Huzzah!</h2></div></div>
+    
+    <!-- Time Edit Modal -->
+    <div id="time-modal" class="modal-overlay" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 450px;">
             <h3>Adjust Active Player Time</h3>
             <div class="time-edit-group">
                 <div>
@@ -275,20 +346,13 @@
                 </div>
             </div>
             <div style="display:flex; gap:10px;">
-                <button class="pc-btn active" style="flex:1;" onclick="saveTimeEdit()">Save</button>
-                <button class="pc-btn" style="flex:1;" onclick="document.getElementById('time-modal').style.display='none'">Cancel</button>
+                <button class="t-btn play" style="flex:1; border:none;" onclick="saveTimeEdit()">Save</button>
+                <button class="t-btn edit" style="flex:1;" onclick="document.getElementById('time-modal').style.display='none'">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- PWA Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.log('Service Worker failed:', err)); });
-        }
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
     <script>
         // --- THEME LOGIC ---
         function checkTheme() {
@@ -304,78 +368,226 @@
             else { localStorage.setItem('brass_theme', 'dark'); toggleBtn.innerText = '☀️ Light Mode'; }
         }
 
-        // --- GLOBAL INITIALIZATION ---
         document.getElementById('game-date').valueAsDate = new Date();
         const pColors = ['var(--p0-color)', 'var(--p1-color)', 'var(--p2-color)', 'var(--p3-color)'];
         
-        const scoreBody = document.getElementById('scoring-body');
-        const incomeBody = document.getElementById('income-body');
-        const calcBody = document.getElementById('calc-body');
-        const timerContainer = document.getElementById('timer-players');
+        // Timer Variables
+        const ROUND_DEFAULT = 180; // 3 Minutes
+        let timerData = [];
+        let activePlayer = 0;
+        let timerRunning = false;
+        let timerInterval;
+        let activeColorList = [];
+
+        // --- AUDIO ALARM SYSTEM ---
+        let audioCtx = null;
         
-        // --- GENERATE TABLES & TIMER UI ---
-        for(let i=0; i<4; i++) {
-            // Main Scoring Row
-            const trScore = document.createElement('tr');
-            trScore.innerHTML = `<td><div class="color-dot" style="background-color:${pColors[i]}"></div><input type="text" class="player-name" data-player="${i}" placeholder="Player ${i+1}"></td>
-                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td><td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
-                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td><td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
-                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td><td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
-                <td class="readonly-cell final-score" id="final-${i}">0</td>`;
-            scoreBody.appendChild(trScore);
-
-            // Income Row
-            const trIncome = document.createElement('tr');
-            let incomeHtml = `<td><div class="color-dot" style="background-color:${pColors[i]}"></div><input type="text" class="income-player-name" data-player="${i}" placeholder="Player ${i+1}"></td>`;
-            for(let r=1; r<=10; r++) incomeHtml += `<td style="vertical-align: middle;"><input type="checkbox" class="income-checkbox"></td>`;
-            trIncome.innerHTML = incomeHtml;
-            incomeBody.appendChild(trIncome);
-
-            // Calculator Row
-            const trCalc = document.createElement('tr');
-            trCalc.innerHTML = `<td><div class="color-dot" style="background-color:${pColors[i]}"></div><input type="text" class="calc-player-name" data-player="${i}" placeholder="Player ${i+1}" readonly style="background:transparent; border:none; text-align:center; font-weight:bold; color:var(--text-main); font-size:1.1rem; width:100%; outline:none;"></td>
-                <td class="readonly-cell" id="calc-canal-${i}">0</td>
-                <td><input type="number" class="calc-input c${i}" data-row="${i}"></td>
-                <td><input type="number" class="calc-input c${i}" data-row="${i}"></td>
-                <td><input type="number" class="calc-input c${i}" data-row="${i}"></td>
-                <td class="readonly-cell" id="calc-total-${i}" style="color:var(--copper); font-size: 1.3rem;">0</td>`;
-            calcBody.appendChild(trCalc);
-
-            // Timer Row 
-            timerContainer.innerHTML += `
-                <div class="timer-row" id="timer-row-${i}" onclick="selectPlayer(${i})">
-                    <div class="timer-name">
-                        <div class="timer-dot" style="background-color:${pColors[i]}"></div>
-                        <span id="t-name-${i}">Player ${i+1}</span>
-                    </div>
-                    <div class="timer-times">
-                        <div class="t-round" id="t-round-${i}">03:00</div>
-                        <div class="t-reserve" id="t-res-${i}">Res: 10:00</div>
-                    </div>
-                </div>`;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
         }
 
-        // Sync Names across all tools
-        const scoreNames = document.querySelectorAll('.player-name');
-        const incomeNames = document.querySelectorAll('.income-player-name');
-        const calcNames = document.querySelectorAll('.calc-player-name');
-        
-        scoreNames.forEach(input => { 
-            input.addEventListener('input', (e) => { 
-                const idx = e.target.getAttribute('data-player');
-                incomeNames[idx].value = e.target.value; calcNames[idx].value = e.target.value;
-                document.getElementById(`t-name-${idx}`).innerText = e.target.value || `Player ${parseInt(idx)+1}`;
-            }); 
-        });
-        incomeNames.forEach(input => { 
-            input.addEventListener('input', (e) => { 
-                const idx = e.target.getAttribute('data-player');
-                scoreNames[idx].value = e.target.value; calcNames[idx].value = e.target.value;
-                document.getElementById(`t-name-${idx}`).innerText = e.target.value || `Player ${parseInt(idx)+1}`;
-            }); 
-        });
+        function playBeep(freq, duration, type = 'sine', volume = 0.1) {
+            if (!audioCtx) return;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
 
-        // Collapsible Accordion Logic
+        function playTick() { 
+            playBeep(800, 0.1, 'sine', 0.05); // Soft high pitch tick
+        }
+        
+        function playAlarm() { 
+            playBeep(400, 0.4, 'square', 0.15); // Loud double buzz
+            setTimeout(() => playBeep(400, 0.6, 'square', 0.15), 500); 
+        }
+
+        // --- SETUP LOGIC ---
+        function initSetup() {
+            checkTheme();
+            handlePCountChange(); 
+        }
+
+        function handlePCountChange() {
+            const count = parseInt(document.getElementById('setup-pcount').value);
+            let checked = document.querySelectorAll('.color-tick:checked');
+            
+            while(checked.length > count) {
+                checked[checked.length - 1].checked = false;
+                checked = document.querySelectorAll('.color-tick:checked');
+            }
+            validateAndBuild();
+        }
+
+        function handleColorTick(checkbox) {
+            const count = parseInt(document.getElementById('setup-pcount').value);
+            let checked = document.querySelectorAll('.color-tick:checked');
+            
+            if (checked.length > count) {
+                checkbox.checked = false;
+                return;
+            }
+            validateAndBuild();
+        }
+
+        function validateAndBuild() {
+            const count = parseInt(document.getElementById('setup-pcount').value);
+            const checked = document.querySelectorAll('.color-tick:checked');
+            const warning = document.getElementById('setup-warning');
+
+            if (checked.length < count) {
+                warning.style.display = 'block';
+                warning.innerText = `Please tick ${count - checked.length} more color(s).`;
+            } else {
+                warning.style.display = 'none';
+                activeColorList = Array.from(checked).map(cb => parseInt(cb.value));
+                buildGameUI(activeColorList);
+            }
+        }
+
+        function buildGameUI(selectedColors) {
+            setPlayerCount(selectedColors.length);
+            
+            // Determine Income Rounds dynamically
+            let incomeRounds = 8; 
+            if (selectedColors.length === 2) incomeRounds = 10;
+            else if (selectedColors.length === 3) incomeRounds = 9;
+
+            const scoreBody = document.getElementById('scoring-body');
+            const incomeTableHead = document.getElementById('income-table').querySelector('thead');
+            const incomeBody = document.getElementById('income-body');
+            const calcBody = document.getElementById('calc-body');
+            const timerContainer = document.getElementById('timer-players');
+
+            scoreBody.innerHTML = '';
+            incomeTableHead.innerHTML = '';
+            incomeBody.innerHTML = '';
+            calcBody.innerHTML = '';
+            timerContainer.innerHTML = '';
+            
+            if(timerRunning) toggleGlobalTimer();
+            timerData = [];
+            activePlayer = 0;
+
+            let incomeThHtml = '<tr><th>Round</th>';
+            selectedColors.forEach((colorIdx, loopIndex) => {
+                const cVar = pColors[colorIdx];
+                incomeThHtml += `
+                    <th style="position:relative;">
+                        <div class="color-dot" style="background-color:${cVar}; left: 8px;"></div>
+                        <input type="text" class="income-player-name" data-player="${loopIndex}" placeholder="Player ${loopIndex+1}">
+                    </th>`;
+            });
+            incomeThHtml += '</tr>';
+            incomeTableHead.innerHTML = incomeThHtml;
+
+            let incomeBodyHtml = '';
+            for(let r=1; r<=incomeRounds; r++) {
+                incomeBodyHtml += `<tr><td class="readonly-cell" style="color:var(--copper); font-size:1rem;">R${r}</td>`;
+                selectedColors.forEach(() => {
+                    incomeBodyHtml += `<td style="vertical-align: middle; padding:10px 0;"><input type="checkbox" class="income-checkbox"></td>`;
+                });
+                incomeBodyHtml += `</tr>`;
+            }
+            incomeBody.innerHTML = incomeBodyHtml;
+
+            selectedColors.forEach((colorIdx, loopIndex) => {
+                const cVar = pColors[colorIdx];
+                
+                const trScore = document.createElement('tr');
+                trScore.innerHTML = `<td><div class="color-dot" style="background-color:${cVar}"></div><input type="text" class="player-name" data-player="${loopIndex}" placeholder="Player ${loopIndex+1}"></td>
+                    <td><input type="number" class="score-input p${loopIndex}" data-row="${loopIndex}" min="0"></td><td><input type="number" class="score-input p${loopIndex}" data-row="${loopIndex}" min="0"></td>
+                    <td><input type="number" class="score-input p${loopIndex}" data-row="${loopIndex}" min="0"></td><td><input type="number" class="score-input p${loopIndex}" data-row="${loopIndex}" min="0"></td>
+                    <td><input type="number" class="score-input p${loopIndex}" data-row="${loopIndex}" min="0"></td><td><input type="number" class="score-input p${loopIndex}" data-row="${loopIndex}" min="0"></td>
+                    <td class="readonly-cell final-score highlight-col" id="final-${loopIndex}">0</td>
+                    <td><input type="number" id="final-income-${loopIndex}" min="0" style="color:var(--copper); font-weight:bold; font-size:1.1rem; text-align:center;" placeholder="£"></td>`;
+                scoreBody.appendChild(trScore);
+
+                const trCalc = document.createElement('tr');
+                trCalc.innerHTML = `<td><div class="color-dot" style="background-color:${cVar}"></div><input type="text" class="calc-player-name" data-player="${loopIndex}" placeholder="Player ${loopIndex+1}" readonly style="background:transparent; border:none; text-align:center; font-weight:bold; color:var(--text-main); font-size:1.1rem; width:100%; outline:none;"></td>
+                    <td class="readonly-cell" id="calc-canal-${loopIndex}">0</td>
+                    <td><input type="number" class="calc-input c${loopIndex}" data-row="${loopIndex}"></td>
+                    <td><input type="number" class="calc-input c${loopIndex}" data-row="${loopIndex}"></td>
+                    <td><input type="number" class="calc-input c${loopIndex}" data-row="${loopIndex}"></td>
+                    <td class="readonly-cell" id="calc-total-${loopIndex}" style="color:var(--copper); font-size: 1.3rem;">0</td>`;
+                calcBody.appendChild(trCalc);
+
+                timerContainer.innerHTML += `
+                    <div class="timer-row" id="timer-row-${loopIndex}" onclick="selectPlayer(${loopIndex})">
+                        <div class="timer-name">
+                            <div class="timer-dot" style="background-color:${cVar}"></div>
+                            <span id="t-name-${loopIndex}">Player ${loopIndex+1}</span>
+                        </div>
+                        <div class="timer-times">
+                            <div class="t-round" id="t-round-${loopIndex}">03:00</div>
+                            <div class="t-reserve" id="t-res-${loopIndex}">Res: 10:00</div>
+                        </div>
+                    </div>`;
+                
+                timerData.push({ round: ROUND_DEFAULT, reserve: 600 });
+            });
+
+            bindDynamicEvents();
+            updateTimerUI();
+        }
+
+        function bindDynamicEvents() {
+            const scoreNames = document.querySelectorAll('.player-name');
+            const incomeNames = document.querySelectorAll('.income-player-name');
+            const calcNames = document.querySelectorAll('.calc-player-name');
+            
+            scoreNames.forEach(input => { 
+                input.addEventListener('input', (e) => { 
+                    const idx = e.target.getAttribute('data-player');
+                    incomeNames[idx].value = e.target.value; calcNames[idx].value = e.target.value;
+                    document.getElementById(`t-name-${idx}`).innerText = e.target.value || `Player ${parseInt(idx)+1}`;
+                }); 
+            });
+            incomeNames.forEach(input => { 
+                input.addEventListener('input', (e) => { 
+                    const idx = e.target.getAttribute('data-player');
+                    scoreNames[idx].value = e.target.value; calcNames[idx].value = e.target.value;
+                    document.getElementById(`t-name-${idx}`).innerText = e.target.value || `Player ${parseInt(idx)+1}`;
+                }); 
+            });
+
+            document.querySelectorAll('.score-input').forEach(input => { 
+                input.addEventListener('input', (e) => { 
+                    const row = e.target.getAttribute('data-row'); 
+                    let sum = 0; const inputs = document.querySelectorAll(`.p${row}`);
+                    inputs.forEach(inp => { sum += parseInt(inp.value) || 0; }); 
+                    document.getElementById(`final-${row}`).innerText = sum; 
+                    
+                    let canalSum = (parseInt(inputs[0].value) || 0) + (parseInt(inputs[1].value) || 0) + (parseInt(inputs[2].value) || 0);
+                    document.getElementById(`calc-canal-${row}`).innerText = canalSum;
+                    updateCalcTotal(row);
+                }); 
+            });
+
+            document.querySelectorAll('.calc-input').forEach(input => {
+                input.addEventListener('input', (e) => { updateCalcTotal(e.target.getAttribute('data-row')); });
+            });
+        }
+
+        function updateCalcTotal(row) {
+            let canal = parseInt(document.getElementById(`calc-canal-${row}`).innerText) || 0;
+            let extraSum = 0;
+            document.querySelectorAll(`.c${row}`).forEach(inp => { extraSum += parseInt(inp.value) || 0; });
+            document.getElementById(`calc-total-${row}`).innerText = canal + extraSum;
+        }
+
         document.querySelectorAll('.collapsible-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 this.classList.toggle('active');
@@ -389,32 +601,7 @@
             });
         });
 
-        // --- CALC LOGIC ---
-        function updateCalcTotal(row) {
-            let canal = parseInt(document.getElementById(`calc-canal-${row}`).innerText) || 0;
-            let extraSum = 0;
-            document.querySelectorAll(`.c${row}`).forEach(inp => { extraSum += parseInt(inp.value) || 0; });
-            document.getElementById(`calc-total-${row}`).innerText = canal + extraSum;
-        }
-
-        document.querySelectorAll('.score-input').forEach(input => { 
-            input.addEventListener('input', (e) => { 
-                const row = e.target.getAttribute('data-row'); 
-                let sum = 0; const inputs = document.querySelectorAll(`.p${row}`);
-                inputs.forEach(inp => { sum += parseInt(inp.value) || 0; }); 
-                document.getElementById(`final-${row}`).innerText = sum; 
-                
-                let canalSum = (parseInt(inputs[0].value) || 0) + (parseInt(inputs[1].value) || 0) + (parseInt(inputs[2].value) || 0);
-                document.getElementById(`calc-canal-${row}`).innerText = canalSum;
-                updateCalcTotal(row);
-            }); 
-        });
-
-        document.querySelectorAll('.calc-input').forEach(input => {
-            input.addEventListener('input', (e) => { updateCalcTotal(e.target.getAttribute('data-row')); });
-        });
-
-        // --- CARD TRACKER LOGIC ---
+        // --- CARD TRACKER LOGIC (BIRMINGHAM ADJUSTED) ---
         const cityDict = { 
             "Belper": [0, 0, 2], "Birmingham": [3, 3, 3], "Burton-on-Trent": [2, 2, 2], 
             "Cannock": [2, 2, 2], "Coalbrookdale": [3, 3, 3], "Coventry": [3, 3, 3], 
@@ -425,17 +612,15 @@
             "Wolverhampton": [2, 2, 2], "Worcester": [2, 2, 2] 
         };
         const indDict = { 
-            "Iron Works": [2, 3, 4], "Coal Mine": [2, 3, 5], "Cotton Mill": [3, 4, 5], 
-            "Manufacturer": [3, 4, 5], "Pottery": [2, 2, 2], "Brewery": [5, 5, 5] 
+            "Iron Works": [4, 4, 4], "Coal Mine": [2, 2, 3], "Man. Goods / Cotton Mill": [0, 6, 8], 
+            "Pottery": [2, 2, 3], "Brewery": [5, 5, 5] 
         };
         
         let cardState = {};
-        let currentPlayerCountIdx = 2; // 4P Default
+        let currentPlayerCountIdx = 2; 
 
         function setPlayerCount(count) {
             currentPlayerCountIdx = count - 2; 
-            document.querySelectorAll('.pc-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`pc-btn-${count}`).classList.add('active');
             renderCards();
         }
 
@@ -469,18 +654,8 @@
                 container.appendChild(btn);
             }
         }
-        renderCards();
 
-        // --- TIMER LOGIC (UPDATED TO 3 MIN DEFAULT) ---
-        const ROUND_DEFAULT = 180; // 3 Minutes
-        let timerData = [
-            { round: ROUND_DEFAULT, reserve: 600 }, { round: ROUND_DEFAULT, reserve: 600 },
-            { round: ROUND_DEFAULT, reserve: 600 }, { round: ROUND_DEFAULT, reserve: 600 }
-        ];
-        let activePlayer = 0;
-        let timerRunning = false;
-        let timerInterval;
-
+        // --- TIMER LOGIC ---
         function formatSecs(s) {
             let sign = s < 0 ? "-" : "";
             let abs = Math.abs(s);
@@ -490,17 +665,17 @@
         }
 
         function updateTimerUI() {
-            for(let i=0; i<4; i++) {
+            timerData.forEach((td, i) => {
                 document.getElementById(`timer-row-${i}`).classList.remove('active');
                 const roundEl = document.getElementById(`t-round-${i}`);
                 const resEl = document.getElementById(`t-res-${i}`);
                 
-                roundEl.innerText = formatSecs(timerData[i].round);
-                resEl.innerText = `Res: ${formatSecs(timerData[i].reserve)}`;
+                roundEl.innerText = formatSecs(td.round);
+                resEl.innerText = `Res: ${formatSecs(td.reserve)}`;
                 
-                if(timerData[i].round === 0) roundEl.classList.add('danger'); else roundEl.classList.remove('danger');
-                if(timerData[i].reserve < 0) resEl.classList.add('danger'); else resEl.classList.remove('danger');
-            }
+                if(td.round === 0) roundEl.classList.add('danger'); else roundEl.classList.remove('danger');
+                if(td.reserve < 0) resEl.classList.add('danger'); else resEl.classList.remove('danger');
+            });
             document.getElementById(`timer-row-${activePlayer}`).classList.add('active');
         }
 
@@ -510,6 +685,8 @@
         }
 
         function toggleGlobalTimer() {
+            initAudio(); // Required to unlock sound API on first click
+            
             const btn = document.getElementById('global-timer-btn');
             if(timerRunning) {
                 clearInterval(timerInterval); timerRunning = false;
@@ -517,9 +694,20 @@
             } else {
                 timerRunning = true;
                 btn.innerText = "Pause Time"; btn.classList.remove('play'); btn.classList.add('pause');
+                
                 timerInterval = setInterval(() => {
                     let p = timerData[activePlayer];
-                    if (p.round > 0) p.round--; else p.reserve--;
+                    if (p.round > 0) {
+                        p.round--;
+                        // Audio Trigger Logic
+                        if (p.round <= 10 && p.round > 0) {
+                            playTick(); // Tick sound for last 10 seconds
+                        } else if (p.round === 0) {
+                            playAlarm(); // Alarm sound when hitting 0
+                        }
+                    } else {
+                        p.reserve--;
+                    }
                     updateTimerUI();
                 }, 1000);
             }
@@ -530,7 +718,7 @@
             if (timerData[activePlayer].round > 0) {
                 timerData[activePlayer].reserve += timerData[activePlayer].round;
             }
-            timerData[activePlayer].round = ROUND_DEFAULT; // Reset to 3 Minutes
+            timerData[activePlayer].round = ROUND_DEFAULT; 
             
             if(timerRunning) {
                 clearInterval(timerInterval); timerRunning = false;
@@ -540,9 +728,8 @@
             updateTimerUI();
         }
 
-        // --- EDIT TIME LOGIC ---
         function openTimeEdit() {
-            if(timerRunning) toggleGlobalTimer(); // Auto-pause before editing
+            if(timerRunning) toggleGlobalTimer(); 
             let p = timerData[activePlayer];
             
             document.getElementById('edit-round-m').value = Math.floor(p.round / 60);
@@ -563,14 +750,12 @@
             
             let rsm = parseInt(document.getElementById('edit-res-m').value) || 0;
             let rss = parseInt(document.getElementById('edit-res-s').value) || 0;
-            let resSign = rsm < 0 || Object.is(rsm, -0) ? -1 : 1; // Catch negative zero
+            let resSign = rsm < 0 || Object.is(rsm, -0) ? -1 : 1;
             timerData[activePlayer].reserve = (rsm * 60) + (rss * resSign);
             
             document.getElementById('time-modal').style.display = 'none';
             updateTimerUI();
         }
-
-        updateTimerUI(); // Initial visual state
         
         // --- CLOUD SAVE LOGIC ---
         function saveGame() {
@@ -579,7 +764,17 @@
                 const name = row.querySelector('.player-name').value;
                 if(name.trim() !== "") { 
                     const inputs = row.querySelectorAll(`.p${index}`); 
-                    playersData.push({ name: name, canalLink: inputs[0].value || 0, canalInd: inputs[1].value || 0, canalBonus: inputs[2].value || 0, railLink: inputs[3].value || 0, railInd: inputs[4].value || 0, railBonus: inputs[5].value || 0, final: document.getElementById(`final-${index}`).innerText }); 
+                    playersData.push({ 
+                        name: name, 
+                        canalLink: inputs[0].value || 0, 
+                        canalInd: inputs[1].value || 0, 
+                        canalBonus: inputs[2].value || 0, 
+                        railLink: inputs[3].value || 0, 
+                        railInd: inputs[4].value || 0, 
+                        railBonus: inputs[5].value || 0, 
+                        final: document.getElementById(`final-${index}`).innerText,
+                        finalIncome: document.getElementById(`final-income-${index}`).value || 0
+                    }); 
                 }
             });
             if(playersData.length === 0) return alert("Please enter at least one player name and score!");
@@ -594,7 +789,7 @@
         
         function showCelebration() {
             document.getElementById('celebration-modal').style.display = 'flex';
-            let duration = 2.5 * 1000; let animationEnd = Date.now() + duration; let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1001, colors: ['#d4af37', '#8a6522', '#b87333'] };
+            let duration = 2.5 * 1000; let animationEnd = Date.now() + duration; let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3001, colors: ['#d4af37', '#8a6522', '#b87333'] };
             let interval = setInterval(function() {
                 let timeLeft = animationEnd - Date.now(); if (timeLeft <= 0) return clearInterval(interval); let particleCount = 50 * (timeLeft / duration);
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
@@ -602,26 +797,17 @@
             }, 250);
             setTimeout(() => { 
                 document.getElementById('celebration-modal').style.display = 'none'; 
-                document.querySelectorAll('input[type="number"], input[type="text"], #party-name').forEach(inp => inp.value = ''); 
-                document.querySelectorAll('input[type="checkbox"]').forEach(inp => inp.checked = false);
-                document.querySelectorAll('.final-score').forEach(cell => cell.innerText = '0'); 
-                document.querySelectorAll('[id^="calc-canal-"], [id^="calc-total-"]').forEach(cell => cell.innerText = '0');
+                document.querySelectorAll('input[type="text"], #party-name').forEach(inp => inp.value = ''); 
                 
-                cardState = {}; renderCards();
-
-                clearInterval(timerInterval); timerRunning = false;
-                timerData = [{round:ROUND_DEFAULT, reserve:600}, {round:ROUND_DEFAULT, reserve:600}, {round:ROUND_DEFAULT, reserve:600}, {round:ROUND_DEFAULT, reserve:600}];
-                activePlayer = 0;
-                const btn = document.getElementById('global-timer-btn');
-                btn.innerText = "Start Time"; btn.classList.remove('pause'); btn.classList.add('play');
-                updateTimerUI();
+                cardState = {}; 
+                buildGameUI(activeColorList);
 
                 document.querySelectorAll('.collapsible-btn.active').forEach(btn => btn.click());
                 switchTab('history'); 
             }, 3000);
         }
         
-        // --- HISTORY FILTER & SORT LOGIC ---
+        // --- HISTORY FILTER & SORT LOGIC (Includes Tie-Breaker) ---
         let globalHistoryData = [];
 
         function loadHistory() {
@@ -644,10 +830,8 @@
             let filterText = document.getElementById('filter-party').value.toLowerCase();
             let sortMode = document.getElementById('sort-history').value;
 
-            // 1. Filter
             let filtered = globalHistoryData.filter(g => (g.party || "").toLowerCase().includes(filterText));
 
-            // 2. Sort
             if(sortMode === 'date-desc') {
                 filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
             } else if(sortMode === 'date-asc') {
@@ -660,16 +844,49 @@
                 });
             }
 
-            // 3. Render
             if(filtered.length === 0) { container.innerHTML = "<p style='text-align:center;'>No records match your search.</p>"; return; }
             
             let html = '';
             filtered.forEach(game => {
-                let topScore = Math.max(...game.scores.map(p => parseInt(p.final)));
-                html += `<div class="history-card"><div class="history-header"><h3>Party: ${game.party}</h3><h3>Date: ${game.date}</h3></div><div class="table-wrapper"><table><thead><tr><th>Player Name</th><th>Canal Link</th><th>Canal Ind.</th><th>Canal Bonus</th><th>Rail Link</th><th>Rail Ind.</th><th>Rail Bonus</th><th>Final Score</th></tr></thead><tbody>`;
-                game.scores.forEach(player => { 
-                    let isWinner = parseInt(player.final) === topScore && game.scores.length > 1; let crown = isWinner ? ' 👑' : ''; let rowStyle = isWinner ? 'background: rgba(212, 175, 55, 0.3); font-weight: bold;' : '';
-                    html += `<tr style="${rowStyle}"><td class="readonly-cell">${player.name}${crown}</td><td class="readonly-cell">${player.canalLink}</td><td class="readonly-cell">${player.canalInd}</td><td class="readonly-cell">${player.canalBonus}</td><td class="readonly-cell">${player.railLink}</td><td class="readonly-cell">${player.railInd}</td><td class="readonly-cell">${player.railBonus}</td><td class="readonly-cell" style="color:var(--brass-light);">${player.final}</td></tr>`; 
+                
+                // Advanced Tie-Breaker Logic (Final Score -> Final Income)
+                let maxScore = -1;
+                let maxIncome = -1;
+                let winners = [];
+                
+                game.scores.forEach((p, idx) => {
+                    let s = parseInt(p.final) || 0;
+                    let inc = parseInt(p.finalIncome) || 0;
+                    if (s > maxScore) {
+                        maxScore = s; maxIncome = inc; winners = [idx];
+                    } else if (s === maxScore) {
+                        if (inc > maxIncome) {
+                            maxIncome = inc; winners = [idx];
+                        } else if (inc === maxIncome) {
+                            winners.push(idx);
+                        }
+                    }
+                });
+
+                html += `<div class="history-card"><div class="history-header"><h3>Party: ${game.party}</h3><h3>Date: ${game.date}</h3></div><div class="table-wrapper"><table><thead><tr><th>Player Name</th><th>Canal Link</th><th>Canal Ind.</th><th>Canal Bonus</th><th>Rail Link</th><th>Rail Ind.</th><th>Rail Bonus</th><th class="highlight-col">Final Score</th><th>Final Income</th></tr></thead><tbody>`;
+                
+                game.scores.forEach((player, idx) => { 
+                    let isWinner = winners.includes(idx) && game.scores.length > 1; 
+                    let crown = isWinner ? ' 👑' : ''; 
+                    let rowStyle = isWinner ? 'background: rgba(212, 175, 55, 0.3); font-weight: bold;' : '';
+                    let incDisp = player.finalIncome !== undefined ? player.finalIncome : '-';
+                    
+                    html += `<tr style="${rowStyle}">
+                        <td class="readonly-cell">${player.name}${crown}</td>
+                        <td class="readonly-cell">${player.canalLink}</td>
+                        <td class="readonly-cell">${player.canalInd}</td>
+                        <td class="readonly-cell">${player.canalBonus}</td>
+                        <td class="readonly-cell">${player.railLink}</td>
+                        <td class="readonly-cell">${player.railInd}</td>
+                        <td class="readonly-cell">${player.railBonus}</td>
+                        <td class="readonly-cell highlight-col">${player.final}</td>
+                        <td class="readonly-cell" style="color:var(--copper);">${incDisp}</td>
+                    </tr>`; 
                 });
                 html += `</tbody></table></div></div>`;
             });
