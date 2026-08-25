@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wanphen Wall of Fame</title>
+    <title>1PEN Wall of Fame</title>
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#12100e">
@@ -16,30 +16,49 @@
     <!-- Import Chart.js for the graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --brass-light: #d4af37; --brass-dark: #8a6522; --copper: #b87333; --bg-dark: #12100e; --panel-bg: #1e1a17; }
+        /* --- DYNAMIC THEME VARIABLES --- */
+        :root { 
+            --brass-light: #d4af37; --brass-dark: #8a6522; --copper: #b87333; --border-color: #4a3b22; 
+            --text-main: #fff; --bg-gradient-1: #2a241e; --bg-gradient-2: #0d0b0a;
+            --card-bg: rgba(30, 26, 23, 0.9); --shadow-color: rgba(0,0,0,0.8);
+            --panel-bg: rgba(0,0,0,0.6); --chart-bg: rgba(0,0,0,0.4);
+        }
+
+        body.light-mode {
+            --brass-light: #5e4315; --brass-dark: #8a6522; --copper: #9c4c1c; --border-color: #cbbba0; 
+            --text-main: #222; --bg-gradient-1: #ffffff; --bg-gradient-2: #e0d8c8;
+            --card-bg: rgba(255, 255, 255, 0.95); --shadow-color: rgba(0,0,0,0.15);
+            --panel-bg: rgba(255, 255, 255, 0.5); --chart-bg: rgba(255, 255, 255, 0.5);
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-dark); background-image: radial-gradient(circle at center, #2a241e 0%, #0d0b0a 100%), url('https://www.transparenttextures.com/patterns/stardust.png'); color: var(--brass-light); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; }
+        body { background-color: var(--bg-gradient-2); background-image: radial-gradient(circle at center, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%), url('https://www.transparenttextures.com/patterns/stardust.png'); color: var(--brass-light); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; transition: 0.4s;}
         
         header { text-align: center; margin-bottom: 40px; position: relative; }
-        .back-btn { position: absolute; left: 0; top: 50%; transform: translateY(-50%); color: var(--copper); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--copper); padding: 5px 15px; transition: 0.3s; }
-        .back-btn:hover { background: var(--copper); color: var(--bg-dark); }
-        h1 { font-family: 'Cinzel', serif; font-size: 3.5rem; background: linear-gradient(to bottom, var(--brass-light), var(--brass-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); text-transform: uppercase; letter-spacing: 2px;}
+        .back-btn { position: absolute; left: 0; top: 50%; transform: translateY(-50%); color: var(--copper); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--copper); padding: 5px 15px; transition: 0.3s; border-radius: 4px;}
+        .back-btn:hover { background: var(--copper); color: var(--bg-gradient-2); }
+        h1 { font-family: 'Cinzel', serif; font-size: 3.5rem; background: linear-gradient(to bottom, var(--brass-light), var(--brass-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 5px var(--shadow-color); text-transform: uppercase; letter-spacing: 2px;}
         
-        .container { max-width: 1000px; margin: 0 auto; background: rgba(30, 26, 23, 0.9); border: 2px solid var(--brass-dark); padding: 40px; box-shadow: 0 0 30px rgba(0,0,0,0.9); border-radius: 8px; }
+        .container { max-width: 1000px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--brass-dark); padding: 40px; box-shadow: 0 0 30px var(--shadow-color); border-radius: 8px; transition: 0.4s;}
         
         .controls { text-align: center; margin-bottom: 30px; }
-        select { background: #000; color: var(--brass-light); border: 1px solid var(--brass-dark); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.2rem; width: 60%; cursor: pointer; outline: none; }
+        select { background: var(--bg-gradient-2); color: var(--brass-light); border: 1px solid var(--brass-dark); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.2rem; width: 100%; max-width: 600px; cursor: pointer; outline: none; border-radius: 4px; transition: 0.3s;}
         select:focus { border-color: var(--brass-light); box-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
         
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
-        .stat-box { background: rgba(0,0,0,0.6); border: 1px solid var(--border-color); padding: 20px; text-align: center; border-radius: 5px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .stat-box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 25px; text-align: center; border-radius: 5px; transition: 0.4s;}
         .stat-title { font-family: 'Cinzel', serif; color: var(--copper); font-size: 1.1rem; margin-bottom: 10px; text-transform: uppercase; }
-        .stat-value { font-size: 2rem; color: #fff; text-shadow: 0 0 10px var(--brass-light); }
+        .stat-value { font-size: 2.2rem; color: var(--text-main); font-weight: bold; }
 
-        .chart-container { background: rgba(0,0,0,0.4); padding: 20px; border: 1px dashed var(--brass-dark); border-radius: 5px; }
+        .chart-container { background: var(--chart-bg); padding: 20px; border: 1px dashed var(--brass-dark); border-radius: 5px; transition: 0.4s;}
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; margin-top: 50px;}
+            .back-btn { top: 0; transform: none; position: relative; display: inline-block; margin-bottom: 20px;}
+        }
     </style>
 </head>
-<body>
+<body onload="checkTheme()">
     <header>
         <a href="index.html" class="back-btn">← Main Menu</a>
         <h1>1PEN Wall of Fame</h1>
@@ -47,7 +66,7 @@
 
     <div class="container">
         <div class="controls">
-            <!-- Values updated to perfectly match your Cloud SQL Game Names -->
+            <!-- Values mapped to perfectly match your Cloud SQL Game Names -->
             <select id="game-selector" onchange="updateDashboard()">
                 <option value="" disabled selected>-- Select a Game to View Analytics --</option>
                 <option value="Brass: Birmingham">Brass: Birmingham</option>
@@ -77,16 +96,16 @@
             <canvas id="scoreChart"></canvas>
         </div>
     </div>
-
-    <!-- PWA Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.log('Service Worker failed:', err)); });
-        }
-    </script>
     
     <script>
-        // Define sorting logic based on the game name
+        // Check for Light/Dark Mode preference from Main Menu
+        function checkTheme() {
+            if (localStorage.getItem('vault_theme') === 'light') {
+                document.body.classList.add('light-mode');
+            }
+        }
+
+        // Define sorting logic based on the game rules
         const gameRules = {
             'Brass: Birmingham': { sort: 'high' }, 'Brass: Lancashire': { sort: 'high' },
             'The White Castle': { sort: 'high' }, 'The White Castle: Matcha': { sort: 'high' },
@@ -113,7 +132,7 @@
                 if (!data || data.length === 0) {
                     document.getElementById('total-games').innerText = "0";
                     document.getElementById('most-active').innerText = "N/A";
-                    renderChart([], "No Data Found");
+                    renderChart([], "No Data Found in Cloud");
                     return;
                 }
 
@@ -135,8 +154,12 @@
                 });
 
                 // Find Most Active Player
-                let mostActive = Object.keys(playCounts).reduce((a, b) => playCounts[a] > playCounts[b] ? a : b, "");
-                document.getElementById('most-active').innerText = `${mostActive} (${playCounts[mostActive]})`;
+                let mostActive = Object.keys(playCounts).reduce((a, b) => playCounts[a] > playCounts[b] ? a : b, "N/A");
+                if(mostActive !== "N/A") {
+                    document.getElementById('most-active').innerText = `${mostActive} (${playCounts[mostActive]} plays)`;
+                } else {
+                    document.getElementById('most-active').innerText = "N/A";
+                }
 
                 // Sort Scores (High to Low, unless 6 nimmt!)
                 allScores.sort((a, b) => sortRule === 'high' ? b.score - a.score : a.score - b.score);
@@ -156,6 +179,13 @@
             const ctx = document.getElementById('scoreChart').getContext('2d');
             if (scoreChart) scoreChart.destroy();
 
+            // Check if Light Mode is active to pick the right chart colors
+            const isLightMode = document.body.classList.contains('light-mode');
+            const tickColor = isLightMode ? '#9c4c1c' : '#b87333';
+            const titleColor = isLightMode ? '#5e4315' : '#d4af37';
+            const barColor = isLightMode ? 'rgba(138, 101, 34, 0.8)' : 'rgba(212, 175, 55, 0.7)';
+            const barBorder = isLightMode ? '#5e4315' : '#d4af37';
+
             scoreChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -163,20 +193,27 @@
                     datasets: [{
                         label: 'Score',
                         data: topScores.map(s => s.score),
-                        backgroundColor: 'rgba(212, 175, 55, 0.7)',
-                        borderColor: '#d4af37',
-                        borderWidth: 2
+                        backgroundColor: barColor,
+                        borderColor: barBorder,
+                        borderWidth: 2,
+                        borderRadius: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
                         legend: { display: false },
-                        title: { display: true, text: titleText, color: '#d4af37', font: { family: 'Cinzel', size: 24 } }
+                        title: { display: true, text: titleText, color: titleColor, font: { family: 'Cinzel', size: 24 } }
                     },
                     scales: {
-                        y: { ticks: { color: '#b87333', font: { size: 14 } }, grid: { color: 'rgba(74, 59, 34, 0.3)' } },
-                        x: { ticks: { color: '#b87333', font: { size: 14 } }, grid: { display: false } }
+                        y: { 
+                            ticks: { color: tickColor, font: { size: 14, family: 'Playfair Display' } }, 
+                            grid: { color: isLightMode ? 'rgba(0,0,0,0.1)' : 'rgba(74, 59, 34, 0.3)' } 
+                        },
+                        x: { 
+                            ticks: { color: tickColor, font: { size: 14, family: 'Playfair Display' } }, 
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
