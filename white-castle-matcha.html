@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The White Castle: Matcha - Score Tracker</title>
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="1PEN Vault">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --matcha-green: #748c5b; --samurai-white: #f4f1ea; --chashitsu-wood: #5c4033; --shogun-black: #1a1a1a; --panel-bg: #2b2b2b; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--shogun-black); background-image: url('https://www.transparenttextures.com/patterns/rice-paper.png'); color: var(--samurai-white); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; }
+        
+        header { text-align: center; margin-bottom: 30px; position: relative; }
+        .back-btn { position: absolute; left: 0; top: 50%; transform: translateY(-50%); color: var(--samurai-white); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--samurai-white); padding: 5px 15px; transition: 0.3s; }
+        .back-btn:hover { background: var(--samurai-white); color: var(--shogun-black); }
+        h1 { font-family: 'Cinzel', serif; font-size: 3rem; color: var(--matcha-green); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+        
+        .tabs { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
+        .tab-btn { background: transparent; border: 2px solid var(--matcha-green); color: var(--samurai-white); padding: 10px 30px; font-family: 'Cinzel', serif; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active, .tab-btn:hover { background: var(--matcha-green); color: #fff; box-shadow: 0 0 10px rgba(116, 140, 91, 0.5); }
+        
+        .container { max-width: 1100px; margin: 0 auto; background: rgba(26, 26, 26, 0.9); border: 2px solid var(--matcha-green); padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.9); border-radius: 4px; }
+        .game-meta { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 20px; }
+        .input-group { display: flex; flex-direction: column; width: 48%; }
+        label { font-family: 'Cinzel', serif; color: var(--matcha-green); margin-bottom: 5px; }
+        input[type="text"], input[type="date"], input[type="number"] { background: var(--panel-bg); border: 1px solid var(--chashitsu-wood); color: #fff; padding: 10px; font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+        input:focus { outline: none; border-color: var(--matcha-green); }
+        
+        .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        th { background: var(--shogun-black); color: var(--samurai-white); font-family: 'Cinzel', serif; padding: 15px 10px; border: 1px solid var(--chashitsu-wood); }
+        td { padding: 0; border: 1px solid var(--chashitsu-wood); }
+        td input { width: 100%; height: 100%; border: none; padding: 15px 5px; text-align: center; background: transparent; color: #fff; }
+        .readonly-cell { padding: 15px 5px; background: rgba(0,0,0,0.4); font-weight: bold; color: var(--matcha-green); }
+        
+        .save-btn { display: block; width: 100%; background: var(--matcha-green); color: #fff; border: 1px solid var(--samurai-white); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.5rem; cursor: pointer; transition: 0.3s; border-radius: 4px; }
+        .save-btn:hover { background: var(--chashitsu-wood); }
+        
+        #history-section { display: none; }
+        .history-card { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--matcha-green); margin-bottom: 30px; padding: 20px; border-radius: 4px; }
+        .history-header { display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: var(--samurai-white); margin-bottom: 15px; border-bottom: 1px dashed var(--matcha-green); padding-bottom: 10px; }
+        
+        #celebration-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; }
+        .celebration-content { background: var(--shogun-black); border: 2px solid var(--matcha-green); padding: 50px; text-align: center; border-radius: 10px; animation: popIn 0.4s forwards; }
+        .celebration-content h2 { font-family: 'Cinzel', serif; font-size: 3.5rem; color: var(--samurai-white); margin-bottom: 10px; }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+    <header><a href="index.html" class="back-btn">← Back to Vault</a><h1>The White Castle: Matcha</h1></header>
+    
+    <div class="tabs">
+        <button class="tab-btn active" id="tab-new" onclick="switchTab('new')">Current Game</button>
+        <button class="tab-btn" id="tab-history" onclick="switchTab('history')">History</button>
+    </div>
+    
+    <div class="container">
+        <div id="new-section">
+            <div class="game-meta">
+                <div class="input-group"><label>Party Name</label><input type="text" id="party-name" placeholder="e.g. The Tea Masters"></div>
+                <div class="input-group"><label>Date</label><input type="date" id="game-date"></div>
+            </div>
+
+            <div class="table-wrapper">
+                <table id="scoring-table">
+                    <thead><tr><th>Player Name</th><th>In-Game Points</th><th>Castle</th><th>Training</th><th>Garden</th><th>Geishas (Chashitsu)</th><th>Resources</th><th>Final Score</th></tr></thead>
+                    <tbody id="scoring-body"></tbody>
+                </table>
+            </div>
+            
+            <button class="save-btn" onclick="saveGame()">Seal the Ledger</button>
+        </div>
+        
+        <div id="history-section"><div id="history-container"></div></div>
+    </div>
+    
+    <div id="celebration-modal"><div class="celebration-content"><h2>Perfect Brew!</h2></div></div>
+    
+    <!-- PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.log('Service Worker failed:', err)); });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        document.getElementById('game-date').valueAsDate = new Date();
+        const scoreBody = document.getElementById('scoring-body');
+        
+        for(let i=0; i<4; i++) {
+            const trScore = document.createElement('tr');
+            trScore.innerHTML = `<td><input type="text" class="player-name" placeholder="Player ${i+1}"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
+                <td class="readonly-cell final-score" id="final-${i}">0</td>`;
+            scoreBody.appendChild(trScore);
+        }
+
+        document.querySelectorAll('.score-input').forEach(input => { 
+            input.addEventListener('input', (e) => { 
+                const row = e.target.getAttribute('data-row'); let sum = 0; 
+                document.querySelectorAll(`.p${row}`).forEach(inp => { sum += parseInt(inp.value) || 0; }); 
+                document.getElementById(`final-${row}`).innerText = sum; 
+            }); 
+        });
+        
+        function saveGame() {
+            let playersData = [];
+            document.querySelectorAll('#scoring-body tr').forEach((row, index) => {
+                const name = row.querySelector('.player-name').value;
+                if(name.trim() !== "") { 
+                    const inputs = row.querySelectorAll(`.p${index}`); 
+                    playersData.push({ name: name, inGame: inputs[0].value || 0, castle: inputs[1].value || 0, training: inputs[2].value || 0, garden: inputs[3].value || 0, geishas: inputs[4].value || 0, resources: inputs[5].value || 0, final: document.getElementById(`final-${index}`).innerText }); 
+                }
+            });
+            if(playersData.length === 0) return alert("Please enter at least one player name and score!");
+            
+            const gameRecord = { id: Date.now(), game: "The White Castle: Matcha", party: document.getElementById('party-name').value || "Unknown Party", date: document.getElementById('game-date').value, scores: playersData };
+            
+            fetch('/.netlify/functions/saveGame', { method: 'POST', body: JSON.stringify(gameRecord) })
+            .then(response => { if (!response.ok) throw new Error("Network error"); return response.json(); })
+            .then(data => { showCelebration(); })
+            .catch(error => { alert("Failed to save to cloud database!"); console.error(error); });
+        }
+        
+        function showCelebration() {
+            document.getElementById('celebration-modal').style.display = 'flex';
+            let duration = 2.5 * 1000; let animationEnd = Date.now() + duration; let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1001, colors: ['#748c5b', '#f4f1ea', '#5c4033'] };
+            let interval = setInterval(function() {
+                let timeLeft = animationEnd - Date.now(); if (timeLeft <= 0) return clearInterval(interval); let particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.9 - 0.7) + 0.7, y: Math.random() - 0.2 } }));
+            }, 250);
+            setTimeout(() => { 
+                document.getElementById('celebration-modal').style.display = 'none'; 
+                document.querySelectorAll('input[type="number"], input[type="text"], #party-name').forEach(inp => inp.value = ''); 
+                document.querySelectorAll('.final-score').forEach(cell => cell.innerText = '0'); 
+                switchTab('history'); 
+            }, 3000);
+        }
+        
+        function loadHistory() {
+            const container = document.getElementById('history-container'); 
+            container.innerHTML = "<p style='text-align:center; color: var(--matcha-green);'>Summoning records from the Cloud...</p>";
+            
+            fetch('/.netlify/functions/getHistory?game=' + encodeURIComponent("The White Castle: Matcha"))
+            .then(response => response.json())
+            .then(history => {
+                if(history.length === 0) { container.innerHTML = "<p style='text-align:center;'>No historical records found.</p>"; return; }
+                let html = '';
+                history.forEach(game => {
+                    let topScore = Math.max(...game.scores.map(p => parseInt(p.final)));
+                    html += `<div class="history-card"><div class="history-header"><h3>Party: ${game.party}</h3><h3>Date: ${game.date}</h3></div><div class="table-wrapper"><table><thead><tr><th>Player Name</th><th>In-Game</th><th>Castle</th><th>Training</th><th>Garden</th><th>Geishas</th><th>Resources</th><th>Final Score</th></tr></thead><tbody>`;
+                    game.scores.forEach(player => { 
+                        let isWinner = parseInt(player.final) === topScore && game.scores.length > 1; let crown = isWinner ? ' 👑' : ''; let rowStyle = isWinner ? 'background: rgba(116, 140, 91, 0.3); font-weight: bold;' : '';
+                        html += `<tr style="${rowStyle}"><td class="readonly-cell">${player.name}${crown}</td><td class="readonly-cell">${player.inGame}</td><td class="readonly-cell">${player.castle}</td><td class="readonly-cell">${player.training}</td><td class="readonly-cell">${player.garden}</td><td class="readonly-cell">${player.geishas}</td><td class="readonly-cell">${player.resources}</td><td class="readonly-cell" style="color:var(--matcha-green);">${player.final}</td></tr>`; 
+                    });
+                    html += `</tbody></table></div></div>`;
+                });
+                container.innerHTML = html;
+            })
+            .catch(error => { container.innerHTML = "<p style='text-align:center; color: red;'>Failed to load cloud history.</p>"; console.error(error); });
+        }
+        
+        function switchTab(tab) {
+            document.getElementById('tab-new').classList.remove('active'); document.getElementById('tab-history').classList.remove('active');
+            if(tab === 'new') { document.getElementById('tab-new').classList.add('active'); document.getElementById('new-section').style.display = 'block'; document.getElementById('history-section').style.display = 'none'; } 
+            else { document.getElementById('tab-history').classList.add('active'); document.getElementById('new-section').style.display = 'none'; document.getElementById('history-section').style.display = 'block'; loadHistory(); }
+        }
+    </script>
+</body>
+</html>

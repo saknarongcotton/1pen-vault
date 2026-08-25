@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overseer - Admin Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --brass-light: #d4af37; --brass-dark: #8a6522; --copper: #b87333; --bg-dark: #120e0e; --panel-bg: #1a1111; --blood-red: #8a0303; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-dark); background-image: radial-gradient(circle at center, #2e1717 0%, #120e0e 100%), url('https://www.transparenttextures.com/patterns/stardust.png'); color: var(--brass-light); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; }
+        
+        /* Login Screen */
+        #login-screen { height: 90vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        h1 { font-family: 'Cinzel', serif; font-size: 4rem; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 20px; color: var(--blood-red); text-shadow: 2px 2px 10px rgba(0,0,0,0.8); text-align: center;}
+        p.subtitle { color: var(--copper); font-style: italic; margin-bottom: 30px; font-size: 1.2rem; }
+        .passcode-container { display: flex; gap: 15px; margin-bottom: 30px; }
+        .code-box { width: 70px; height: 90px; font-size: 3rem; text-align: center; background: var(--panel-bg); border: 2px solid var(--blood-red); color: var(--blood-red); font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); transition: all 0.3s ease; }
+        .code-box:focus { outline: none; border-color: #ff0000; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 0 20px rgba(138, 3, 3, 0.5); }
+        #error-message { font-family: 'Cinzel', serif; font-size: 2rem; color: #ff0000; opacity: 0; text-transform: uppercase; font-weight: bold; }
+        .blood-effect { animation: shake 0.4s ease-in-out, bleed 2s forwards; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } }
+        @keyframes bleed { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+        /* Admin Dashboard */
+        #admin-dashboard { display: none; max-width: 1000px; margin: 0 auto; background: rgba(20, 10, 10, 0.9); border: 2px solid var(--blood-red); padding: 30px; border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.9); }
+        .dashboard-header { border-bottom: 1px solid var(--blood-red); padding-bottom: 20px; margin-bottom: 20px; text-align: center; }
+        .dashboard-header h2 { font-family: 'Cinzel', serif; color: var(--brass-light); font-size: 2.5rem; }
+        
+        select { width: 100%; padding: 15px; background: #000; color: var(--brass-light); border: 1px solid var(--brass-dark); font-family: 'Cinzel', serif; font-size: 1.2rem; margin-bottom: 20px; cursor: pointer; }
+        select:focus { outline: none; border-color: var(--blood-red); }
+
+        .btn { background: transparent; border: 1px solid var(--brass-dark); color: var(--brass-light); padding: 8px 15px; font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin: 5px; }
+        .btn:hover { background: var(--copper); color: var(--bg-dark); }
+        .btn-danger { border-color: var(--blood-red); color: var(--blood-red); }
+        .btn-danger:hover { background: var(--blood-red); color: #fff; }
+
+        .admin-card { background: rgba(0,0,0,0.6); border: 1px dashed var(--brass-dark); padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .admin-card-info { font-size: 1.2rem; color: var(--brass-light); font-family: 'Cinzel', serif; }
+        .admin-card-actions { display: flex; gap: 10px; }
+
+        /* Edit Modal */
+        #edit-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); align-items: center; justify-content: center; overflow-y: auto; padding: 20px; }
+        .edit-content { background: #1a0f0f; border: 2px solid var(--blood-red); padding: 30px; width: 600px; max-width: 100%; max-height: 90vh; overflow-y: auto; }
+        .edit-content h3 { font-family: 'Cinzel', serif; color: var(--brass-light); border-bottom: 1px solid var(--brass-dark); padding-bottom: 10px; margin-bottom: 20px; }
+        
+        .edit-group { margin-bottom: 15px; }
+        .edit-group label { display: block; color: var(--copper); font-family: 'Cinzel', serif; margin-bottom: 5px; }
+        .edit-group input { width: 100%; background: #000; border: 1px solid var(--brass-dark); color: #fff; padding: 8px; font-family: 'Playfair Display', serif; }
+        
+        .player-edit-box { border: 1px solid var(--brass-dark); padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.4); }
+        .player-edit-box h4 { color: var(--brass-light); margin-bottom: 10px; font-family: 'Cinzel', serif; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .modal-actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
+    </style>
+</head>
+<body>
+
+    <!-- Admin Login -->
+    <div id="login-screen">
+        <h1>Vault Overseer</h1>
+        <p class="subtitle">Authorized Access Only</p>
+        <div class="passcode-container">
+            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
+        </div>
+        <div id="error-message">ACCESS DENIED</div>
+        <br>
+        <a href="index.html" style="color: var(--brass-dark); font-family: 'Cinzel', serif;">Return to User Vault</a>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard">
+        <div class="dashboard-header">
+            <h2>Ledger Control Panel</h2>
+        </div>
+
+        <select id="game-selector" onchange="loadGameData()">
+            <option value="">-- Select a Game Ledger to Manage --</option>
+            <option value="brass_birmingham_history">Brass: Birmingham</option>
+            <option value="brass_lancashire_history">Brass: Lancashire</option>
+            <option value="white_castle_history">The White Castle</option>
+            <option value="white_castle_matcha_history">The White Castle: Matcha</option>
+            <option value="viticulture_history">Viticulture</option>
+            <option value="concordia_history">Concordia</option>
+            <option value="flip_7_history">Flip 7</option>
+            <option value="6_nimmt_history">6 nimmt!</option>
+            <option value="wingspan_history">Wingspan</option>
+        </select>
+
+        <div style="text-align: right; margin-bottom: 20px;">
+            <button class="btn btn-danger" id="wipe-btn" style="display:none;" onclick="wipeLedger()">⚠ Wipe Entire Ledger</button>
+        </div>
+
+        <div id="records-container">
+            <!-- Records loaded here by JS -->
+            <p style="text-align: center; color: var(--brass-dark); font-style: italic;">Select a game to view history.</p>
+        </div>
+    </div>
+
+    <!-- Dynamic Edit Modal -->
+    <div id="edit-modal">
+        <div class="edit-content">
+            <h3 id="edit-title">Edit Record</h3>
+            <div id="edit-form-area"></div>
+            <div class="modal-actions">
+                <button class="btn" onclick="document.getElementById('edit-modal').style.display='none'">Cancel</button>
+                <button class="btn" style="background: var(--brass-dark); color: #fff;" onclick="saveEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- ADMIN LOGIN LOGIC ---
+        const inputs = document.querySelectorAll('.code-box');
+        const ADMIN_PASS = "9999"; // Change this 4-digit code to whatever you want
+        
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => { 
+                e.target.value = e.target.value.replace(/[^0-9]/g, ''); 
+                if (e.target.value !== '' && index < inputs.length - 1) inputs[index + 1].focus(); 
+                checkAdminPass(); 
+            });
+            input.addEventListener('keydown', (e) => { 
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) inputs[index - 1].focus(); 
+            });
+        });
+
+        function checkAdminPass() {
+            let currentPass = Array.from(inputs).map(i => i.value).join('');
+            if (currentPass.length === 4) { 
+                if (currentPass === ADMIN_PASS) {
+                    document.getElementById('login-screen').style.display = 'none'; 
+                    document.getElementById('admin-dashboard').style.display = 'block'; 
+                } else {
+                    let err = document.getElementById('error-message'); 
+                    err.classList.remove('blood-effect'); 
+                    void err.offsetWidth; 
+                    err.classList.add('blood-effect'); 
+                    inputs.forEach(input => input.value = ''); 
+                    inputs[0].focus(); 
+                }
+            }
+        }
+
+        // --- DASHBOARD LOGIC ---
+        let currentKey = '';
+        let currentData = [];
+        let editingIndex = -1;
+
+        function loadGameData() {
+            currentKey = document.getElementById('game-selector').value;
+            const container = document.getElementById('records-container');
+            const wipeBtn = document.getElementById('wipe-btn');
+
+            if (!currentKey) {
+                container.innerHTML = "<p style='text-align: center; color: var(--brass-dark); font-style: italic;'>Select a game to view history.</p>";
+                wipeBtn.style.display = 'none';
+                return;
+            }
+
+            currentData = JSON.parse(localStorage.getItem(currentKey)) || [];
+            
+            if (currentData.length === 0) {
+                container.innerHTML = "<p style='text-align: center; color: var(--brass-dark); font-style: italic;'>This ledger is empty.</p>";
+                wipeBtn.style.display = 'none';
+                return;
+            }
+
+            wipeBtn.style.display = 'inline-block';
+            let html = '';
+            
+            currentData.forEach((record, index) => {
+                html += `
+                    <div class="admin-card">
+                        <div class="admin-card-info">
+                            <strong>${record.party}</strong> <br>
+                            <span style="font-size: 0.9rem; color: var(--brass-dark);">${record.date} | ${record.scores.length} Players</span>
+                        </div>
+                        <div class="admin-card-actions">
+                            <button class="btn" onclick="openEditModal(${index})">Edit Data</button>
+                            <button class="btn btn-danger" onclick="deleteRecord(${index})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function deleteRecord(index) {
+            if (confirm("Are you certain you want to delete this specific game record? This cannot be undone.")) {
+                currentData.splice(index, 1);
+                localStorage.setItem(currentKey, JSON.stringify(currentData));
+                loadGameData(); // Refresh list
+            }
+        }
+
+        function wipeLedger() {
+            if (confirm("WARNING: You are about to permanently delete ALL records for this game. Are you entirely sure?")) {
+                localStorage.removeItem(currentKey);
+                loadGameData(); // Refresh list
+            }
+        }
+
+        // --- DYNAMIC EDIT LOGIC ---
+        function openEditModal(index) {
+            editingIndex = index;
+            let record = currentData[index];
+            let formArea = document.getElementById('edit-form-area');
+            
+            let html = `
+                <div class="edit-group">
+                    <label>Party Name</label>
+                    <input type="text" id="edit-party" value="${record.party}">
+                </div>
+                <div class="edit-group">
+                    <label>Date</label>
+                    <input type="date" id="edit-date" value="${record.date}">
+                </div>
+            `;
+
+            record.scores.forEach((player, pIndex) => {
+                html += `<div class="player-edit-box"><h4>Player ${pIndex + 1}</h4><div class="stat-grid">`;
+                
+                // Dynamically create inputs for whatever stats this specific game uses
+                Object.keys(player).forEach(statKey => {
+                    let labelName = statKey.charAt(0).toUpperCase() + statKey.slice(1);
+                    // Use text input for name, number input for scores
+                    let inputType = statKey === 'name' ? 'text' : 'number'; 
+                    
+                    html += `
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--brass-light);">${labelName}</label>
+                            <input type="${inputType}" id="edit-p${pIndex}-${statKey}" value="${player[statKey]}">
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            });
+
+            formArea.innerHTML = html;
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        function saveEdit() {
+            if (editingIndex === -1) return;
+            
+            let record = currentData[editingIndex];
+            
+            // Save global metadata
+            record.party = document.getElementById('edit-party').value;
+            record.date = document.getElementById('edit-date').value;
+
+            // Save individual dynamic player stats
+            record.scores.forEach((player, pIndex) => {
+                Object.keys(player).forEach(statKey => {
+                    let inputVal = document.getElementById(`edit-p${pIndex}-${statKey}`).value;
+                    // If it's the name keep as text, otherwise try to parse as number/string
+                    player[statKey] = statKey === 'name' ? inputVal : (inputVal || "0"); 
+                });
+            });
+
+            currentData[editingIndex] = record;
+            localStorage.setItem(currentKey, JSON.stringify(currentData));
+            
+            document.getElementById('edit-modal').style.display = 'none';
+            loadGameData(); // Refresh visual list
+        }
+    </script>
+</body>
+</html>

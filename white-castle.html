@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The White Castle - Score Tracker</title>
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="1PEN Vault">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* --- DYNAMIC THEME VARIABLES --- */
+        :root { 
+            --samurai-white: #f4f1ea; --sakura-pink: #d17a86; --shogun-black: #1a1a1a; --bamboo-green: #4f6345; 
+            --border-color: #4f6345; --text-main: #fff; --input-bg: #2b2b2b; --th-bg: #1a1a1a; 
+            --readonly-bg: rgba(0,0,0,0.4); --card-bg: rgba(26, 26, 26, 0.9); --col-btn-bg: rgba(0,0,0,0.6); 
+            --col-content-bg: rgba(0, 0, 0, 0.4); --modal-overlay: rgba(0,0,0,0.85); --celeb-bg-1: #1a1a1a; 
+            --celeb-bg-2: #2b2b2b; --btn-hover-text: #1a1a1a; --shadow-color: rgba(0,0,0,0.8);
+            
+            /* Player Colors (Yellow, Blue, Green, Red) */
+            --p0-color: #f1c40f; 
+            --p1-color: #3498db; 
+            --p2-color: #2ecc71; 
+            --p3-color: #e74c3c; 
+        }
+
+        body.light-mode {
+            --samurai-white: #1a1a1a; --sakura-pink: #b75e6a; --shogun-black: #fdfbf7; --bamboo-green: #3a4a33; 
+            --border-color: #a4b39e; --text-main: #222; --input-bg: #fff; --th-bg: #e8e3d3; 
+            --readonly-bg: rgba(0,0,0,0.05); --card-bg: rgba(255, 255, 255, 0.95); --col-btn-bg: #e8e3d3; 
+            --col-content-bg: rgba(255, 255, 255, 0.6); --modal-overlay: rgba(255,255,255,0.85); 
+            --celeb-bg-1: #ffffff; --celeb-bg-2: #f4f1ea; --btn-hover-text: #fff; --shadow-color: rgba(0,0,0,0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { background-color: var(--shogun-black); background-image: url('https://www.transparenttextures.com/patterns/rice-paper.png'); color: var(--samurai-white); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; transition: background-color 0.4s, color 0.4s; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; }
+        .back-btn, .theme-btn { color: var(--samurai-white); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--samurai-white); padding: 5px 15px; transition: 0.3s; background: transparent; cursor: pointer; }
+        .back-btn:hover, .theme-btn:hover { background: var(--samurai-white); color: var(--btn-hover-text); }
+        h1 { font-family: 'Cinzel', serif; font-size: 3rem; color: var(--sakura-pink); text-shadow: 2px 2px 4px var(--shadow-color); flex-grow: 1; text-align: center; margin: 0 15px;}
+        
+        @media (max-width: 768px) { header { flex-direction: column; gap: 15px; } .back-btn, .theme-btn { width: 100%; text-align: center; } h1 { font-size: 2.5rem; } }
+
+        .tabs { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
+        .tab-btn { background: transparent; border: 2px solid var(--bamboo-green); color: var(--samurai-white); padding: 10px 30px; font-family: 'Cinzel', serif; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active, .tab-btn:hover { background: var(--bamboo-green); color: #fff; box-shadow: 0 0 10px rgba(79, 99, 69, 0.5); }
+        
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--samurai-white); padding: 30px; box-shadow: 0 5px 15px var(--shadow-color); border-radius: 4px; transition: background-color 0.4s; }
+        .game-meta { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 20px; }
+        .input-group { display: flex; flex-direction: column; width: 48%; }
+        label { font-family: 'Cinzel', serif; color: var(--sakura-pink); margin-bottom: 5px; }
+        input[type="text"], input[type="date"], input[type="number"], select { background: var(--input-bg); border: 1px solid var(--bamboo-green); color: var(--text-main); padding: 10px; font-family: 'Playfair Display', serif; font-size: 1.1rem; transition: 0.4s; }
+        input:focus, select:focus { outline: none; border-color: var(--sakura-pink); }
+        
+        /* Collapsible Sections */
+        .collapsible-btn { background: var(--col-btn-bg); color: var(--samurai-white); cursor: pointer; padding: 15px 20px; width: 100%; border: 1px solid var(--bamboo-green); text-align: center; outline: none; font-family: 'Cinzel', serif; font-size: 1.5rem; transition: 0.4s; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
+        .collapsible-btn:hover, .collapsible-btn.active { background: var(--bamboo-green); color: #fff; }
+        .collapsible-content { padding: 0 15px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease, background-color 0.4s; background: var(--col-content-bg); border: 1px solid transparent; }
+        .collapsible-content.expanded { padding: 20px 15px; border-color: var(--bamboo-green); border-top: none; margin-bottom: 20px; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; }
+        
+        /* Tables */
+        .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        th { background: var(--th-bg); color: var(--samurai-white); font-family: 'Cinzel', serif; padding: 15px 10px; border: 1px solid var(--bamboo-green); transition: 0.4s; }
+        td { padding: 0; border: 1px solid var(--bamboo-green); transition: 0.4s; position: relative; }
+        td input:not([type="checkbox"]) { width: 100%; height: 100%; border: none; padding: 15px 5px 15px 25px; text-align: center; background: transparent; color: var(--text-main); transition: 0.4s; }
+        .readonly-cell { padding: 15px 5px; background: var(--readonly-bg); font-weight: bold; color: var(--sakura-pink); transition: 0.4s; font-size: 1.1rem; }
+        
+        /* Player Color Dot Indicator */
+        .color-dot { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); pointer-events: none; }
+
+        /* Timer UI */
+        .timer-tool { background: var(--readonly-bg); padding: 15px; border: 1px solid var(--bamboo-green); border-radius: 5px; max-width: 600px; margin: 0 auto; }
+        .timer-row { display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); padding: 10px; margin-bottom: 10px; border-radius: 5px; opacity: 0.5; transition: 0.3s; cursor: pointer; }
+        .timer-row:hover { border-color: var(--sakura-pink); opacity: 0.8; }
+        .timer-row.active { opacity: 1; border-color: var(--sakura-pink); box-shadow: 0 0 15px rgba(209, 122, 134, 0.5); background: rgba(209, 122, 134, 0.15); transform: scale(1.02); }
+        .timer-name { font-family: 'Cinzel', serif; font-weight: bold; width: 35%; display: flex; align-items: center; gap: 8px;}
+        .timer-dot { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .timer-times { display: flex; flex-direction: column; align-items: flex-end; width: 60%; }
+        .t-round { font-size: 1.6rem; font-weight: bold; color: var(--sakura-pink); font-family: monospace; }
+        .t-reserve { font-size: 0.95rem; color: var(--bamboo-green); font-family: monospace; }
+        .t-round.danger, .t-reserve.danger { color: red; }
+        
+        .timer-controls { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;}
+        .t-btn { flex: 1; min-width: 30%; padding: 10px; background: var(--bamboo-green); color: #fff; border: 1px solid var(--samurai-white); font-family: 'Cinzel', serif; cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.3s; }
+        .t-btn:hover { background: var(--sakura-pink); color: #fff; }
+        .t-btn.play { background: #27ae60; border-color: #2ecc71; }
+        .t-btn.pause { background: #e67e22; border-color: #f39c12; }
+        .t-btn.edit { background: var(--col-btn-bg); color: var(--samurai-white); border-color: var(--bamboo-green); }
+
+        .save-btn { display: block; width: 100%; background: var(--bamboo-green); color: #fff; border: 1px solid var(--samurai-white); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.5rem; cursor: pointer; transition: 0.3s; border-radius: 4px; margin-top: 20px;}
+        .save-btn:hover { background: var(--sakura-pink); }
+        
+        /* History & Filter Controls */
+        #history-section { display: none; }
+        .history-controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; background: var(--readonly-bg); padding: 15px; border: 1px solid var(--border-color); border-radius: 4px; }
+        .history-controls select { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; font-family: 'Playfair Display', serif; font-size: 1.1rem; flex: 1; min-width: 200px; cursor: pointer;}
+        
+        .history-card { background: var(--readonly-bg); border: 1px solid var(--bamboo-green); margin-bottom: 30px; padding: 20px; border-radius: 4px; transition: 0.4s; }
+        .history-header { display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: var(--samurai-white); margin-bottom: 15px; border-bottom: 1px dashed var(--bamboo-green); padding-bottom: 10px; }
+        
+        /* Modals */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-overlay); align-items: center; justify-content: center; }
+        .modal-content { background: var(--shogun-black); border: 2px solid var(--sakura-pink); padding: 40px; text-align: center; border-radius: 8px; box-shadow: 0 0 50px rgba(209, 122, 134, 0.3); animation: popIn 0.3s forwards; transition: 0.4s; max-width: 90%; color: var(--samurai-white); }
+        .modal-content h2, .modal-content h3 { font-family: 'Cinzel', serif; color: var(--samurai-white); margin-bottom: 15px; }
+        
+        .time-edit-group { display: flex; justify-content: space-around; gap: 20px; margin-bottom: 20px; }
+        .time-edit-group div { display: flex; flex-direction: column; align-items: center; }
+        .time-edit-group label { color: var(--sakura-pink); font-size: 0.9rem; margin-bottom: 5px; }
+        .time-edit-inputs { display: flex; align-items: center; gap: 5px; color: var(--text-main); }
+        .time-edit-inputs input { width: 60px; text-align: center; padding: 8px; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); }
+
+        .modal-btn { background: var(--bamboo-green); color: #fff; border: 1px solid var(--samurai-white); padding: 10px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 1.1rem; border-radius: 4px; transition: 0.3s; flex: 1; }
+        .modal-btn:hover { background: var(--sakura-pink); }
+
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body onload="checkTheme()">
+    <header>
+        <a href="index.html" class="back-btn">← Back to Vault</a>
+        <h1>The White Castle</h1>
+        <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">☀️ Light Mode</button>
+    </header>
+    
+    <div class="tabs">
+        <button class="tab-btn active" id="tab-new" onclick="switchTab('new')">Current Game</button>
+        <button class="tab-btn" id="tab-history" onclick="switchTab('history')">History</button>
+    </div>
+    
+    <div class="container">
+        <!-- CURRENT GAME TAB -->
+        <div id="new-section">
+            <div class="game-meta">
+                <div class="input-group"><label>Party Name</label><input type="text" id="party-name" placeholder="e.g. The Daimyos"></div>
+                <div class="input-group"><label>Date</label><input type="date" id="game-date"></div>
+            </div>
+
+            <!-- COLLAPSIBLE: TURN TIMER -->
+            <button class="collapsible-btn">
+                <span></span> 
+                <span>⏱️ Turn Timer</span>
+                <span class="toggle-icon">▼</span>
+            </button>
+            <div class="collapsible-content">
+                <div class="timer-tool" style="margin-top: 15px;">
+                    <h3 style="text-align:center; color: var(--samurai-white); font-family:'Cinzel', serif; margin-bottom:5px; font-size: 1.5rem;">Turn Timer</h3>
+                    <p style="text-align:center; color: #aaa; margin-bottom: 15px; font-size: 0.85rem; font-style: italic;">Select a player to begin.<br>Unused round time banks to Reserve.</p>
+                    <div id="timer-players">
+                        <!-- Timer rows injected via JS -->
+                    </div>
+                    <div class="timer-controls">
+                        <button class="t-btn play" id="global-timer-btn" onclick="toggleGlobalTimer()">Start Time</button>
+                        <button class="t-btn" onclick="nextTurn()">End Turn</button>
+                        <button class="t-btn edit" onclick="openTimeEdit()">⚙️ Edit Time</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN SCORING TABLE -->
+            <div class="table-wrapper" style="margin-top: 20px;">
+                <table id="scoring-table">
+                    <thead>
+                        <tr>
+                            <th>Player Name</th>
+                            <th>Red Fan</th>
+                            <th>Heron Score</th>
+                            <th>Resources</th>
+                            <th>Castle</th>
+                            <th>Training</th>
+                            <th>Garden</th>
+                            <th>Final Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoring-body"></tbody>
+                </table>
+            </div>
+            
+            <button class="save-btn" onclick="saveGame()">Seal the Ledger</button>
+        </div>
+        
+        <!-- HISTORY TAB -->
+        <div id="history-section">
+            <div class="history-controls">
+                <input type="text" id="filter-party" placeholder="🔍 Search by Party Name..." oninput="applyHistoryFilters()" style="flex: 2;">
+                <select id="sort-history" onchange="applyHistoryFilters()">
+                    <option value="date-desc">Sort: Newest First</option>
+                    <option value="date-asc">Sort: Oldest First</option>
+                    <option value="score-desc">Sort: Highest Final Score</option>
+                </select>
+            </div>
+            <div id="history-container"></div>
+        </div>
+    </div>
+    
+    <!-- MODALS -->
+    <div id="celebration-modal" class="modal-overlay"><div class="modal-content"><h2 style="font-size:3.5rem; color: var(--sakura-pink);">Honor Achieved!</h2></div></div>
+    
+    <div id="time-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Adjust Active Player Time</h3>
+            <div class="time-edit-group">
+                <div>
+                    <label>Round Timer (Min : Sec)</label>
+                    <div class="time-edit-inputs">
+                        <input type="number" id="edit-round-m" min="0"> : <input type="number" id="edit-round-s" min="0" max="59">
+                    </div>
+                </div>
+                <div>
+                    <label>Reserve Timer (Min : Sec)</label>
+                    <div class="time-edit-inputs">
+                        <input type="number" id="edit-res-m"> : <input type="number" id="edit-res-s" min="0" max="59">
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="modal-btn" onclick="saveTimeEdit()">Save</button>
+                <button class="modal-btn" style="background:var(--col-btn-bg); border-color:var(--border-color);" onclick="document.getElementById('time-modal').style.display='none'">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.log('Service Worker failed:', err)); });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        // --- THEME LOGIC ---
+        function checkTheme() {
+            if (localStorage.getItem('whitecastle_theme') === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-toggle').innerText = '🌙 Dark Mode';
+            }
+        }
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('light-mode');
+            const toggleBtn = document.getElementById('theme-toggle');
+            if (isLight) { localStorage.setItem('whitecastle_theme', 'light'); toggleBtn.innerText = '🌙 Dark Mode'; } 
+            else { localStorage.setItem('whitecastle_theme', 'dark'); toggleBtn.innerText = '☀️ Light Mode'; }
+        }
+
+        // --- GLOBAL INITIALIZATION ---
+        document.getElementById('game-date').valueAsDate = new Date();
+        // Yellow, Blue, Green, Red
+        const pColors = ['var(--p0-color)', 'var(--p1-color)', 'var(--p2-color)', 'var(--p3-color)'];
+        
+        const scoreBody = document.getElementById('scoring-body');
+        const timerContainer = document.getElementById('timer-players');
+        
+        // --- GENERATE TABLES & TIMER UI ---
+        for(let i=0; i<4; i++) {
+            // Main Scoring Row
+            const trScore = document.createElement('tr');
+            trScore.innerHTML = `
+                <td><div class="color-dot" style="background-color:${pColors[i]}"></div><input type="text" class="player-name" data-player="${i}" placeholder="Player ${i+1}"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0" placeholder="Fan"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0" placeholder="Heron"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0" placeholder="Res"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0" placeholder="Cas"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0" placeholder="Train"></td>
+                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0" placeholder="Gar"></td>
+                <td class="readonly-cell final-score" id="final-${i}">0</td>`;
+            scoreBody.appendChild(trScore);
+
+            // Timer Row 
+            timerContainer.innerHTML += `
+                <div class="timer-row" id="timer-row-${i}" onclick="selectPlayer(${i})">
+                    <div class="timer-name">
+                        <div class="timer-dot" style="background-color:${pColors[i]}"></div>
+                        <span id="t-name-${i}">Player ${i+1}</span>
+                    </div>
+                    <div class="timer-times">
+                        <div class="t-round" id="t-round-${i}">03:00</div>
+                        <div class="t-reserve" id="t-res-${i}">Res: 10:00</div>
+                    </div>
+                </div>`;
+        }
+
+        // Sync Names to Timer
+        const scoreNames = document.querySelectorAll('.player-name');
+        scoreNames.forEach(input => { 
+            input.addEventListener('input', (e) => { 
+                const idx = e.target.getAttribute('data-player');
+                document.getElementById(`t-name-${idx}`).innerText = e.target.value || `Player ${parseInt(idx)+1}`;
+            }); 
+        });
+
+        // Collapsible Accordion Logic
+        document.querySelectorAll('.collapsible-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('.toggle-icon');
+                if (content.style.maxHeight) { 
+                    content.style.maxHeight = null; content.classList.remove('expanded'); icon.innerText = '▼'; 
+                } else { 
+                    content.classList.add('expanded'); content.style.maxHeight = content.scrollHeight + 50 + "px"; icon.innerText = '▲'; 
+                }
+            });
+        });
+
+        // --- SCORE LOGIC ---
+        document.querySelectorAll('.score-input').forEach(input => { 
+            input.addEventListener('input', (e) => { 
+                const row = e.target.getAttribute('data-row'); 
+                let sum = 0; const inputs = document.querySelectorAll(`.p${row}`);
+                inputs.forEach(inp => { sum += parseInt(inp.value) || 0; }); 
+                document.getElementById(`final-${row}`).innerText = sum; 
+            }); 
+        });
+
+        // --- TIMER LOGIC (3 MIN DEFAULT) ---
+        const ROUND_DEFAULT = 180; // 3 Minutes
+        let timerData = [
+            { round: ROUND_DEFAULT, reserve: 600 }, { round: ROUND_DEFAULT, reserve: 600 },
+            { round: ROUND_DEFAULT, reserve: 600 }, { round: ROUND_DEFAULT, reserve: 600 }
+        ];
+        let activePlayer = 0;
+        let timerRunning = false;
+        let timerInterval;
+
+        function formatSecs(s) {
+            let sign = s < 0 ? "-" : "";
+            let abs = Math.abs(s);
+            let mins = Math.floor(abs / 60).toString().padStart(2, '0');
+            let secs = (abs % 60).toString().padStart(2, '0');
+            return `${sign}${mins}:${secs}`;
+        }
+
+        function updateTimerUI() {
+            for(let i=0; i<4; i++) {
+                document.getElementById(`timer-row-${i}`).classList.remove('active');
+                const roundEl = document.getElementById(`t-round-${i}`);
+                const resEl = document.getElementById(`t-res-${i}`);
+                
+                roundEl.innerText = formatSecs(timerData[i].round);
+                resEl.innerText = `Res: ${formatSecs(timerData[i].reserve)}`;
+                
+                if(timerData[i].round === 0) roundEl.classList.add('danger'); else roundEl.classList.remove('danger');
+                if(timerData[i].reserve < 0) resEl.classList.add('danger'); else resEl.classList.remove('danger');
+            }
+            document.getElementById(`timer-row-${activePlayer}`).classList.add('active');
+        }
+
+        function selectPlayer(id) {
+            activePlayer = id;
+            updateTimerUI();
+        }
+
+        function toggleGlobalTimer() {
+            const btn = document.getElementById('global-timer-btn');
+            if(timerRunning) {
+                clearInterval(timerInterval); timerRunning = false;
+                btn.innerText = "Resume Time"; btn.classList.remove('pause'); btn.classList.add('play');
+            } else {
+                timerRunning = true;
+                btn.innerText = "Pause Time"; btn.classList.remove('play'); btn.classList.add('pause');
+                timerInterval = setInterval(() => {
+                    let p = timerData[activePlayer];
+                    if (p.round > 0) p.round--; else p.reserve--;
+                    updateTimerUI();
+                }, 1000);
+            }
+            updateTimerUI();
+        }
+
+        function nextTurn() {
+            if (timerData[activePlayer].round > 0) {
+                timerData[activePlayer].reserve += timerData[activePlayer].round;
+            }
+            timerData[activePlayer].round = ROUND_DEFAULT; 
+            
+            if(timerRunning) {
+                clearInterval(timerInterval); timerRunning = false;
+                const btn = document.getElementById('global-timer-btn');
+                btn.innerText = "Start Time"; btn.classList.remove('pause'); btn.classList.add('play');
+            }
+            updateTimerUI();
+        }
+
+        // --- EDIT TIME LOGIC ---
+        function openTimeEdit() {
+            if(timerRunning) toggleGlobalTimer(); // Auto-pause before editing
+            let p = timerData[activePlayer];
+            
+            document.getElementById('edit-round-m').value = Math.floor(p.round / 60);
+            document.getElementById('edit-round-s').value = p.round % 60;
+            
+            let resSign = p.reserve < 0 ? -1 : 1;
+            let absRes = Math.abs(p.reserve);
+            document.getElementById('edit-res-m').value = Math.floor(absRes / 60) * resSign;
+            document.getElementById('edit-res-s').value = absRes % 60;
+            
+            document.getElementById('time-modal').style.display = 'flex';
+        }
+
+        function saveTimeEdit() {
+            let rm = parseInt(document.getElementById('edit-round-m').value) || 0;
+            let rs = parseInt(document.getElementById('edit-round-s').value) || 0;
+            timerData[activePlayer].round = (rm * 60) + rs;
+            
+            let rsm = parseInt(document.getElementById('edit-res-m').value) || 0;
+            let rss = parseInt(document.getElementById('edit-res-s').value) || 0;
+            let resSign = rsm < 0 || Object.is(rsm, -0) ? -1 : 1; // Catch negative zero
+            timerData[activePlayer].reserve = (rsm * 60) + (rss * resSign);
+            
+            document.getElementById('time-modal').style.display = 'none';
+            updateTimerUI();
+        }
+
+        updateTimerUI(); // Initial visual state
+        
+        // --- CLOUD SAVE LOGIC ---
+        function saveGame() {
+            let playersData = [];
+            document.querySelectorAll('#scoring-body tr').forEach((row, index) => {
+                const name = row.querySelector('.player-name').value;
+                if(name.trim() !== "") { 
+                    const inputs = row.querySelectorAll(`.p${index}`); 
+                    playersData.push({ 
+                        name: name, 
+                        redFan: inputs[0].value || 0, 
+                        heron: inputs[1].value || 0, 
+                        resources: inputs[2].value || 0, 
+                        castle: inputs[3].value || 0, 
+                        training: inputs[4].value || 0, 
+                        garden: inputs[5].value || 0, 
+                        final: document.getElementById(`final-${index}`).innerText 
+                    }); 
+                }
+            });
+            if(playersData.length === 0) return alert("Please enter at least one player name and score!");
+            
+            const gameRecord = { id: Date.now(), game: "The White Castle", party: document.getElementById('party-name').value || "Unknown Party", date: document.getElementById('game-date').value, scores: playersData };
+            
+            fetch('/.netlify/functions/saveGame', { method: 'POST', body: JSON.stringify(gameRecord) })
+            .then(response => { if (!response.ok) throw new Error("Network error"); return response.json(); })
+            .then(data => { showCelebration(); })
+            .catch(error => { alert("Failed to save to cloud database!"); console.error(error); });
+        }
+        
+        function showCelebration() {
+            document.getElementById('celebration-modal').style.display = 'flex';
+            let duration = 2.5 * 1000; let animationEnd = Date.now() + duration; let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1001, colors: ['#f4f1ea', '#d17a86', '#4f6345'] };
+            let interval = setInterval(function() {
+                let timeLeft = animationEnd - Date.now(); if (timeLeft <= 0) return clearInterval(interval); let particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.9 - 0.7) + 0.7, y: Math.random() - 0.2 } }));
+            }, 250);
+            setTimeout(() => { 
+                document.getElementById('celebration-modal').style.display = 'none'; 
+                document.querySelectorAll('input[type="number"], input[type="text"], #party-name').forEach(inp => inp.value = ''); 
+                document.querySelectorAll('.final-score').forEach(cell => cell.innerText = '0'); 
+                
+                // Reset Timers
+                clearInterval(timerInterval); timerRunning = false;
+                timerData = [{round:ROUND_DEFAULT, reserve:600}, {round:ROUND_DEFAULT, reserve:600}, {round:ROUND_DEFAULT, reserve:600}, {round:ROUND_DEFAULT, reserve:600}];
+                activePlayer = 0;
+                const btn = document.getElementById('global-timer-btn');
+                btn.innerText = "Start Time"; btn.classList.remove('pause'); btn.classList.add('play');
+                updateTimerUI();
+
+                document.querySelectorAll('.collapsible-btn.active').forEach(btn => btn.click());
+                switchTab('history'); 
+            }, 3000);
+        }
+        
+        // --- HISTORY FILTER & SORT LOGIC ---
+        let globalHistoryData = [];
+
+        function loadHistory() {
+            const container = document.getElementById('history-container'); 
+            container.innerHTML = "<p style='text-align:center; color: var(--samurai-white);'>Summoning records from the Cloud...</p>";
+            
+            fetch('/.netlify/functions/getHistory?game=' + encodeURIComponent("The White Castle"))
+            .then(response => response.json())
+            .then(history => {
+                globalHistoryData = history;
+                applyHistoryFilters();
+            })
+            .catch(error => { container.innerHTML = "<p style='text-align:center; color: red;'>Failed to load cloud history.</p>"; console.error(error); });
+        }
+
+        function applyHistoryFilters() {
+            const container = document.getElementById('history-container'); 
+            if(globalHistoryData.length === 0) { container.innerHTML = "<p style='text-align:center;'>No historical records found.</p>"; return; }
+
+            let filterText = document.getElementById('filter-party').value.toLowerCase();
+            let sortMode = document.getElementById('sort-history').value;
+
+            // Filter
+            let filtered = globalHistoryData.filter(g => (g.party || "").toLowerCase().includes(filterText));
+
+            // Sort
+            if(sortMode === 'date-desc') {
+                filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+            } else if(sortMode === 'date-asc') {
+                filtered.sort((a,b) => new Date(a.date) - new Date(b.date));
+            } else if(sortMode === 'score-desc') {
+                filtered.sort((a,b) => {
+                    let maxA = Math.max(...a.scores.map(p => parseInt(p.final) || 0));
+                    let maxB = Math.max(...b.scores.map(p => parseInt(p.final) || 0));
+                    return maxB - maxA;
+                });
+            }
+
+            if(filtered.length === 0) { container.innerHTML = "<p style='text-align:center;'>No records match your search.</p>"; return; }
+            
+            let html = '';
+            filtered.forEach(game => {
+                let topScore = Math.max(...game.scores.map(p => parseInt(p.final)));
+                html += `<div class="history-card"><div class="history-header"><h3>Party: ${game.party}</h3><h3>Date: ${game.date}</h3></div><div class="table-wrapper"><table><thead><tr><th>Player Name</th><th>Red Fan</th><th>Heron Score</th><th>Resources</th><th>Castle</th><th>Training</th><th>Garden</th><th>Final Score</th></tr></thead><tbody>`;
+                game.scores.forEach(player => { 
+                    let isWinner = parseInt(player.final) === topScore && game.scores.length > 1; let crown = isWinner ? ' 👑' : ''; let rowStyle = isWinner ? 'background: rgba(209, 122, 134, 0.3); font-weight: bold;' : '';
+                    
+                    // Backwards Compatibility: Handle older records that used 'inGame' instead of 'redFan'
+                    let redFan = player.redFan !== undefined ? player.redFan : (player.inGame || 0);
+                    let heron = player.heron || 0;
+                    
+                    html += `<tr style="${rowStyle}"><td class="readonly-cell">${player.name}${crown}</td><td class="readonly-cell">${redFan}</td><td class="readonly-cell">${heron}</td><td class="readonly-cell">${player.resources || 0}</td><td class="readonly-cell">${player.castle || 0}</td><td class="readonly-cell">${player.training || 0}</td><td class="readonly-cell">${player.garden || 0}</td><td class="readonly-cell" style="color:var(--sakura-pink);">${player.final}</td></tr>`; 
+                });
+                html += `</tbody></table></div></div>`;
+            });
+            container.innerHTML = html;
+        }
+        
+        function switchTab(tab) {
+            document.getElementById('tab-new').classList.remove('active'); document.getElementById('tab-history').classList.remove('active');
+            if(tab === 'new') { document.getElementById('tab-new').classList.add('active'); document.getElementById('new-section').style.display = 'block'; document.getElementById('history-section').style.display = 'none'; } 
+            else { document.getElementById('tab-history').classList.add('active'); document.getElementById('new-section').style.display = 'none'; document.getElementById('history-section').style.display = 'block'; loadHistory(); }
+        }
+    </script>
+</body>
+</html>

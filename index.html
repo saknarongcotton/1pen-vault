@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1PEN Hall of Fame</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --brass-light: #d4af37; --brass-dark: #8a6522; --copper: #b87333; --bg-dark: #12100e; --panel-bg: #1e1a17; --blood-red: #8a0303; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-dark); background-image: radial-gradient(circle at center, #2a241e 0%, #0d0b0a 100%), url('https://www.transparenttextures.com/patterns/stardust.png'); color: var(--brass-light); font-family: 'Playfair Display', serif; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        #login-screen { text-align: center; display: flex; flex-direction: column; align-items: center; z-index: 10; }
+        h1 { font-family: 'Cinzel', serif; font-size: 5rem; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 40px; background: linear-gradient(to bottom, var(--brass-light), var(--brass-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
+        .passcode-container { display: flex; gap: 15px; margin-bottom: 30px; }
+        .code-box { width: 70px; height: 90px; font-size: 3rem; text-align: center; background: var(--panel-bg); border: 2px solid var(--brass-dark); color: var(--brass-light); font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 0 15px rgba(138, 101, 34, 0.2); transition: all 0.3s ease; }
+        .code-box:focus { outline: none; border-color: var(--brass-light); box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.5); }
+        #error-message { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--blood-red); opacity: 0; text-transform: uppercase; font-weight: bold; pointer-events: none; text-shadow: 0 0 10px rgba(138, 3, 3, 0.8); }
+        
+        .blood-effect { animation: shake 0.4s ease-in-out, bleed 3s forwards; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } }
+        @keyframes bleed { 0% { opacity: 1; text-shadow: 0 0 5px red; } 50% { opacity: 1; text-shadow: 0 5px 15px var(--blood-red), 0 15px 25px darkred; color: red;} 100% { opacity: 0; text-shadow: 0 20px 30px black; } }
+
+        #main-screen { display: none; width: 90%; max-width: 1000px; height: 90vh; background: rgba(30, 26, 23, 0.9); border: 3px solid var(--brass-dark); border-radius: 10px; padding: 40px; box-shadow: 0 0 30px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.8); overflow-y: auto; position: relative; }
+        .main-title { font-family: 'Cinzel', serif; font-size: 3rem; text-align: center; color: var(--brass-light); margin-bottom: 10px; }
+        .sub-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; text-align: center; border-bottom: 2px solid var(--copper); padding-bottom: 20px; margin-bottom: 30px; color: var(--brass-dark); font-style: italic; }
+        
+        .tools-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        .tool-btn { background: transparent; border: 1px solid var(--brass-dark); color: var(--brass-light); padding: 8px 15px; font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; }
+        .tool-btn:hover { background: var(--copper); color: var(--bg-dark); }
+
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .game-card { background: linear-gradient(145deg, #25201c, #161311); border: 1px solid var(--brass-dark); padding: 25px 20px; text-align: center; text-decoration: none; color: var(--brass-light); font-size: 1.5rem; font-family: 'Cinzel', serif; transition: all 0.3s ease; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 120px; }
+        .game-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.1), transparent); transform: skewX(-25deg); transition: 0.5s; }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--brass-light); box-shadow: 0 10px 20px rgba(0,0,0,0.6), 0 0 15px rgba(184, 115, 51, 0.4); color: #fff; }
+        .game-card:hover::before { left: 200%; }
+
+        /* --- Randomizer Modal & iOS Spinner Styles --- */
+        #randomizer-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; }
+        .random-content { background: #1a1614; border: 2px solid var(--brass-light); padding: 40px; text-align: center; width: 550px; max-width: 90%; border-radius: 10px; box-shadow: 0 0 40px rgba(212, 175, 55, 0.2); }
+        .random-content h2 { font-family: 'Cinzel', serif; color: var(--brass-light); margin-bottom: 25px; font-size: 2.5rem; text-shadow: 0 0 10px rgba(212,175,55,0.5); }
+        
+        #player-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; max-height: 200px; overflow-y: auto; padding-right: 5px; }
+        .player-row { display: flex; width: 100%; }
+        .player-name-box { width: 100%; padding: 12px; background: #000; border: 1px solid var(--brass-dark); color: #fff; text-align: center; font-family: 'Playfair Display', serif; font-size: 1.2rem; transition: 0.3s; border-right: none; }
+        .player-name-box:focus { outline: none; border-color: var(--brass-light); box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2); }
+        .remove-btn { background: transparent; border: 1px solid var(--brass-dark); color: var(--blood-red); width: 40px; cursor: pointer; transition: 0.3s; font-size: 1.2rem; border-left: 1px dashed var(--brass-dark); }
+        .remove-btn:hover { background: var(--blood-red); color: #fff; border-color: var(--blood-red); }
+        
+        .action-buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        
+        /* The physical iPhone wheel container */
+        #spinner-container {
+            height: 80px; /* Fits exactly one name height */
+            overflow: hidden;
+            position: relative;
+            margin: 30px 0 10px 0;
+            background: #000;
+            border: 2px solid var(--brass-dark);
+            border-radius: 8px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,1);
+        }
+        
+        /* Shadow gradients for the top and bottom curves of the cylinder */
+        #spinner-container::before, #spinner-container::after {
+            content: ''; position: absolute; left: 0; right: 0; height: 30px; z-index: 2; pointer-events: none;
+        }
+        #spinner-container::before { top: 0; background: linear-gradient(to bottom, #1a1614 0%, transparent 100%); }
+        #spinner-container::after { bottom: 0; background: linear-gradient(to top, #1a1614 0%, transparent 100%); }
+        
+        #spinner-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            /* JS will apply the sliding transition here */
+        }
+        
+        .spinner-item {
+            height: 80px; /* Must match container exactly */
+            line-height: 80px;
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            color: var(--brass-light);
+            text-align: center;
+        }
+
+        .winner-text {
+            color: #fff;
+            text-shadow: 0 0 20px var(--brass-light), 0 0 40px var(--copper);
+            animation: pulse 0.8s infinite alternate;
+        }
+        @keyframes pulse { 0% { transform: scale(1.0); } 100% { transform: scale(1.1); text-shadow: 0 0 30px #fff, 0 0 50px var(--brass-light); } }
+        
+        #post-spin-actions { display: none; margin-bottom: 20px; margin-top: 20px; }
+        .close-btn { margin-top: 15px; background: transparent; color: var(--copper); border: none; cursor: pointer; text-decoration: underline; font-family: 'Cinzel', serif; font-size: 1.1rem; }
+
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: var(--bg-dark); } ::-webkit-scrollbar-thumb { background: var(--brass-dark); border-radius: 4px; } ::-webkit-scrollbar-thumb:hover { background: var(--brass-light); }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <h1>1PEN HALL OF FAME</h1>
+        <div class="passcode-container">
+            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
+        </div>
+        <div id="error-message">YOU SHALL NOT PASS</div>
+    </div>
+
+    <!-- Main Vault -->
+    <div id="main-screen">
+        <h2 class="main-title">Welcome to 1PEN</h2>
+        <h3 class="sub-title">Choose your game</h3>
+        
+        <div class="tools-container">
+            <button class="tool-btn" onclick="document.getElementById('randomizer-modal').style.display='flex'">🎲 Randomize First Player</button>
+            <button class="tool-btn" onclick="window.location.href='wanphen-leaderboard.html'">🏆 Wanphen Wall of Fame</button>
+            <button class="tool-btn" onclick="exportData()">💾 Backup Ledger</button>
+            <button class="tool-btn" onclick="document.getElementById('import-file').click()">📂 Restore Ledger</button>
+            <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json">
+        </div>
+
+        <div class="game-grid">
+            <a href="brass-birmingham.html" class="game-card">Brass Birmingham</a>
+            <a href="brass-lancashire.html" class="game-card">Brass Lancashire</a>
+            <a href="white-castle.html" class="game-card">White Castle</a>
+            <a href="white-castle-matcha.html" class="game-card">White Castle Matcha</a>
+            <a href="viticulture.html" class="game-card">Viticulture</a>
+            <a href="concordia.html" class="game-card">Concordia</a>
+            <a href="flip-7.html" class="game-card">Flip 7</a>
+            <a href="6-nimmt.html" class="game-card">6 nimmt!</a>
+            <a href="wingspan.html" class="game-card">Wingspan</a>
+            <a href="#" class="game-card" style="opacity: 0.6; cursor: not-allowed;">Not Update Yet</a>
+        </div>
+    </div>
+
+    <!-- iPhone Style Randomizer Modal -->
+    <div id="randomizer-modal">
+        <div class="random-content">
+            <h2>Who Goes First?</h2>
+            
+            <div id="player-inputs">
+                <!-- Starting default boxes -->
+                <div class="player-row"><input type="text" class="player-name-box" placeholder="Bank"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button></div>
+                <div class="player-row"><input type="text" class="player-name-box" placeholder="Bam"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button></div>
+                <div class="player-row"><input type="text" class="player-name-box" placeholder="Job"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button></div>
+                <div class="player-row"><input type="text" class="player-name-box" placeholder="Build"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="tool-btn" onclick="addPlayerBox()">+ Add Player</button>
+                <button class="tool-btn" style="background: var(--brass-dark); color: #fff; border-color: var(--brass-light);" onclick="spinWheel()">Spin the Wheel!</button>
+            </div>
+            
+            <!-- iOS Cylinder Spinner UI -->
+            <div id="spinner-container">
+                <ul id="spinner-list">
+                    <li class="spinner-item">...</li>
+                </ul>
+            </div>
+            
+            <div id="post-spin-actions">
+                <button class="tool-btn" style="border-color: var(--blood-red); color: var(--blood-red);" onclick="eliminateWinner()">Eliminate Winner & Spin Again</button>
+            </div>
+
+            <button class="close-btn" onclick="closeRandomizer()">Close</button>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        // --- LOGIN LOGIC ---
+        const inputs = document.querySelectorAll('.code-box');
+        const CORRECT_PASS = "1184";
+        
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => { 
+                e.target.value = e.target.value.replace(/[^0-9]/g, ''); 
+                if (e.target.value !== '' && index < inputs.length - 1) inputs[index + 1].focus(); 
+                checkPasscode(); 
+            });
+            input.addEventListener('keydown', (e) => { 
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) inputs[index - 1].focus(); 
+            });
+        });
+
+        function checkPasscode() {
+            let currentPass = Array.from(inputs).map(i => i.value).join('');
+            if (currentPass.length === 4) { currentPass === CORRECT_PASS ? grantAccess() : denyAccess(); }
+        }
+
+        function grantAccess() { 
+            document.getElementById('login-screen').style.display = 'none'; 
+            document.getElementById('main-screen').style.display = 'block'; 
+        }
+
+        function denyAccess() { 
+            let err = document.getElementById('error-message'); 
+            err.classList.remove('blood-effect'); 
+            void err.offsetWidth; 
+            err.classList.add('blood-effect'); 
+            inputs.forEach(input => input.value = ''); 
+            inputs[0].focus(); 
+        }
+
+        // --- iOS RANDOMIZER LOGIC ---
+        const extraNames = ['Pun', 'Jin', 'Bowling', 'Theerawech'];
+        let placeholderIndex = 0;
+        let lastWinnerElement = null; // Stores the HTML element of the winner
+
+        function addPlayerBox() {
+            const container = document.getElementById('player-inputs');
+            const row = document.createElement('div');
+            row.className = 'player-row';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'player-name-box';
+            input.placeholder = extraNames[placeholderIndex % extraNames.length];
+            placeholderIndex++;
+            
+            const btn = document.createElement('button');
+            btn.className = 'remove-btn';
+            btn.innerHTML = '✕';
+            btn.onclick = function() { row.remove(); };
+            
+            row.appendChild(input);
+            row.appendChild(btn);
+            container.appendChild(row);
+            
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function spinWheel() {
+            document.getElementById('post-spin-actions').style.display = 'none'; 
+            
+            let inputRows = document.querySelectorAll('.player-row');
+            let candidates = [];
+            
+            // Gather players
+            inputRows.forEach(row => {
+                let inp = row.querySelector('.player-name-box');
+                let val = inp.value.trim() || inp.placeholder;
+                if(val !== "") {
+                    candidates.push({ name: val, element: row });
+                }
+            });
+            
+            if (candidates.length < 2) return alert("You need at least two players to spin!");
+            
+            let list = document.getElementById('spinner-list');
+            
+            // 1. Reset the wheel
+            list.style.transition = 'none'; 
+            list.style.transform = 'translateY(0px)';
+            list.innerHTML = ''; 
+            
+            // 2. Build the long "Tape" of names for a smooth spin
+            let tape = [];
+            for(let i=0; i<15; i++) { // Loop names 15 times to make it spin long
+                tape = tape.concat(candidates);
+            }
+            
+            // 3. Choose the winner near the end of the tape
+            let startIndex = 12 * candidates.length; 
+            let randomOffset = Math.floor(Math.random() * candidates.length);
+            let winningIndex = startIndex + randomOffset;
+            let winnerObj = tape[winningIndex];
+            
+            lastWinnerElement = winnerObj.element; // Save winner to eliminate later
+            
+            // 4. Inject names into the wheel
+            tape.forEach((item, idx) => {
+                let li = document.createElement('li');
+                li.className = 'spinner-item';
+                li.innerText = item.name;
+                
+                // Show "..." or "Spinning" at the very beginning before it moves
+                if(idx === 0) li.innerText = "🎲"; 
+                
+                list.appendChild(li);
+            });
+            
+            // Force browser to register the new list before moving
+            void list.offsetWidth; 
+            
+            // 5. Calculate how far to push the list UP
+            let itemHeight = 80; // Matches CSS height
+            let targetY = -(winningIndex * itemHeight);
+            
+            // 6. Apply the CSS Animation (Cubic bezier simulates a physical wheel slowing down)
+            list.style.transition = 'transform 3.5s cubic-bezier(0.1, 0.8, 0.1, 1)';
+            list.style.transform = `translateY(${targetY}px)`;
+            
+            // 7. When the wheel stops turning
+            setTimeout(() => {
+                let winnerLi = list.children[winningIndex];
+                winnerLi.classList.add('winner-text'); // Make winner glow
+                
+                // Confetti Explosion
+                let duration = 3 * 1000;
+                let animationEnd = Date.now() + duration;
+                let defaults = { startVelocity: 45, spread: 360, ticks: 100, zIndex: 1001, colors: ['#d4af37', '#8a6522', '#ffffff'] };
+                
+                let interval = setInterval(function() {
+                    let timeLeft = animationEnd - Date.now();
+                    if (timeLeft <= 0) return clearInterval(interval);
+                    let particleCount = 50 * (timeLeft / duration);
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } }));
+                }, 250);
+                
+                // Show 'Eliminate' button
+                setTimeout(() => {
+                    document.getElementById('post-spin-actions').style.display = 'block';
+                }, 800);
+                
+            }, 3500); // Wait exactly the length of the CSS transition
+        }
+
+        function eliminateWinner() {
+            if (lastWinnerElement) {
+                lastWinnerElement.remove(); // Delete the winner's input box
+                lastWinnerElement = null;
+                
+                // Reset the wheel visually
+                let list = document.getElementById('spinner-list');
+                list.style.transition = 'none';
+                list.style.transform = 'translateY(0px)';
+                list.innerHTML = '<li class="spinner-item">🎲</li>';
+                
+                document.getElementById('post-spin-actions').style.display = 'none';
+            }
+        }
+
+        function closeRandomizer() {
+            document.getElementById('randomizer-modal').style.display='none';
+            let list = document.getElementById('spinner-list');
+            list.style.transition = 'none';
+            list.style.transform = 'translateY(0px)';
+            list.innerHTML = '<li class="spinner-item">...</li>';
+            document.getElementById('post-spin-actions').style.display = 'none';
+        }
+
+        // --- BACKUP LOGIC ---
+        function exportData() {
+            let data = JSON.stringify(localStorage);
+            let blob = new Blob([data], {type: "application/json"});
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a'); 
+            a.href = url; 
+            a.download = '1pen_ledger_backup.json'; 
+            a.click();
+        }
+
+        function importData(event) {
+            let file = event.target.files[0]; 
+            if (!file) return;
+            let reader = new FileReader();
+            reader.onload = function(e) { 
+                try { 
+                    let data = JSON.parse(e.target.result); 
+                    Object.keys(data).forEach(key => localStorage.setItem(key, data[key])); 
+                    alert("Ledger restored successfully!"); 
+                } catch (err) { 
+                    alert("Invalid backup file."); 
+                } 
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>

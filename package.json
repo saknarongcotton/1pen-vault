@@ -1,0 +1,7 @@
+{
+  "name": "1pen-vault",
+  "version": "1.0.0",
+  "dependencies": {
+    "mysql2": "^3.0.0"
+  }
+}
