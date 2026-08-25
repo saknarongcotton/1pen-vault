@@ -44,11 +44,21 @@
         body { background-color: var(--bg-gradient-2); background-image: radial-gradient(circle at center, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%), url('https://www.transparenttextures.com/patterns/stardust.png'); color: var(--brass-light); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; transition: background-color 0.4s, color 0.4s; }
         
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; }
-        .back-btn, .theme-btn { color: var(--copper); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--copper); padding: 5px 15px; transition: 0.3s; background: transparent; cursor: pointer; }
-        .back-btn:hover, .theme-btn:hover { background: var(--copper); color: var(--btn-hover-text); }
+        .back-btn { color: var(--copper); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--copper); padding: 5px 15px; transition: 0.3s; background: transparent; cursor: pointer; border-radius: 4px; }
+        .back-btn:hover { background: var(--copper); color: var(--btn-hover-text); }
         h1 { font-family: 'Cinzel', serif; font-size: 3rem; background: linear-gradient(to bottom, var(--brass-light), var(--brass-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 5px var(--shadow-color); flex-grow: 1; text-align: center; margin: 0 15px;}
         
-        @media (max-width: 768px) { header { flex-direction: column; gap: 15px; } .back-btn, .theme-btn { width: 100%; text-align: center; } h1 { font-size: 2.5rem; } }
+        /* --- THEME TOGGLE SWITCH --- */
+        .theme-switch-wrapper { display: flex; align-items: center; gap: 10px; }
+        #theme-icon { font-size: 1.4rem; transition: 0.3s; }
+        .theme-switch { display: inline-block; height: 24px; position: relative; width: 46px; }
+        .theme-switch input { display: none; }
+        .slider { background-color: var(--bg-gradient-1); border: 1px solid var(--copper); bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 24px; }
+        .slider:before { background-color: var(--copper); bottom: 3px; content: ""; height: 16px; left: 3px; position: absolute; transition: .4s; width: 16px; border-radius: 50%; }
+        input:checked + .slider { background-color: #e8ddcb; }
+        input:checked + .slider:before { transform: translateX(22px); background-color: var(--copper); }
+
+        @media (max-width: 768px) { header { flex-direction: column; gap: 15px; } .back-btn { width: 100%; text-align: center; } h1 { font-size: 2.5rem; } .theme-switch-wrapper { width: 100%; justify-content: center; margin-top: 5px; } }
 
         .tabs { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
         .tab-btn { background: transparent; border: 2px solid var(--brass-dark); color: var(--brass-light); padding: 10px 30px; font-family: 'Cinzel', serif; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
@@ -174,7 +184,13 @@
     <header>
         <a href="index.html" class="back-btn">← Main Menu</a>
         <h1>Brass: Lancashire</h1>
-        <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">☀️ Light Mode</button>
+        <div class="theme-switch-wrapper">
+            <span id="theme-icon">🌙</span>
+            <label class="theme-switch" for="theme-checkbox">
+                <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()" />
+                <div class="slider round"></div>
+            </label>
+        </div>
     </header>
     
     <div class="tabs">
@@ -358,14 +374,27 @@
         function checkTheme() {
             if (localStorage.getItem('brass_theme') === 'light') {
                 document.body.classList.add('light-mode');
-                document.getElementById('theme-toggle').innerText = '🌙 Dark Mode';
+                document.getElementById('theme-icon').innerText = '☀️';
+                document.getElementById('theme-checkbox').checked = true;
+            } else {
+                document.getElementById('theme-icon').innerText = '🌙';
+                document.getElementById('theme-checkbox').checked = false;
             }
         }
         function toggleTheme() {
             const isLight = document.body.classList.toggle('light-mode');
-            const toggleBtn = document.getElementById('theme-toggle');
-            if (isLight) { localStorage.setItem('brass_theme', 'light'); toggleBtn.innerText = '🌙 Dark Mode'; } 
-            else { localStorage.setItem('brass_theme', 'dark'); toggleBtn.innerText = '☀️ Light Mode'; }
+            const icon = document.getElementById('theme-icon');
+            const checkbox = document.getElementById('theme-checkbox');
+            
+            if (isLight) { 
+                localStorage.setItem('brass_theme', 'light'); 
+                icon.innerText = '☀️'; 
+                checkbox.checked = true;
+            } else { 
+                localStorage.setItem('brass_theme', 'dark'); 
+                icon.innerText = '🌙'; 
+                checkbox.checked = false;
+            }
         }
 
         document.getElementById('game-date').valueAsDate = new Date();
