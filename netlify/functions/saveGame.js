@@ -1,7 +1,6 @@
 const mysql = require('mysql2/promise');
 
-exports.handler = async (event, context) => {
-    // Only allow POST requests
+exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
@@ -10,10 +9,8 @@ exports.handler = async (event, context) => {
         const data = JSON.parse(event.body);
         const { id, game, party, date, scores } = data;
 
-        // Connect to Aiven MySQL using your secret Environment Variable
         const connection = await mysql.createConnection(process.env.AIVEN_DB_URL);
 
-        // Auto-create the table if it doesn't exist yet!
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS game_history (
                 id BIGINT PRIMARY KEY,
@@ -24,9 +21,11 @@ exports.handler = async (event, context) => {
             )
         `);
 
-        // Insert the new game record
+        // INSERT OR UPDATE ON EXISTING ID
         await connection.execute(
-            `INSERT INTO game_history (id, game, party, play_date, scores) VALUES (?, ?, ?, ?, ?)`,
+            `INSERT INTO game_history (id, game, party, play_date, scores) 
+             VALUES (?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE party = VALUES(party), play_date = VALUES(play_date), scores = VALUES(scores)`,
             [id, game, party, date, JSON.stringify(scores)]
         );
 
@@ -34,13 +33,13 @@ exports.handler = async (event, context) => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ message: "Game saved successfully to the cloud!" })
+            body: JSON.stringify({ message: "Game saved/updated successfully!" })
         };
     } catch (error) {
         console.error('Database Error:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Failed to save to database', details: error.message })
+            body: JSON.stringify({ error: error.message })
         };
     }
 };
