@@ -3,272 +3,619 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overseer - Admin Tool</title>
+    <title>1PEN Vault - Admin Portal</title>
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#12100e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="1PEN Vault">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
-        :root { --brass-light: #d4af37; --brass-dark: #8a6522; --copper: #b87333; --bg-dark: #120e0e; --panel-bg: #1a1111; --blood-red: #8a0303; }
+        :root {
+            --brass-light: #d4af37;
+            --brass-dark: #8a6522;
+            --copper: #b87333;
+            --bg-dark: #12100e;
+            --panel-bg: #1e1a17;
+            --border-color: #4a3b22;
+            --danger-red: #c0392b;
+            --success-green: #27ae60;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-dark); background-image: radial-gradient(circle at center, #2e1717 0%, #120e0e 100%), url('https://www.transparenttextures.com/patterns/stardust.png'); color: var(--brass-light); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at center, #2a241e 0%, #0d0b0a 100%), url('https://www.transparenttextures.com/patterns/stardust.png');
+            color: var(--brass-light);
+            font-family: 'Playfair Display', serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .header-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--copper);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            border: 1px solid var(--copper);
+            padding: 6px 16px;
+            background: transparent;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .back-btn { left: 0; }
+        .logout-btn { right: 0; }
+        .header-btn:hover { background: var(--copper); color: var(--bg-dark); }
         
-        /* Login Screen */
-        #login-screen { height: 90vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        h1 { font-family: 'Cinzel', serif; font-size: 4rem; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 20px; color: var(--blood-red); text-shadow: 2px 2px 10px rgba(0,0,0,0.8); text-align: center;}
-        p.subtitle { color: var(--copper); font-style: italic; margin-bottom: 30px; font-size: 1.2rem; }
-        .passcode-container { display: flex; gap: 15px; margin-bottom: 30px; }
-        .code-box { width: 70px; height: 90px; font-size: 3rem; text-align: center; background: var(--panel-bg); border: 2px solid var(--blood-red); color: var(--blood-red); font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); transition: all 0.3s ease; }
-        .code-box:focus { outline: none; border-color: #ff0000; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 0 20px rgba(138, 3, 3, 0.5); }
-        #error-message { font-family: 'Cinzel', serif; font-size: 2rem; color: #ff0000; opacity: 0; text-transform: uppercase; font-weight: bold; }
-        .blood-effect { animation: shake 0.4s ease-in-out, bleed 2s forwards; }
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            background: linear-gradient(to bottom, var(--brass-light), var(--brass-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+            letter-spacing: 2px;
+        }
 
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } }
-        @keyframes bleed { 0% { opacity: 1; } 100% { opacity: 0; } }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(30, 26, 23, 0.95);
+            border: 2px solid var(--brass-dark);
+            padding: 30px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 5px 20px rgba(0,0,0,0.9);
+            border-radius: 8px;
+        }
 
-        /* Admin Dashboard */
-        #admin-dashboard { display: none; max-width: 1000px; margin: 0 auto; background: rgba(20, 10, 10, 0.9); border: 2px solid var(--blood-red); padding: 30px; border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.9); }
-        .dashboard-header { border-bottom: 1px solid var(--blood-red); padding-bottom: 20px; margin-bottom: 20px; text-align: center; }
-        .dashboard-header h2 { font-family: 'Cinzel', serif; color: var(--brass-light); font-size: 2.5rem; }
-        
-        select { width: 100%; padding: 15px; background: #000; color: var(--brass-light); border: 1px solid var(--brass-dark); font-family: 'Cinzel', serif; font-size: 1.2rem; margin-bottom: 20px; cursor: pointer; }
-        select:focus { outline: none; border-color: var(--blood-red); }
+        /* --- AUTH SCREEN --- */
+        #auth-section {
+            max-width: 420px;
+            margin: 80px auto;
+            text-align: center;
+            background: rgba(20, 16, 14, 0.95);
+            border: 2px solid var(--brass-dark);
+            padding: 40px 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+        }
+        #auth-section h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--brass-light);
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        .pin-input {
+            width: 100%;
+            padding: 14px;
+            background: #0d0b0a;
+            border: 2px solid var(--brass-dark);
+            color: #fff;
+            text-align: center;
+            font-size: 2rem;
+            letter-spacing: 12px;
+            font-family: monospace;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .pin-input:focus { outline: none; border-color: var(--brass-light); box-shadow: 0 0 10px var(--brass-light); }
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(145deg, var(--brass-dark), #5e4315);
+            color: #fff;
+            border: 1px solid var(--brass-light);
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        .auth-btn:hover { background: var(--brass-light); color: var(--bg-dark); }
+        .error-msg { color: var(--danger-red); margin-top: 15px; font-weight: bold; display: none; }
 
-        .btn { background: transparent; border: 1px solid var(--brass-dark); color: var(--brass-light); padding: 8px 15px; font-family: 'Cinzel', serif; cursor: pointer; transition: 0.3s; margin: 5px; }
-        .btn:hover { background: var(--copper); color: var(--bg-dark); }
-        .btn-danger { border-color: var(--blood-red); color: var(--blood-red); }
-        .btn-danger:hover { background: var(--blood-red); color: #fff; }
+        /* --- CONTROLS & FILTER --- */
+        .controls-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+        .controls-bar input, .controls-bar select {
+            background: #110e0c;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 10px 15px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            border-radius: 4px;
+        }
+        .controls-bar input:focus, .controls-bar select:focus { outline: none; border-color: var(--brass-light); }
+        .search-input { flex: 2; min-width: 220px; }
+        .filter-select { flex: 1; min-width: 200px; cursor: pointer; }
 
-        .admin-card { background: rgba(0,0,0,0.6); border: 1px dashed var(--brass-dark); padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .admin-card-info { font-size: 1.2rem; color: var(--brass-light); font-family: 'Cinzel', serif; }
-        .admin-card-actions { display: flex; gap: 10px; }
+        /* --- GAME CARDS --- */
+        .record-card {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--brass-dark);
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+        .record-card:hover { border-color: var(--brass-light); box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .record-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            color: var(--brass-light);
+        }
+        .record-meta {
+            color: var(--copper);
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+        }
+        .record-actions { display: flex; gap: 10px; }
+        .action-btn {
+            padding: 6px 14px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        .edit-btn { background: var(--brass-dark); color: #fff; border: 1px solid var(--brass-light); }
+        .edit-btn:hover { background: var(--brass-light); color: var(--bg-dark); }
+        .delete-btn { background: rgba(192, 57, 43, 0.2); color: #e74c3c; border: 1px solid var(--danger-red); }
+        .delete-btn:hover { background: var(--danger-red); color: #fff; }
 
-        /* Edit Modal */
-        #edit-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); align-items: center; justify-content: center; overflow-y: auto; padding: 20px; }
-        .edit-content { background: #1a0f0f; border: 2px solid var(--blood-red); padding: 30px; width: 600px; max-width: 100%; max-height: 90vh; overflow-y: auto; }
-        .edit-content h3 { font-family: 'Cinzel', serif; color: var(--brass-light); border-bottom: 1px solid var(--brass-dark); padding-bottom: 10px; margin-bottom: 20px; }
-        
-        .edit-group { margin-bottom: 15px; }
-        .edit-group label { display: block; color: var(--copper); font-family: 'Cinzel', serif; margin-bottom: 5px; }
-        .edit-group input { width: 100%; background: #000; border: 1px solid var(--brass-dark); color: #fff; padding: 8px; font-family: 'Playfair Display', serif; }
-        
-        .player-edit-box { border: 1px solid var(--brass-dark); padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.4); }
-        .player-edit-box h4 { color: var(--brass-light); margin-bottom: 10px; font-family: 'Cinzel', serif; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* Table */
+        .table-wrapper { overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        th { background: #16120f; color: var(--copper); font-family: 'Cinzel', serif; padding: 10px; border: 1px solid var(--brass-dark); font-size: 0.9rem; }
+        td { padding: 10px 8px; border: 1px solid var(--border-color); color: #fff; }
+        .score-pill { color: var(--brass-light); font-weight: bold; font-size: 1.15rem; }
 
-        .modal-actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
+        /* --- EDIT MODAL --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-box {
+            background: #1c1815;
+            border: 2px solid var(--brass-light);
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(0,0,0,0.9);
+        }
+        .modal-header {
+            font-family: 'Cinzel', serif;
+            color: var(--brass-light);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-family: 'Cinzel', serif; color: var(--copper); font-size: 0.9rem; }
+        .form-group input {
+            background: #0d0b0a;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 1rem;
+        }
+        .form-group input:focus { outline: none; border-color: var(--brass-light); }
+
+        .player-row-edit {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+        }
+        .player-inputs {
+            display: grid;
+            grid-template-columns: 2fr repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .player-inputs input {
+            background: #110e0c;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 8px;
+            text-align: center;
+        }
+        .player-inputs input:focus { border-color: var(--brass-light); }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .save-change-btn {
+            flex: 2;
+            background: linear-gradient(145deg, var(--brass-dark), #5e4315);
+            color: #fff;
+            border: 1px solid var(--brass-light);
+            padding: 12px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .save-change-btn:hover { background: var(--brass-light); color: var(--bg-dark); }
+        .cancel-btn {
+            flex: 1;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #555;
+            padding: 12px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+        .cancel-btn:hover { background: #333; color: #fff; }
     </style>
 </head>
 <body>
+    <header>
+        <a href="index.html" class="header-btn back-btn">← Back to Vault</a>
+        <h1>Vault Admin Portal</h1>
+        <button class="header-btn logout-btn" id="logout-btn" style="display:none;" onclick="logoutAdmin()">Lock Vault</button>
+    </header>
 
-    <!-- Admin Login -->
-    <div id="login-screen">
-        <h1>Vault Overseer</h1>
-        <p class="subtitle">Authorized Access Only</p>
-        <div class="passcode-container">
-            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
-            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
-            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
-            <input type="text" class="code-box" maxlength="1" inputmode="numeric" autocomplete="off">
-        </div>
-        <div id="error-message">ACCESS DENIED</div>
-        <br>
-        <a href="index.html" style="color: var(--brass-dark); font-family: 'Cinzel', serif;">Return to User Vault</a>
+    <!-- AUTHENTICATION SECTION (PIN: 3394) -->
+    <div id="auth-section">
+        <h2>Admin Authentication</h2>
+        <p style="color: var(--copper); margin-bottom: 20px;">Enter the Master Key to manage records.</p>
+        <input type="password" id="pin-input" class="pin-input" maxlength="4" placeholder="••••" autofocus onkeydown="if(event.key==='Enter') verifyPin()">
+        <button class="auth-btn" onclick="verifyPin()">Unlock Portal</button>
+        <div id="auth-error" class="error-msg">Incorrect Master PIN. Access Denied.</div>
     </div>
 
-    <!-- Admin Dashboard -->
-    <div id="admin-dashboard">
-        <div class="dashboard-header">
-            <h2>Ledger Control Panel</h2>
-        </div>
-
-        <select id="game-selector" onchange="loadGameData()">
-            <option value="">-- Select a Game Ledger to Manage --</option>
-            <option value="brass_birmingham_history">Brass: Birmingham</option>
-            <option value="brass_lancashire_history">Brass: Lancashire</option>
-            <option value="white_castle_history">The White Castle</option>
-            <option value="white_castle_matcha_history">The White Castle: Matcha</option>
-            <option value="viticulture_history">Viticulture</option>
-            <option value="concordia_history">Concordia</option>
-            <option value="flip_7_history">Flip 7</option>
-            <option value="6_nimmt_history">6 nimmt!</option>
-            <option value="wingspan_history">Wingspan</option>
-        </select>
-
-        <div style="text-align: right; margin-bottom: 20px;">
-            <button class="btn btn-danger" id="wipe-btn" style="display:none;" onclick="wipeLedger()">⚠ Wipe Entire Ledger</button>
+    <!-- MAIN ADMIN DASHBOARD -->
+    <div id="admin-dashboard" class="container" style="display: none;">
+        <div class="controls-bar">
+            <input type="text" id="admin-search" class="search-input" placeholder="🔍 Search by party name or player..." oninput="renderAdminRecords()">
+            <select id="admin-game-filter" class="filter-select" onchange="renderAdminRecords()">
+                <option value="ALL">-- All Games --</option>
+                <option value="Brass: Birmingham">Brass: Birmingham</option>
+                <option value="Brass: Lancashire">Brass: Lancashire</option>
+                <option value="The White Castle">The White Castle</option>
+                <option value="The White Castle: Matcha">The White Castle: Matcha</option>
+                <option value="Viticulture">Viticulture</option>
+                <option value="Concordia">Concordia</option>
+                <option value="Flip 7">Flip 7</option>
+                <option value="6 nimmt!">6 nimmt!</option>
+                <option value="Wingspan">Wingspan</option>
+            </select>
+            <button class="action-btn edit-btn" onclick="fetchCloudRecords()" style="padding: 10px 20px;">🔄 Refresh Cloud</button>
         </div>
 
         <div id="records-container">
-            <!-- Records loaded here by JS -->
-            <p style="text-align: center; color: var(--brass-dark); font-style: italic;">Select a game to view history.</p>
+            <p style="text-align:center; color: var(--brass-light); padding: 40px;">Fetching live records from Aiven Cloud...</p>
         </div>
     </div>
 
-    <!-- Dynamic Edit Modal -->
-    <div id="edit-modal">
-        <div class="edit-content">
-            <h3 id="edit-title">Edit Record</h3>
-            <div id="edit-form-area"></div>
+    <!-- EDIT RECORD MODAL -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="modal-game-title">Edit Record</span>
+                <span style="font-size: 1rem; color: var(--copper);" id="modal-record-id"></span>
+            </div>
+
+            <div class="modal-grid">
+                <div class="form-group">
+                    <label>Party Name</label>
+                    <input type="text" id="edit-party-name">
+                </div>
+                <div class="form-group">
+                    <label>Date (YYYY-MM-DD)</label>
+                    <input type="date" id="edit-game-date">
+                </div>
+            </div>
+
+            <h4 style="color:var(--copper); font-family:'Cinzel',serif; margin-bottom:10px; border-bottom:1px dashed var(--border-color); padding-bottom:5px;">Player Scores</h4>
+            <div id="edit-players-container"></div>
+
             <div class="modal-actions">
-                <button class="btn" onclick="document.getElementById('edit-modal').style.display='none'">Cancel</button>
-                <button class="btn" style="background: var(--brass-dark); color: #fff;" onclick="saveEdit()">Save Changes</button>
+                <button class="save-change-btn" onclick="saveRecordChanges()">💾 Commit Changes to Cloud</button>
+                <button class="cancel-btn" onclick="closeEditModal()">Cancel</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- ADMIN LOGIN LOGIC ---
-        const inputs = document.querySelectorAll('.code-box');
-        const ADMIN_PASS = "9999"; // Change this 4-digit code to whatever you want
-        
-        inputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => { 
-                e.target.value = e.target.value.replace(/[^0-9]/g, ''); 
-                if (e.target.value !== '' && index < inputs.length - 1) inputs[index + 1].focus(); 
-                checkAdminPass(); 
-            });
-            input.addEventListener('keydown', (e) => { 
-                if (e.key === 'Backspace' && e.target.value === '' && index > 0) inputs[index - 1].focus(); 
-            });
-        });
+        // MASTER PIN (Updated to 3394)
+        const MASTER_PIN = "3394";
+        let cloudHistory = [];
+        let currentlyEditingGame = null;
 
-        function checkAdminPass() {
-            let currentPass = Array.from(inputs).map(i => i.value).join('');
-            if (currentPass.length === 4) { 
-                if (currentPass === ADMIN_PASS) {
-                    document.getElementById('login-screen').style.display = 'none'; 
-                    document.getElementById('admin-dashboard').style.display = 'block'; 
-                } else {
-                    let err = document.getElementById('error-message'); 
-                    err.classList.remove('blood-effect'); 
-                    void err.offsetWidth; 
-                    err.classList.add('blood-effect'); 
-                    inputs.forEach(input => input.value = ''); 
-                    inputs[0].focus(); 
-                }
+        // Check if session already authenticated
+        if (sessionStorage.getItem('vault_admin_auth') === 'true') {
+            showDashboard();
+        }
+
+        function verifyPin() {
+            const input = document.getElementById('pin-input').value;
+            const err = document.getElementById('auth-error');
+            if (input === MASTER_PIN) {
+                sessionStorage.setItem('vault_admin_auth', 'true');
+                err.style.display = 'none';
+                showDashboard();
+            } else {
+                err.style.display = 'block';
+                document.getElementById('pin-input').value = '';
+                document.getElementById('pin-input').focus();
             }
         }
 
-        // --- DASHBOARD LOGIC ---
-        let currentKey = '';
-        let currentData = [];
-        let editingIndex = -1;
+        function showDashboard() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'block';
+            document.getElementById('logout-btn').style.display = 'block';
+            fetchCloudRecords();
+        }
 
-        function loadGameData() {
-            currentKey = document.getElementById('game-selector').value;
+        function logoutAdmin() {
+            sessionStorage.removeItem('vault_admin_auth');
+            location.reload();
+        }
+
+        // --- FETCH CLOUD DATA ---
+        function fetchCloudRecords() {
             const container = document.getElementById('records-container');
-            const wipeBtn = document.getElementById('wipe-btn');
+            container.innerHTML = "<p style='text-align:center; color: var(--brass-light); padding: 40px;'>Connecting to Aiven Database...</p>";
 
-            if (!currentKey) {
-                container.innerHTML = "<p style='text-align: center; color: var(--brass-dark); font-style: italic;'>Select a game to view history.</p>";
-                wipeBtn.style.display = 'none';
+            fetch('/.netlify/functions/getHistory')
+            .then(res => {
+                if (!res.ok) throw new Error("Cloud Network Error");
+                return res.json();
+            })
+            .then(data => {
+                cloudHistory = data;
+                renderAdminRecords();
+            })
+            .catch(err => {
+                container.innerHTML = `<p style='text-align:center; color: var(--danger-red); padding: 40px;'>Failed to load records: ${err.message}</p>`;
+            });
+        }
+
+        // --- RENDER RECORDS ---
+        function renderAdminRecords() {
+            const container = document.getElementById('records-container');
+            const search = document.getElementById('admin-search').value.toLowerCase();
+            const filterGame = document.getElementById('admin-game-filter').value;
+
+            let filtered = cloudHistory.filter(item => {
+                const matchesGame = (filterGame === 'ALL' || item.game === filterGame);
+                const partyStr = (item.party || '').toLowerCase();
+                const playersStr = (item.scores || []).map(p => p.name).join(' ').toLowerCase();
+                const matchesSearch = partyStr.includes(search) || playersStr.includes(search);
+                return matchesGame && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color: #888; padding: 40px;'>No matching records found in the cloud.</p>";
                 return;
             }
 
-            currentData = JSON.parse(localStorage.getItem(currentKey)) || [];
-            
-            if (currentData.length === 0) {
-                container.innerHTML = "<p style='text-align: center; color: var(--brass-dark); font-style: italic;'>This ledger is empty.</p>";
-                wipeBtn.style.display = 'none';
-                return;
-            }
-
-            wipeBtn.style.display = 'inline-block';
             let html = '';
-            
-            currentData.forEach((record, index) => {
+            filtered.forEach(record => {
                 html += `
-                    <div class="admin-card">
-                        <div class="admin-card-info">
-                            <strong>${record.party}</strong> <br>
-                            <span style="font-size: 0.9rem; color: var(--brass-dark);">${record.date} | ${record.scores.length} Players</span>
+                <div class="record-card">
+                    <div class="record-header">
+                        <div>
+                            <div class="record-title">${record.game}</div>
+                            <div class="record-meta">Party: <strong>${record.party || 'N/A'}</strong> | Date: <strong>${record.date}</strong> | ID: <code>${record.id}</code></div>
                         </div>
-                        <div class="admin-card-actions">
-                            <button class="btn" onclick="openEditModal(${index})">Edit Data</button>
-                            <button class="btn btn-danger" onclick="deleteRecord(${index})">Delete</button>
+                        <div class="record-actions">
+                            <button class="action-btn edit-btn" onclick="openEditModal(${record.id})">✏️ Edit Scores</button>
+                            <button class="action-btn delete-btn" onclick="deleteCloudRecord(${record.id})">🗑️ Delete</button>
                         </div>
                     </div>
-                `;
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Player Name</th>
+                                    ${getDynamicHeaders(record)}
+                                    <th>Final Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(record.scores || []).map(p => `
+                                    <tr>
+                                        <td style="font-weight:bold; color:var(--brass-light);">${p.name}</td>
+                                        ${getDynamicRowCells(p)}
+                                        <td class="score-pill">${p.final}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
             });
             container.innerHTML = html;
         }
 
-        function deleteRecord(index) {
-            if (confirm("Are you certain you want to delete this specific game record? This cannot be undone.")) {
-                currentData.splice(index, 1);
-                localStorage.setItem(currentKey, JSON.stringify(currentData));
-                loadGameData(); // Refresh list
-            }
+        function getDynamicHeaders(record) {
+            if (!record.scores || record.scores.length === 0) return '';
+            const sample = record.scores[0];
+            const keys = Object.keys(sample).filter(k => k !== 'name' && k !== 'final');
+            return keys.map(k => `<th>${capitalize(k)}</th>`).join('');
         }
 
-        function wipeLedger() {
-            if (confirm("WARNING: You are about to permanently delete ALL records for this game. Are you entirely sure?")) {
-                localStorage.removeItem(currentKey);
-                loadGameData(); // Refresh list
-            }
+        function getDynamicRowCells(player) {
+            const keys = Object.keys(player).filter(k => k !== 'name' && k !== 'final');
+            return keys.map(k => `<td>${player[k] !== undefined ? player[k] : '-'}</td>`).join('');
         }
 
-        // --- DYNAMIC EDIT LOGIC ---
-        function openEditModal(index) {
-            editingIndex = index;
-            let record = currentData[index];
-            let formArea = document.getElementById('edit-form-area');
-            
-            let html = `
-                <div class="edit-group">
-                    <label>Party Name</label>
-                    <input type="text" id="edit-party" value="${record.party}">
-                </div>
-                <div class="edit-group">
-                    <label>Date</label>
-                    <input type="date" id="edit-date" value="${record.date}">
-                </div>
-            `;
+        function capitalize(s) {
+            return s.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        }
 
-            record.scores.forEach((player, pIndex) => {
-                html += `<div class="player-edit-box"><h4>Player ${pIndex + 1}</h4><div class="stat-grid">`;
-                
-                // Dynamically create inputs for whatever stats this specific game uses
-                Object.keys(player).forEach(statKey => {
-                    let labelName = statKey.charAt(0).toUpperCase() + statKey.slice(1);
-                    // Use text input for name, number input for scores
-                    let inputType = statKey === 'name' ? 'text' : 'number'; 
-                    
-                    html += `
+        // --- EDIT MODAL LOGIC ---
+        function openEditModal(recordId) {
+            const record = cloudHistory.find(r => r.id === recordId);
+            if (!record) return;
+
+            currentlyEditingGame = JSON.parse(JSON.stringify(record)); // clone
+            document.getElementById('modal-game-title').innerText = `Edit: ${record.game}`;
+            document.getElementById('modal-record-id').innerText = `ID: ${record.id}`;
+            document.getElementById('edit-party-name').value = record.party || '';
+            document.getElementById('edit-game-date').value = record.date || '';
+
+            const container = document.getElementById('edit-players-container');
+            let phtml = '';
+
+            (record.scores || []).forEach((player, pIdx) => {
+                const subKeys = Object.keys(player).filter(k => k !== 'name' && k !== 'final');
+                phtml += `
+                <div class="player-row-edit" data-pidx="${pIdx}">
+                    <div style="font-family:'Cinzel',serif; color:var(--brass-light); margin-bottom:5px;">Player ${pIdx + 1}</div>
+                    <div class="player-inputs">
                         <div>
-                            <label style="font-size: 0.8rem; color: var(--brass-light);">${labelName}</label>
-                            <input type="${inputType}" id="edit-p${pIndex}-${statKey}" value="${player[statKey]}">
+                            <small style="color:var(--copper);">Name</small>
+                            <input type="text" class="edit-pname" value="${player.name}">
                         </div>
-                    `;
-                });
-                html += `</div></div>`;
+                        ${subKeys.map(k => `
+                            <div>
+                                <small style="color:var(--copper);">${capitalize(k)}</small>
+                                <input type="number" class="edit-psub" data-key="${k}" value="${player[k] || 0}">
+                            </div>
+                        `).join('')}
+                        <div>
+                            <small style="color:var(--brass-light); font-weight:bold;">Final Score</small>
+                            <input type="number" class="edit-pfinal" value="${player.final || 0}" style="font-weight:bold; color:var(--brass-light);">
+                        </div>
+                    </div>
+                </div>`;
             });
 
-            formArea.innerHTML = html;
+            container.innerHTML = phtml;
             document.getElementById('edit-modal').style.display = 'flex';
         }
 
-        function saveEdit() {
-            if (editingIndex === -1) return;
-            
-            let record = currentData[editingIndex];
-            
-            // Save global metadata
-            record.party = document.getElementById('edit-party').value;
-            record.date = document.getElementById('edit-date').value;
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+            currentlyEditingGame = null;
+        }
 
-            // Save individual dynamic player stats
-            record.scores.forEach((player, pIndex) => {
-                Object.keys(player).forEach(statKey => {
-                    let inputVal = document.getElementById(`edit-p${pIndex}-${statKey}`).value;
-                    // If it's the name keep as text, otherwise try to parse as number/string
-                    player[statKey] = statKey === 'name' ? inputVal : (inputVal || "0"); 
+        function saveRecordChanges() {
+            if (!currentlyEditingGame) return;
+
+            const updatedParty = document.getElementById('edit-party-name').value.trim();
+            const updatedDate = document.getElementById('edit-game-date').value;
+
+            let updatedScores = [];
+            document.querySelectorAll('.player-row-edit').forEach((row, idx) => {
+                const name = row.querySelector('.edit-pname').value.trim();
+                const final = row.querySelector('.edit-pfinal').value;
+                let playerObj = { name: name || `Player ${idx+1}`, final: final };
+
+                row.querySelectorAll('.edit-psub').forEach(subInput => {
+                    const key = subInput.getAttribute('data-key');
+                    playerObj[key] = subInput.value;
                 });
+
+                updatedScores.push(playerObj);
             });
 
-            currentData[editingIndex] = record;
-            localStorage.setItem(currentKey, JSON.stringify(currentData));
-            
-            document.getElementById('edit-modal').style.display = 'none';
-            loadGameData(); // Refresh visual list
+            const updatedRecord = {
+                id: currentlyEditingGame.id,
+                game: currentlyEditingGame.game,
+                party: updatedParty || "Unknown Party",
+                date: updatedDate,
+                scores: updatedScores
+            };
+
+            // Send Update to Cloud via saveGame (uses ON DUPLICATE KEY UPDATE)
+            fetch('/.netlify/functions/saveGame', {
+                method: 'POST',
+                body: JSON.stringify(updatedRecord)
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to update cloud database");
+                return res.json();
+            })
+            .then(() => {
+                alert("✨ Cloud record updated successfully!");
+                closeEditModal();
+                fetchCloudRecords();
+            })
+            .catch(err => {
+                alert("Error updating record: " + err.message);
+            });
+        }
+
+        // --- DELETE RECORD LOGIC ---
+        function deleteCloudRecord(recordId) {
+            if (!confirm(`Are you sure you want to PERMANENTLY delete record ID ${recordId} from the cloud database?`)) {
+                return;
+            }
+
+            fetch('/.netlify/functions/deleteGame', {
+                method: 'POST',
+                body: JSON.stringify({ id: recordId })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to delete from database");
+                return res.json();
+            })
+            .then(() => {
+                alert("🗑️ Record deleted from cloud.");
+                fetchCloudRecords();
+            })
+            .catch(err => {
+                alert("Delete failed: " + err.message);
+            });
         }
     </script>
 </body>
