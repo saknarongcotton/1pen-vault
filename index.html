@@ -117,10 +117,7 @@
         
         <div class="tools-container">
             <button class="tool-btn" onclick="document.getElementById('randomizer-modal').style.display='flex'">🎲 Randomize First Player</button>
-            <button class="tool-btn" onclick="window.location.href='wanphen-leaderboard.html'">🏆 Wanphen Wall of Fame</button>
-            <button class="tool-btn" onclick="exportData()">💾 Backup Ledger</button>
-            <button class="tool-btn" onclick="document.getElementById('import-file').click()">📂 Restore Ledger</button>
-            <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json">
+            <button class="tool-btn" onclick="window.location.href='wanphen-leaderboard.html'">🏆 1PEN Wall of Fame</button>
         </div>
 
         <div class="game-grid">
@@ -342,33 +339,6 @@
             list.style.transform = 'translateY(0px)';
             list.innerHTML = '<li class="spinner-item">...</li>';
             document.getElementById('post-spin-actions').style.display = 'none';
-        }
-
-        // --- BACKUP LOGIC ---
-        function exportData() {
-            let data = JSON.stringify(localStorage);
-            let blob = new Blob([data], {type: "application/json"});
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a'); 
-            a.href = url; 
-            a.download = '1pen_ledger_backup.json'; 
-            a.click();
-        }
-
-        function importData(event) {
-            let file = event.target.files[0]; 
-            if (!file) return;
-            let reader = new FileReader();
-            reader.onload = function(e) { 
-                try { 
-                    let data = JSON.parse(e.target.result); 
-                    Object.keys(data).forEach(key => localStorage.setItem(key, data[key])); 
-                    alert("Ledger restored successfully!"); 
-                } catch (err) { 
-                    alert("Invalid backup file."); 
-                } 
-            };
-            reader.readAsText(file);
         }
     </script>
 </body>
