@@ -39,11 +39,18 @@
         .back-btn:hover { background: var(--copper); color: var(--bg-gradient-2); }
         h1 { font-family: 'Cinzel', serif; font-size: 3.5rem; background: linear-gradient(to bottom, var(--brass-light), var(--brass-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 5px var(--shadow-color); text-transform: uppercase; letter-spacing: 2px;}
         
-        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--brass-dark); padding: 40px; box-shadow: 0 0 30px var(--shadow-color); border-radius: 8px; transition: 0.4s;}
+        .container { max-width: 1400px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--brass-dark); padding: 40px; box-shadow: 0 0 30px var(--shadow-color); border-radius: 8px; transition: 0.4s;}
         
-        .controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
-        select { background: var(--bg-gradient-2); color: var(--brass-light); border: 1px solid var(--brass-dark); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.2rem; flex: 1; min-width: 250px; max-width: 450px; cursor: pointer; outline: none; border-radius: 4px; transition: 0.3s;}
-        select:focus { border-color: var(--brass-light); box-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
+        /* --- ADVANCED SEARCH CONTROLS --- */
+        .controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; background: var(--panel-bg); padding: 20px; border-radius: 5px; border: 1px solid var(--border-color); }
+        .controls select, .controls input { 
+            background: var(--bg-gradient-2); color: var(--brass-light); border: 1px solid var(--brass-dark); 
+            padding: 15px; font-family: 'Playfair Display', serif; font-size: 1.1rem; flex: 1 1 200px; 
+            outline: none; border-radius: 4px; transition: 0.3s;
+        }
+        .controls select { font-family: 'Cinzel', serif; cursor: pointer; }
+        .controls input::placeholder { color: var(--brass-dark); opacity: 0.7; }
+        .controls select:focus, .controls input:focus { border-color: var(--brass-light); box-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
         
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 40px; }
         .stat-box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 20px; text-align: center; border-radius: 5px; transition: 0.4s; display: flex; flex-direction: column; justify-content: center;}
@@ -52,11 +59,16 @@
         .stat-sub { font-size: 0.85rem; color: #aaa; margin-top: 5px; font-family: 'Playfair Display', serif;}
 
         /* --- CHARTS GRID --- */
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
         .chart-box { background: var(--chart-bg); padding: 20px; border: 1px dashed var(--brass-dark); border-radius: 5px; transition: 0.4s; display: flex; align-items: center; justify-content: center; min-height: 350px;}
         .full-width { grid-column: 1 / -1; }
+        .double-width { grid-column: span 2; }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1100px) {
+            .charts-grid { grid-template-columns: 1fr 1fr; }
+            .double-width { grid-column: span 1; }
+        }
+        @media (max-width: 768px) {
             .charts-grid { grid-template-columns: 1fr; }
             .full-width { grid-column: 1; }
             h1 { font-size: 2.2rem; margin-top: 50px;}
@@ -71,11 +83,11 @@
     </header>
 
     <div class="container">
-        <!-- Dashboard Filters -->
+        <!-- Advanced Dashboard Filters -->
         <div class="controls">
             <!-- Game Selection -->
             <select id="game-selector" onchange="updateDashboard()">
-                <option value="" disabled selected>-- Select a Game to View Analytics --</option>
+                <option value="" disabled selected>-- Select a Game --</option>
                 <option value="Brass: Birmingham">Brass: Birmingham</option>
                 <option value="Brass: Lancashire">Brass: Lancashire</option>
                 <option value="The White Castle">The White Castle</option>
@@ -85,6 +97,11 @@
                 <option value="Flip 7">Flip 7</option>
                 <option value="6 nimmt!">6 nimmt!</option>
                 <option value="Wingspan">Wingspan</option>
+                <option value="Citadels">Citadels</option>
+                <option value="Colt Express">Colt Express</option>
+                <option value="Ethnos">Ethnos</option>
+                <option value="Paper Tales">Paper Tales</option>
+                <option value="MicroMacro: Crime City">MicroMacro: Crime City</option>
             </select>
             
             <!-- Player Count Filter -->
@@ -95,7 +112,20 @@
                 <option value="4">4 Players</option>
                 <option value="5">5 Players</option>
                 <option value="6">6 Players</option>
+                <option value="7">7+ Players</option>
             </select>
+
+            <!-- Time/Date Filter -->
+            <select id="date-filter" onchange="updateDashboard()">
+                <option value="all" selected>All Time</option>
+                <option value="30days">Last 30 Days</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+            </select>
+
+            <!-- Text Search Filter -->
+            <input type="text" id="text-search" placeholder="🔍 Search Player Name or Party Name..." oninput="updateDashboard()">
         </div>
 
         <div class="stats-grid">
@@ -110,7 +140,7 @@
                 <div class="stat-sub" id="most-active-sub"></div>
             </div>
 
-            <!-- 10 DEEP STATS -->
+            <!-- NEW REQUESTED STATS -->
             <div class="stat-box">
                 <div class="stat-title">Most Wins</div>
                 <div class="stat-value" id="most-wins">-</div>
@@ -122,9 +152,9 @@
                 <div class="stat-sub" id="highest-score-sub"></div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Lowest Score Ever</div>
-                <div class="stat-value" id="lowest-score">-</div>
-                <div class="stat-sub" id="lowest-score-sub"></div>
+                <div class="stat-title">Highest Win Streak</div>
+                <div class="stat-value" id="highest-streak">-</div>
+                <div class="stat-sub" id="highest-streak-sub"></div>
             </div>
             <div class="stat-box">
                 <div class="stat-title">Avg Winning Score</div>
@@ -135,8 +165,14 @@
                 <div class="stat-value" id="avg-overall-score">-</div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Avg Player Count</div>
-                <div class="stat-value" id="avg-players">-</div>
+                <div class="stat-title">Highest Canal Score</div>
+                <div class="stat-value" id="highest-canal">-</div>
+                <div class="stat-sub" id="highest-canal-sub">Brass Only</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Highest Rail Score</div>
+                <div class="stat-value" id="highest-rail">-</div>
+                <div class="stat-sub" id="highest-rail-sub">Brass Only</div>
             </div>
             <div class="stat-box">
                 <div class="stat-title">Biggest Blowout</div>
@@ -149,56 +185,61 @@
                 <div class="stat-sub">Point margin</div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Most Played Date</div>
-                <div class="stat-value" id="most-played-date" style="font-size: 1.4rem;">-</div>
-                <div class="stat-sub" id="most-played-date-sub"></div>
-            </div>
-            <div class="stat-box">
                 <div class="stat-title">Total Points Scored</div>
                 <div class="stat-value" id="total-points">-</div>
                 <div class="stat-sub">Across filtered games</div>
             </div>
         </div>
 
-        <!-- 5 DEEP ANALYSIS GRAPHS -->
+        <!-- 15 DEEP ANALYSIS GRAPHS -->
         <div class="charts-grid" id="charts-container" style="display: none;">
-            <div class="chart-box full-width">
-                <canvas id="trendChart"></canvas>
-            </div>
-            <div class="chart-box">
-                <canvas id="scoreChart"></canvas>
-            </div>
-            <div class="chart-box">
-                <canvas id="avgScoreChart"></canvas>
-            </div>
-            <div class="chart-box">
-                <canvas id="winRateChart"></canvas>
-            </div>
-            <div class="chart-box">
-                <canvas id="playCountChart"></canvas>
-            </div>
+            <!-- Core 5 -->
+            <div class="chart-box full-width"><canvas id="trendChart"></canvas></div>
+            <div class="chart-box"><canvas id="scoreChart"></canvas></div>
+            <div class="chart-box"><canvas id="avgScoreChart"></canvas></div>
+            <div class="chart-box"><canvas id="winRateChart"></canvas></div>
+            
+            <!-- Additional 10 -->
+            <div class="chart-box"><canvas id="playCountChart"></canvas></div>
+            <div class="chart-box double-width"><canvas id="positionChart"></canvas></div>
+            <div class="chart-box"><canvas id="totalPointsChart"></canvas></div>
+            <div class="chart-box full-width"><canvas id="matchTightnessChart"></canvas></div>
+            <div class="chart-box"><canvas id="winMarginChart"></canvas></div>
+            <div class="chart-box"><canvas id="streakChart"></canvas></div>
+            <div class="chart-box"><canvas id="activityTrendChart"></canvas></div>
+            <div class="chart-box double-width"><canvas id="canalRailChart"></canvas></div>
+            <div class="chart-box"><canvas id="playerCountScoreChart"></canvas></div>
+            <div class="chart-box"><canvas id="personalBestAvgChart"></canvas></div>
+            <div class="chart-box full-width"><canvas id="scoreDistributionChart"></canvas></div>
         </div>
-        <div id="no-data-msg" style="text-align: center; color: var(--copper); font-size: 1.5rem; font-family: 'Cinzel', serif; margin-top: 40px;"></div>
+        <div id="no-data-msg" style="text-align: center; color: var(--copper); font-size: 1.5rem; font-family: 'Cinzel', serif; margin-top: 40px;">Select a game above to begin analysis.</div>
     </div>
     
     <script>
-        // Check for Light/Dark Mode preference from Main Menu
         function checkTheme() {
             if (localStorage.getItem('vault_theme') === 'light') {
                 document.body.classList.add('light-mode');
             }
         }
 
-        // Define sorting logic based on the game rules
+        // Expanded Rules Dictionary
         const gameRules = {
-            'Brass: Birmingham': { sort: 'high' }, 'Brass: Lancashire': { sort: 'high' },
-            'The White Castle': { sort: 'high' }, 'The White Castle: Matcha': { sort: 'high' },
-            'Viticulture': { sort: 'high' }, 'Concordia': { sort: 'high' },
-            'Flip 7': { sort: 'high' }, 'Wingspan': { sort: 'high' },
-            '6 nimmt!': { sort: 'low' } // 6 nimmt! lowest score wins
+            'Brass: Birmingham': { sort: 'high', hasEras: true }, 
+            'Brass: Lancashire': { sort: 'high', hasEras: true },
+            'The White Castle': { sort: 'high' }, 
+            'The White Castle: Matcha': { sort: 'high' },
+            'Viticulture': { sort: 'high' }, 
+            'Concordia': { sort: 'high' },
+            'Flip 7': { sort: 'high' }, 
+            'Wingspan': { sort: 'high' },
+            '6 nimmt!': { sort: 'low' },
+            'Citadels': { sort: 'high' },
+            'Colt Express': { sort: 'high' },
+            'Ethnos': { sort: 'high' },
+            'Paper Tales': { sort: 'high' },
+            'MicroMacro: Crime City': { sort: 'high' } 
         };
 
-        // Chart instances dictionary
         let charts = {};
         function destroyAllCharts() {
             Object.values(charts).forEach(c => { if(c) c.destroy(); });
@@ -209,102 +250,166 @@
             const gameKey = document.getElementById('game-selector').value;
             if (!gameKey) return; 
 
+            // Get All Filter Values
             const playerFilter = document.getElementById('player-filter').value;
+            const dateFilter = document.getElementById('date-filter').value;
+            const textSearch = document.getElementById('text-search').value.toLowerCase().trim();
+            
             const sortRule = gameRules[gameKey].sort;
+            const hasEras = gameRules[gameKey].hasEras || false;
 
-            // Reset UI & Destroy Old Charts
             document.querySelectorAll('.stat-value').forEach(el => el.innerText = "...");
             document.querySelectorAll('.stat-sub').forEach(el => el.innerText = "");
             document.getElementById('charts-container').style.display = 'none';
-            document.getElementById('no-data-msg').innerText = "Loading Cloud Analytics...";
+            document.getElementById('no-data-msg').innerText = "Running Cloud Analysis...";
             destroyAllCharts();
 
-            // Fetch live data from Aiven SQL
             fetch('/.netlify/functions/getHistory?game=' + encodeURIComponent(gameKey))
             .then(response => response.json())
             .then(data => {
                 
-                // --- PASS 1: Apply the Player Count filter ---
+                // --- PASS 1: APPLY ALL ADVANCED FILTERS ---
                 let filteredGames = [];
+                
                 (data || []).forEach(game => {
                     let validScoresForGame = [];
                     (game.scores || []).forEach(player => {
                         let pName = player.name ? player.name.trim() : '';
                         let pScore = parseInt(player.final);
                         if (pName && !isNaN(pScore)) {
-                            validScoresForGame.push({ name: pName, score: pScore, date: game.date });
+                            validScoresForGame.push({ ...player, name: pName, score: pScore, date: game.date });
                         }
                     });
                     
                     if (validScoresForGame.length === 0) return;
-                    if (playerFilter !== 'all' && validScoresForGame.length !== parseInt(playerFilter)) return; 
+                    
+                    // 1. Player Count Filter
+                    if (playerFilter !== 'all') {
+                        if (playerFilter === '7' && validScoresForGame.length < 7) return;
+                        if (playerFilter !== '7' && validScoresForGame.length !== parseInt(playerFilter)) return;
+                    }
+
+                    // 2. Date Filter
+                    if (dateFilter !== 'all') {
+                        const gameDate = new Date(game.date);
+                        if (dateFilter === '30days') {
+                            const thirtyDaysAgo = new Date();
+                            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                            if (gameDate < thirtyDaysAgo) return;
+                        } else {
+                            if (game.date.substring(0, 4) !== dateFilter) return;
+                        }
+                    }
+
+                    // 3. Text Search Filter (Party Name OR Player Name)
+                    if (textSearch !== "") {
+                        const partyMatch = (game.party || "").toLowerCase().includes(textSearch);
+                        const playerMatch = validScoresForGame.some(p => p.name.toLowerCase().includes(textSearch));
+                        if (!partyMatch && !playerMatch) return; // Drop game if neither match
+                    }
+
                     filteredGames.push({ ...game, parsedScores: validScoresForGame });
                 });
 
                 if (filteredGames.length === 0) {
                     document.querySelectorAll('.stat-value').forEach(el => el.innerText = "0");
-                    document.getElementById('most-active').innerText = "N/A";
-                    document.getElementById('most-wins').innerText = "N/A";
-                    document.getElementById('highest-score').innerText = "0";
-                    document.getElementById('lowest-score').innerText = "0";
-                    document.getElementById('most-played-date').innerText = "N/A";
-                    document.getElementById('biggest-blowout').innerText = "N/A";
-                    document.getElementById('tightest-game').innerText = "N/A";
-                    document.getElementById('no-data-msg').innerText = `No ${playerFilter !== 'all' ? playerFilter + '-player' : ''} games found for ${gameKey}.`;
+                    document.querySelectorAll('.stat-sub').forEach(el => el.innerText = "");
+                    document.getElementById('no-data-msg').innerText = `No records found matching your filters for ${gameKey}.`;
                     return;
                 }
 
                 document.getElementById('no-data-msg').innerText = "";
                 document.getElementById('charts-container').style.display = 'grid';
 
-                // --- PASS 2: Crunch the Numbers ---
+                // --- PASS 2: CRUNCH ALL METRICS ---
                 let allScores = [];
-                let playerStats = {}; // {name: {plays, wins, totalScore}}
+                let playerStats = {}; 
                 let dateCounts = {};
                 let winningScores = [];
                 let margins = [];
                 let totalPointsScored = 0;
-                let totalPlayersAcrossGames = 0;
-                let dateTrends = {}; // {date: {bestScore: X}}
+                let dateTrends = {}; 
+                let matchTightnessData = [];
 
-                filteredGames.forEach(game => {
+                let maxCanal = 0, maxCanalPlayer = "N/A";
+                let maxRail = 0, maxRailPlayer = "N/A";
+                let maxByPCount = {}; 
+
+                let chronoGames = [...filteredGames].sort((a, b) => {
+                    let d = new Date(a.date) - new Date(b.date);
+                    return d === 0 ? a.id - b.id : d;
+                });
+
+                let currentStreaks = {};
+                let maxStreaks = {}; 
+
+                chronoGames.forEach((game, gameIdx) => {
                     let gScores = game.parsedScores;
-                    totalPlayersAcrossGames += gScores.length;
                     dateCounts[game.date] = (dateCounts[game.date] || 0) + 1;
-
-                    // Initialize date trend
                     if(!dateTrends[game.date]) dateTrends[game.date] = { best: sortRule === 'high' ? -Infinity : Infinity };
 
-                    gScores.forEach(p => {
-                        allScores.push(p);
-                        if(!playerStats[p.name]) playerStats[p.name] = { plays: 0, wins: 0, totalScore: 0 };
-                        playerStats[p.name].plays += 1;
-                        playerStats[p.name].totalScore += p.score;
-                        totalPointsScored += p.score;
-                    });
-
-                    // Sort to find winner of the match
                     gScores.sort((a, b) => sortRule === 'high' ? b.score - a.score : a.score - b.score);
                     
                     let winner = gScores[0];
+                    let winnersList = gScores.filter(p => p.score === winner.score).map(p => p.name);
                     winningScores.push(winner.score);
-                    playerStats[winner.name].wins += 1;
-
-                    // Record trend
-                    if(sortRule === 'high') {
-                        dateTrends[game.date].best = Math.max(dateTrends[game.date].best, winner.score);
-                    } else {
-                        dateTrends[game.date].best = Math.min(dateTrends[game.date].best, winner.score);
+                    
+                    let margin = gScores.length > 1 ? Math.abs(gScores[0].score - gScores[1].score) : 0;
+                    if(gScores.length > 1) {
+                        margins.push(margin);
+                        matchTightnessData.push(`Game ${gameIdx + 1}`);
                     }
 
-                    // Margins
-                    if (gScores.length > 1) {
-                        margins.push(Math.abs(gScores[0].score - gScores[1].score));
-                    }
+                    // Win Streaks update
+                    Object.keys(currentStreaks).forEach(p => { if(!winnersList.includes(p)) currentStreaks[p] = 0; });
+                    winnersList.forEach(w => {
+                        currentStreaks[w] = (currentStreaks[w] || 0) + 1;
+                        maxStreaks[w] = Math.max(maxStreaks[w] || 0, currentStreaks[w]);
+                    });
+
+                    // PCount Max
+                    let pc = gScores.length;
+                    if(!maxByPCount[pc]) maxByPCount[pc] = sortRule === 'high' ? -Infinity : Infinity;
+                    if(sortRule === 'high') maxByPCount[pc] = Math.max(maxByPCount[pc], winner.score);
+                    else maxByPCount[pc] = Math.min(maxByPCount[pc], winner.score);
+
+                    if(sortRule === 'high') dateTrends[game.date].best = Math.max(dateTrends[game.date].best, winner.score);
+                    else dateTrends[game.date].best = Math.min(dateTrends[game.date].best, winner.score);
+
+                    gScores.forEach((p, idx) => {
+                        allScores.push(p);
+                        if(!playerStats[p.name]) {
+                            playerStats[p.name] = { plays: 0, wins: 0, totalScore: 0, maxScore: sortRule==='high'?-Infinity:Infinity, winMargins: [], pos: {1:0,2:0,3:0,4:0}, canal: 0, rail: 0 };
+                        }
+                        let st = playerStats[p.name];
+                        st.plays++;
+                        st.totalScore += p.score;
+                        totalPointsScored += p.score;
+
+                        if(sortRule === 'high') st.maxScore = Math.max(st.maxScore, p.score);
+                        else st.maxScore = Math.min(st.maxScore, p.score);
+
+                        let placement = idx + 1;
+                        if(placement <= 4) st.pos[placement]++;
+
+                        let canalSum = (parseInt(p.canalLink)||0) + (parseInt(p.canalInd)||0) + (parseInt(p.canalBonus)||0);
+                        let railSum = (parseInt(p.railLink)||0) + (parseInt(p.railInd)||0) + (parseInt(p.railBonus)||0);
+                        st.canal += canalSum;
+                        st.rail += railSum;
+
+                        if(canalSum > maxCanal) { maxCanal = canalSum; maxCanalPlayer = p.name; }
+                        if(railSum > maxRail) { maxRail = railSum; maxRailPlayer = p.name; }
+
+                        if(winnersList.includes(p.name)) {
+                            st.wins++;
+                            if(gScores.length > 1) st.winMargins.push(margin);
+                        }
+                    });
                 });
 
                 // --- POPULATE 10 STAT BOXES ---
                 document.getElementById('total-games').innerText = filteredGames.length;
+                
                 let mostActive = Object.keys(playerStats).reduce((a, b) => playerStats[a].plays > playerStats[b].plays ? a : b);
                 document.getElementById('most-active').innerText = mostActive;
                 document.getElementById('most-active-sub').innerText = `${playerStats[mostActive].plays} games played`;
@@ -321,53 +426,64 @@
                 document.getElementById('lowest-score').innerText = lowest.score;
                 document.getElementById('lowest-score-sub').innerText = `by ${lowest.name}`;
 
+                let bestStreakPlayer = Object.keys(maxStreaks).length ? Object.keys(maxStreaks).reduce((a, b) => maxStreaks[a] > maxStreaks[b] ? a : b) : "N/A";
+                document.getElementById('highest-streak').innerText = maxStreaks[bestStreakPlayer] || 0;
+                document.getElementById('highest-streak-sub').innerText = `by ${bestStreakPlayer}`;
+
                 document.getElementById('avg-win-score').innerText = (winningScores.reduce((a, b) => a + b, 0) / winningScores.length).toFixed(1);
                 document.getElementById('avg-overall-score').innerText = (totalPointsScored / allScores.length).toFixed(1);
-                document.getElementById('avg-players').innerText = (totalPlayersAcrossGames / filteredGames.length).toFixed(1);
+
+                document.getElementById('highest-canal').innerText = hasEras ? maxCanal : "N/A";
+                document.getElementById('highest-canal-sub').innerText = hasEras ? `by ${maxCanalPlayer}` : "Brass Only";
+
+                document.getElementById('highest-rail').innerText = hasEras ? maxRail : "N/A";
+                document.getElementById('highest-rail-sub').innerText = hasEras ? `by ${maxRailPlayer}` : "Brass Only";
+
                 document.getElementById('biggest-blowout').innerText = margins.length ? Math.max(...margins) : "N/A";
                 document.getElementById('tightest-game').innerText = margins.length ? Math.min(...margins) : "N/A";
-
-                let topDate = Object.keys(dateCounts).reduce((a, b) => dateCounts[a] > dateCounts[b] ? a : b);
-                document.getElementById('most-played-date').innerText = topDate;
-                document.getElementById('most-played-date-sub').innerText = `${dateCounts[topDate]} games logged`;
                 document.getElementById('total-points').innerText = totalPointsScored.toLocaleString();
 
 
-                // --- PREPARE DATA FOR 5 GRAPHS ---
-                
-                // 1. Top Scores Array
-                allScores.sort((a, b) => sortRule === 'high' ? b.score - a.score : a.score - b.score);
-                let top5Scores = allScores.slice(0, 5);
-
-                // 2. Win Rate & Avg & Play Count Arrays
-                let playerArray = Object.keys(playerStats).map(p => {
+                // --- PREPARE DATA FOR 15 GRAPHS ---
+                let pArray = Object.keys(playerStats).map(p => {
+                    let st = playerStats[p];
                     return {
-                        name: p,
-                        plays: playerStats[p].plays,
-                        wins: playerStats[p].wins,
-                        winRate: ((playerStats[p].wins / playerStats[p].plays) * 100).toFixed(1),
-                        avgScore: (playerStats[p].totalScore / playerStats[p].plays).toFixed(1)
+                        name: p, plays: st.plays, wins: st.wins, totalScore: st.totalScore, 
+                        winRate: ((st.wins / st.plays) * 100).toFixed(1),
+                        avgScore: (st.totalScore / st.plays).toFixed(1),
+                        maxScore: st.maxScore,
+                        avgMargin: st.winMargins.length ? (st.winMargins.reduce((a,b)=>a+b,0)/st.winMargins.length).toFixed(1) : 0,
+                        streak: maxStreaks[p] || 0,
+                        pos: st.pos,
+                        avgCanal: (st.canal / st.plays).toFixed(1),
+                        avgRail: (st.rail / st.plays).toFixed(1)
                     };
-                });
+                }).filter(p => p.plays > 0);
 
-                // Filter out players with 0 plays (just in case)
-                playerArray = playerArray.filter(p => p.plays > 0);
+                let sortedByScore = [...allScores].sort((a, b) => sortRule === 'high' ? b.score - a.score : a.score - b.score);
+                let top5Scores = sortedByScore.slice(0, 5);
 
-                let winRateData = [...playerArray].sort((a,b) => b.winRate - a.winRate).slice(0, 6);
-                let avgScoreData = [...playerArray].sort((a,b) => sortRule === 'high' ? b.avgScore - a.avgScore : a.avgScore - b.avgScore).slice(0, 6);
-                let playCountData = [...playerArray].sort((a,b) => b.plays - a.plays).slice(0, 6);
+                let sortedByWinRate = [...pArray].sort((a,b) => b.winRate - a.winRate).slice(0, 6);
+                let sortedByAvgScore = [...pArray].sort((a,b) => sortRule === 'high' ? b.avgScore - a.avgScore : a.avgScore - b.avgScore).slice(0, 6);
+                let sortedByPlays = [...pArray].sort((a,b) => b.plays - a.plays).slice(0, 6);
+                let sortedByTotal = [...pArray].sort((a,b) => b.totalScore - a.totalScore).slice(0, 6);
+                let sortedByMargin = [...pArray].filter(p => p.wins > 0).sort((a,b) => b.avgMargin - a.avgMargin).slice(0, 6);
+                let sortedByStreak = [...pArray].sort((a,b) => b.streak - a.streak).slice(0, 6);
 
-                // 3. Trend Array
                 let sortedDates = Object.keys(dateTrends).sort((a,b) => new Date(a) - new Date(b));
-                let trendDates = [];
-                let trendScores = [];
-                sortedDates.forEach(d => {
-                    trendDates.push(d);
-                    trendScores.push(dateTrends[d].best);
+                let trendScores = sortedDates.map(d => dateTrends[d].best);
+
+                let minSc = Math.min(...allScores.map(s=>s.score));
+                let maxSc = Math.max(...allScores.map(s=>s.score));
+                let bucketSize = Math.ceil((maxSc - minSc + 1) / 8) || 10;
+                let distBuckets = {};
+                allScores.forEach(s => {
+                    let b = Math.floor((s.score - minSc) / bucketSize) * bucketSize + minSc;
+                    let label = `${b} - ${b + bucketSize - 1}`;
+                    distBuckets[label] = (distBuckets[label] || 0) + 1;
                 });
 
-                // --- DRAW THE 5 GRAPHS ---
-                drawCharts(top5Scores, winRateData, avgScoreData, playCountData, trendDates, trendScores, sortRule, playerFilter);
+                drawCharts(top5Scores, sortedByWinRate, sortedByAvgScore, sortedByPlays, sortedDates, trendScores, sortRule, sortedByTotal, sortedByMargin, matchTightnessData, margins, sortedByStreak, pArray, maxByPCount, distBuckets, hasEras);
             })
             .catch(error => {
                 document.querySelectorAll('.stat-value').forEach(el => el.innerText = "Err");
@@ -375,136 +491,137 @@
             });
         }
 
-        function drawCharts(top5, winRateData, avgScoreData, playCountData, trendDates, trendScores, sortRule, filter) {
+        function drawCharts(top5, winRateData, avgData, playData, dates, trendScores, sortRule, totalData, marginData, matchLabels, marginValues, streakData, pArray, maxByPCount, distBuckets, hasEras) {
             Chart.defaults.font.family = "'Playfair Display', serif";
+            Chart.defaults.color = '#b87333';
             
-            const isLightMode = document.body.classList.contains('light-mode');
-            const tickColor = isLightMode ? '#9c4c1c' : '#b87333';
-            const titleColor = isLightMode ? '#5e4315' : '#d4af37';
-            const gridColor = isLightMode ? 'rgba(0,0,0,0.1)' : 'rgba(74, 59, 34, 0.3)';
+            const isLight = document.body.classList.contains('light-mode');
+            const gridColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(74, 59, 34, 0.3)';
+            const titleColor = isLight ? '#5e4315' : '#d4af37';
             
-            const colorPalette = [
-                'rgba(212, 175, 55, 0.8)', 'rgba(184, 115, 51, 0.8)', 'rgba(138, 101, 34, 0.8)',
-                'rgba(46, 204, 113, 0.8)', 'rgba(155, 89, 182, 0.8)', 'rgba(52, 152, 219, 0.8)'
-            ];
-
+            const colors = ['rgba(212, 175, 55, 0.8)', 'rgba(184, 115, 51, 0.8)', 'rgba(138, 101, 34, 0.8)', 'rgba(46, 204, 113, 0.8)', 'rgba(155, 89, 182, 0.8)', 'rgba(52, 152, 219, 0.8)'];
             const titleFont = { family: 'Cinzel', size: 18 };
+            const baseOpt = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } };
 
-            // 1. Line Chart - Score Trend
-            let trendCtx = document.getElementById('trendChart').getContext('2d');
-            charts.trend = new Chart(trendCtx, {
-                type: 'line',
-                data: {
-                    labels: trendDates,
-                    datasets: [{
-                        label: 'Winning Score',
-                        data: trendScores,
-                        borderColor: '#d4af37',
-                        backgroundColor: 'rgba(212, 175, 55, 0.2)',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointRadius: 5,
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, title: { display: true, text: 'Winning Score Timeline', color: titleColor, font: titleFont } },
-                    scales: {
-                        y: { ticks: { color: tickColor }, grid: { color: gridColor } },
-                        x: { ticks: { color: tickColor }, grid: { display: false } }
-                    }
-                }
+            // 1. Winning Score Timeline
+            charts.c1 = new Chart(document.getElementById('trendChart'), {
+                type: 'line', data: { labels: dates, datasets: [{ label: 'Winning Score', data: trendScores, borderColor: '#d4af37', backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 3, fill: true, tension: 0.3 }] },
+                options: { ...baseOpt, plugins: { title: { display: true, text: 'Winning Score Timeline', color: titleColor, font: titleFont } } }
             });
 
-            // 2. Bar Chart - Top Scores
-            let scoreCtx = document.getElementById('scoreChart').getContext('2d');
-            charts.score = new Chart(scoreCtx, {
+            // 2. Top 5 Scores
+            charts.c2 = new Chart(document.getElementById('scoreChart'), {
+                type: 'bar', data: { labels: top5.map(s => s.name), datasets: [{ data: top5.map(s => s.score), backgroundColor: colors[0], borderRadius: 4 }] },
+                options: { ...baseOpt, plugins: { legend:{display:false}, title: { display: true, text: sortRule==='high' ? 'Top 5 Highest Scores' : 'Top 5 Lowest Bullheads', color: titleColor, font: titleFont } } }
+            });
+
+            // 3. Average Score
+            charts.c3 = new Chart(document.getElementById('avgScoreChart'), {
+                type: 'bar', data: { labels: avgData.map(s => s.name), datasets: [{ data: avgData.map(s => s.avgScore), backgroundColor: colors[1], borderRadius: 4 }] },
+                options: { ...baseOpt, indexAxis: 'y', scales: { x: { grid: { color: gridColor } }, y: { grid: { display: false } } }, plugins: { legend:{display:false}, title: { display: true, text: 'Average Score', color: titleColor, font: titleFont } } }
+            });
+
+            // 4. Win Rate
+            charts.c4 = new Chart(document.getElementById('winRateChart'), {
+                type: 'doughnut', data: { labels: winRateData.map(s => s.name), datasets: [{ data: winRateData.map(s => s.winRate), backgroundColor: colors, borderWidth: 1 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' }, title: { display: true, text: 'Win Rate %', color: titleColor, font: titleFont }, tooltip: { callbacks: { label: function(context) { return context.label + ': ' + context.raw + '%'; } } } } }
+            });
+
+            // 5. Total Plays
+            charts.c5 = new Chart(document.getElementById('playCountChart'), {
+                type: 'pie', data: { labels: playData.map(s => s.name), datasets: [{ data: playData.map(s => s.plays), backgroundColor: colors, borderWidth: 1 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' }, title: { display: true, text: 'Most Games Played', color: titleColor, font: titleFont } } }
+            });
+
+            // 6. Placement Distribution
+            let pTop6 = [...pArray].sort((a,b)=>b.plays - a.plays).slice(0, 6);
+            charts.c6 = new Chart(document.getElementById('positionChart'), {
                 type: 'bar',
                 data: {
-                    labels: top5.map(s => s.name),
-                    datasets: [{
-                        data: top5.map(s => s.score),
-                        backgroundColor: colorPalette[0], borderRadius: 4
-                    }]
+                    labels: pTop6.map(p=>p.name),
+                    datasets: [
+                        { label: '1st Place', data: pTop6.map(p=>p.pos[1]), backgroundColor: 'rgba(212, 175, 55, 0.9)' },
+                        { label: '2nd Place', data: pTop6.map(p=>p.pos[2]), backgroundColor: 'rgba(192, 192, 192, 0.8)' },
+                        { label: '3rd Place', data: pTop6.map(p=>p.pos[3]), backgroundColor: 'rgba(205, 127, 50, 0.8)' },
+                        { label: '4th Place', data: pTop6.map(p=>p.pos[4]), backgroundColor: 'rgba(100, 100, 100, 0.5)' }
+                    ]
                 },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false }, title: { display: true, text: sortRule === 'high' ? 'Top 5 Highest Scores' : 'Top 5 Lowest Bullheads', color: titleColor, font: titleFont } },
-                    scales: {
-                        y: { ticks: { color: tickColor }, grid: { color: gridColor } },
-                        x: { ticks: { color: tickColor }, grid: { display: false } }
-                    }
-                }
+                options: { ...baseOpt, scales: { x: { stacked: true }, y: { stacked: true, grid: { color: gridColor } } }, plugins: { legend: { display: true }, title: { display: true, text: 'Podium Finishes', color: titleColor, font: titleFont } } }
             });
 
-            // 3. Horizontal Bar - Average Score
-            let avgCtx = document.getElementById('avgScoreChart').getContext('2d');
-            charts.avg = new Chart(avgCtx, {
+            // 7. Total Points Scored
+            charts.c7 = new Chart(document.getElementById('totalPointsChart'), {
+                type: 'bar', data: { labels: totalData.map(s => s.name), datasets: [{ data: totalData.map(s => s.totalScore), backgroundColor: colors[2], borderRadius: 4 }] },
+                options: { ...baseOpt, plugins: { legend:{display:false}, title: { display: true, text: 'Total Points Generated', color: titleColor, font: titleFont } } }
+            });
+
+            // 8. Match Tightness Trend
+            charts.c8 = new Chart(document.getElementById('matchTightnessChart'), {
+                type: 'line', data: { labels: matchLabels, datasets: [{ label: '1st vs 2nd Margin', data: marginValues, borderColor: '#e74c3c', backgroundColor: 'rgba(231, 76, 60, 0.2)', borderWidth: 2, fill: true, tension: 0.4 }] },
+                options: { ...baseOpt, plugins: { title: { display: true, text: 'Match Tightness (Win Margin Trend)', color: titleColor, font: titleFont } } }
+            });
+
+            // 9. Average Win Margin
+            charts.c9 = new Chart(document.getElementById('winMarginChart'), {
+                type: 'bar', data: { labels: marginData.map(s => s.name), datasets: [{ data: marginData.map(s => s.avgMargin), backgroundColor: colors[4], borderRadius: 4 }] },
+                options: { ...baseOpt, plugins: { legend:{display:false}, title: { display: true, text: 'Avg Points Won By', color: titleColor, font: titleFont } } }
+            });
+
+            // 10. Longest Win Streaks
+            charts.c10 = new Chart(document.getElementById('streakChart'), {
+                type: 'bar', data: { labels: streakData.map(s => s.name), datasets: [{ data: streakData.map(s => s.streak), backgroundColor: colors[3], borderRadius: 4 }] },
+                options: { ...baseOpt, indexAxis: 'y', scales: { x: { grid: { color: gridColor } }, y: { grid: { display: false } } }, plugins: { legend:{display:false}, title: { display: true, text: 'Highest Win Streaks', color: titleColor, font: titleFont } } }
+            });
+
+            // 11. Activity Trend (Games over time)
+            let actLabels = Object.keys(dates.reduce((acc, d) => { acc[d] = true; return acc; }, {})).sort((a,b) => new Date(a)-new Date(b));
+            let actData = actLabels.map(d => dates.filter(v => v === d).length);
+            charts.c11 = new Chart(document.getElementById('activityTrendChart'), {
+                type: 'bar', data: { labels: actLabels, datasets: [{ data: actData, backgroundColor: colors[5], borderRadius: 4 }] },
+                options: { ...baseOpt, plugins: { legend:{display:false}, title: { display: true, text: 'Games Played Over Time', color: titleColor, font: titleFont } } }
+            });
+
+            // 12. Canal vs Rail (Only visible if Brass)
+            let pTopEras = [...pArray].sort((a,b)=>b.plays - a.plays).slice(0, 6);
+            charts.c12 = new Chart(document.getElementById('canalRailChart'), {
                 type: 'bar',
                 data: {
-                    labels: avgScoreData.map(s => s.name),
-                    datasets: [{
-                        data: avgScoreData.map(s => s.avgScore),
-                        backgroundColor: colorPalette[1], borderRadius: 4
-                    }]
+                    labels: pTopEras.map(p=>p.name),
+                    datasets: [
+                        { label: 'Avg Canal Score', data: pTopEras.map(p=>hasEras ? p.avgCanal : 0), backgroundColor: '#3498db' },
+                        { label: 'Avg Rail Score', data: pTopEras.map(p=>hasEras ? p.avgRail : 0), backgroundColor: '#2c3e50' }
+                    ]
                 },
-                options: {
-                    indexAxis: 'y', responsive: true,
-                    plugins: { legend: { display: false }, title: { display: true, text: 'Average Score per Player', color: titleColor, font: titleFont } },
-                    scales: {
-                        x: { ticks: { color: tickColor }, grid: { color: gridColor } },
-                        y: { ticks: { color: tickColor }, grid: { display: false } }
-                    }
-                }
+                options: { ...baseOpt, scales: { x: { stacked: true }, y: { stacked: true, grid: { color: gridColor } } }, plugins: { legend: { display: true }, title: { display: true, text: hasEras ? 'Avg Era Performance' : 'Era Performance (Brass Only)', color: titleColor, font: titleFont } } }
             });
 
-            // 4. Doughnut - Win Rate
-            let winCtx = document.getElementById('winRateChart').getContext('2d');
-            charts.win = new Chart(winCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: winRateData.map(s => s.name),
-                    datasets: [{
-                        data: winRateData.map(s => s.winRate),
-                        backgroundColor: colorPalette,
-                        borderColor: isLightMode ? '#fff' : '#12100e',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'right', labels: { color: tickColor } },
-                        title: { display: true, text: 'Win Rate Percentage', color: titleColor, font: titleFont },
-                        tooltip: { callbacks: { label: function(context) { return context.label + ': ' + context.raw + '%'; } } }
-                    }
-                }
+            // 13. Max Score by Player Count
+            let pcLabels = Object.keys(maxByPCount).map(k => `${k} Players`);
+            let pcData = Object.keys(maxByPCount).map(k => maxByPCount[k]);
+            charts.c13 = new Chart(document.getElementById('playerCountScoreChart'), {
+                type: 'bar', data: { labels: pcLabels, datasets: [{ data: pcData, backgroundColor: colors[0], borderRadius: 4 }] },
+                options: { ...baseOpt, plugins: { legend:{display:false}, title: { display: true, text: 'Record Score by Player Count', color: titleColor, font: titleFont } } }
             });
 
-            // 5. Polar Area - Play Count
-            let playCtx = document.getElementById('playCountChart').getContext('2d');
-            charts.play = new Chart(playCtx, {
-                type: 'polarArea',
+            // 14. Personal Best vs Avg (Radar)
+            charts.c14 = new Chart(document.getElementById('personalBestAvgChart'), {
+                type: 'radar',
                 data: {
-                    labels: playCountData.map(s => s.name),
-                    datasets: [{
-                        data: playCountData.map(s => s.plays),
-                        backgroundColor: colorPalette.map(c => c.replace('0.8', '0.6')), // slightly transparent
-                        borderColor: isLightMode ? '#fff' : '#12100e'
-                    }]
+                    labels: pTop6.map(p=>p.name),
+                    datasets: [
+                        { label: 'Personal Best', data: pTop6.map(p=>p.maxScore), backgroundColor: 'rgba(212, 175, 55, 0.4)', borderColor: '#d4af37' },
+                        { label: 'Average Score', data: pTop6.map(p=>p.avgScore), backgroundColor: 'rgba(52, 152, 219, 0.4)', borderColor: '#3498db' }
+                    ]
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'right', labels: { color: tickColor } },
-                        title: { display: true, text: 'Most Games Played', color: titleColor, font: titleFont }
-                    },
-                    scales: {
-                        r: { ticks: { display: false }, grid: { color: gridColor } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: gridColor }, ticks: { display: false } } }, plugins: { title: { display: true, text: 'Peak Potential vs Average', color: titleColor, font: titleFont } } }
+            });
+
+            // 15. Score Distribution Histogram
+            let distLabels = Object.keys(distBuckets).sort((a,b) => parseInt(a.split('-')[0]) - parseInt(b.split('-')[0]));
+            let distData = distLabels.map(l => distBuckets[l]);
+            charts.c15 = new Chart(document.getElementById('scoreDistributionChart'), {
+                type: 'bar', data: { labels: distLabels, datasets: [{ data: distData, backgroundColor: colors[1], borderRadius: 4 }] },
+                options: { ...baseOpt, plugins: { legend:{display:false}, title: { display: true, text: 'Score Distribution (Bell Curve)', color: titleColor, font: titleFont } } }
             });
         }
     </script>
