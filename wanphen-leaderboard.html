@@ -41,16 +41,9 @@
         
         .container { max-width: 1400px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--brass-dark); padding: 40px; box-shadow: 0 0 30px var(--shadow-color); border-radius: 8px; transition: 0.4s;}
         
-        /* --- ADVANCED SEARCH CONTROLS --- */
-        .controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; background: var(--panel-bg); padding: 20px; border-radius: 5px; border: 1px solid var(--border-color); }
-        .controls select, .controls input { 
-            background: var(--bg-gradient-2); color: var(--brass-light); border: 1px solid var(--brass-dark); 
-            padding: 15px; font-family: 'Playfair Display', serif; font-size: 1.1rem; flex: 1 1 200px; 
-            outline: none; border-radius: 4px; transition: 0.3s;
-        }
-        .controls select { font-family: 'Cinzel', serif; cursor: pointer; }
-        .controls input::placeholder { color: var(--brass-dark); opacity: 0.7; }
-        .controls select:focus, .controls input:focus { border-color: var(--brass-light); box-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
+        .controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        select { background: var(--bg-gradient-2); color: var(--brass-light); border: 1px solid var(--brass-dark); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.2rem; flex: 1; min-width: 250px; max-width: 450px; cursor: pointer; outline: none; border-radius: 4px; transition: 0.3s;}
+        select:focus { border-color: var(--brass-light); box-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
         
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 40px; }
         .stat-box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 20px; text-align: center; border-radius: 5px; transition: 0.4s; display: flex; flex-direction: column; justify-content: center;}
@@ -83,11 +76,11 @@
     </header>
 
     <div class="container">
-        <!-- Advanced Dashboard Filters -->
+        <!-- Dashboard Filters -->
         <div class="controls">
             <!-- Game Selection -->
             <select id="game-selector" onchange="updateDashboard()">
-                <option value="" disabled selected>-- Select a Game --</option>
+                <option value="" disabled selected>-- Select a Game to View Analytics --</option>
                 <option value="Brass: Birmingham">Brass: Birmingham</option>
                 <option value="Brass: Lancashire">Brass: Lancashire</option>
                 <option value="The White Castle">The White Castle</option>
@@ -97,11 +90,6 @@
                 <option value="Flip 7">Flip 7</option>
                 <option value="6 nimmt!">6 nimmt!</option>
                 <option value="Wingspan">Wingspan</option>
-                <option value="Citadels">Citadels</option>
-                <option value="Colt Express">Colt Express</option>
-                <option value="Ethnos">Ethnos</option>
-                <option value="Paper Tales">Paper Tales</option>
-                <option value="MicroMacro: Crime City">MicroMacro: Crime City</option>
             </select>
             
             <!-- Player Count Filter -->
@@ -112,20 +100,7 @@
                 <option value="4">4 Players</option>
                 <option value="5">5 Players</option>
                 <option value="6">6 Players</option>
-                <option value="7">7+ Players</option>
             </select>
-
-            <!-- Time/Date Filter -->
-            <select id="date-filter" onchange="updateDashboard()">
-                <option value="all" selected>All Time</option>
-                <option value="30days">Last 30 Days</option>
-                <option value="2026">2026</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-            </select>
-
-            <!-- Text Search Filter -->
-            <input type="text" id="text-search" placeholder="🔍 Search Player Name or Party Name..." oninput="updateDashboard()">
         </div>
 
         <div class="stats-grid">
@@ -212,7 +187,7 @@
             <div class="chart-box"><canvas id="personalBestAvgChart"></canvas></div>
             <div class="chart-box full-width"><canvas id="scoreDistributionChart"></canvas></div>
         </div>
-        <div id="no-data-msg" style="text-align: center; color: var(--copper); font-size: 1.5rem; font-family: 'Cinzel', serif; margin-top: 40px;">Select a game above to begin analysis.</div>
+        <div id="no-data-msg" style="text-align: center; color: var(--copper); font-size: 1.5rem; font-family: 'Cinzel', serif; margin-top: 40px;"></div>
     </div>
     
     <script>
@@ -222,22 +197,12 @@
             }
         }
 
-        // Expanded Rules Dictionary
         const gameRules = {
-            'Brass: Birmingham': { sort: 'high', hasEras: true }, 
-            'Brass: Lancashire': { sort: 'high', hasEras: true },
-            'The White Castle': { sort: 'high' }, 
-            'The White Castle: Matcha': { sort: 'high' },
-            'Viticulture': { sort: 'high' }, 
-            'Concordia': { sort: 'high' },
-            'Flip 7': { sort: 'high' }, 
-            'Wingspan': { sort: 'high' },
-            '6 nimmt!': { sort: 'low' },
-            'Citadels': { sort: 'high' },
-            'Colt Express': { sort: 'high' },
-            'Ethnos': { sort: 'high' },
-            'Paper Tales': { sort: 'high' },
-            'MicroMacro: Crime City': { sort: 'high' } 
+            'Brass: Birmingham': { sort: 'high', hasEras: true }, 'Brass: Lancashire': { sort: 'high', hasEras: true },
+            'The White Castle': { sort: 'high' }, 'The White Castle: Matcha': { sort: 'high' },
+            'Viticulture': { sort: 'high' }, 'Concordia': { sort: 'high' },
+            'Flip 7': { sort: 'high' }, 'Wingspan': { sort: 'high' },
+            '6 nimmt!': { sort: 'low' } 
         };
 
         let charts = {};
@@ -250,27 +215,21 @@
             const gameKey = document.getElementById('game-selector').value;
             if (!gameKey) return; 
 
-            // Get All Filter Values
             const playerFilter = document.getElementById('player-filter').value;
-            const dateFilter = document.getElementById('date-filter').value;
-            const textSearch = document.getElementById('text-search').value.toLowerCase().trim();
-            
             const sortRule = gameRules[gameKey].sort;
             const hasEras = gameRules[gameKey].hasEras || false;
 
             document.querySelectorAll('.stat-value').forEach(el => el.innerText = "...");
             document.querySelectorAll('.stat-sub').forEach(el => el.innerText = "");
             document.getElementById('charts-container').style.display = 'none';
-            document.getElementById('no-data-msg').innerText = "Running Cloud Analysis...";
+            document.getElementById('no-data-msg').innerText = "Loading Cloud Analytics...";
             destroyAllCharts();
 
             fetch('/.netlify/functions/getHistory?game=' + encodeURIComponent(gameKey))
             .then(response => response.json())
             .then(data => {
                 
-                // --- PASS 1: APPLY ALL ADVANCED FILTERS ---
                 let filteredGames = [];
-                
                 (data || []).forEach(game => {
                     let validScoresForGame = [];
                     (game.scores || []).forEach(player => {
@@ -282,46 +241,21 @@
                     });
                     
                     if (validScoresForGame.length === 0) return;
-                    
-                    // 1. Player Count Filter
-                    if (playerFilter !== 'all') {
-                        if (playerFilter === '7' && validScoresForGame.length < 7) return;
-                        if (playerFilter !== '7' && validScoresForGame.length !== parseInt(playerFilter)) return;
-                    }
-
-                    // 2. Date Filter
-                    if (dateFilter !== 'all') {
-                        const gameDate = new Date(game.date);
-                        if (dateFilter === '30days') {
-                            const thirtyDaysAgo = new Date();
-                            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                            if (gameDate < thirtyDaysAgo) return;
-                        } else {
-                            if (game.date.substring(0, 4) !== dateFilter) return;
-                        }
-                    }
-
-                    // 3. Text Search Filter (Party Name OR Player Name)
-                    if (textSearch !== "") {
-                        const partyMatch = (game.party || "").toLowerCase().includes(textSearch);
-                        const playerMatch = validScoresForGame.some(p => p.name.toLowerCase().includes(textSearch));
-                        if (!partyMatch && !playerMatch) return; // Drop game if neither match
-                    }
-
+                    if (playerFilter !== 'all' && validScoresForGame.length !== parseInt(playerFilter)) return; 
                     filteredGames.push({ ...game, parsedScores: validScoresForGame });
                 });
 
                 if (filteredGames.length === 0) {
                     document.querySelectorAll('.stat-value').forEach(el => el.innerText = "0");
                     document.querySelectorAll('.stat-sub').forEach(el => el.innerText = "");
-                    document.getElementById('no-data-msg').innerText = `No records found matching your filters for ${gameKey}.`;
+                    document.getElementById('no-data-msg').innerText = `No ${playerFilter !== 'all' ? playerFilter + '-player' : ''} games found for ${gameKey}.`;
                     return;
                 }
 
                 document.getElementById('no-data-msg').innerText = "";
                 document.getElementById('charts-container').style.display = 'grid';
 
-                // --- PASS 2: CRUNCH ALL METRICS ---
+                // --- CRUNCH ALL METRICS ---
                 let allScores = [];
                 let playerStats = {}; 
                 let dateCounts = {};
@@ -335,6 +269,7 @@
                 let maxRail = 0, maxRailPlayer = "N/A";
                 let maxByPCount = {}; 
 
+                // Ensure games are chronological for streaks and timelines
                 let chronoGames = [...filteredGames].sort((a, b) => {
                     let d = new Date(a.date) - new Date(b.date);
                     return d === 0 ? a.id - b.id : d;
@@ -389,9 +324,11 @@
                         if(sortRule === 'high') st.maxScore = Math.max(st.maxScore, p.score);
                         else st.maxScore = Math.min(st.maxScore, p.score);
 
+                        // Position mapping
                         let placement = idx + 1;
                         if(placement <= 4) st.pos[placement]++;
 
+                        // Canal / Rail Math
                         let canalSum = (parseInt(p.canalLink)||0) + (parseInt(p.canalInd)||0) + (parseInt(p.canalBonus)||0);
                         let railSum = (parseInt(p.railLink)||0) + (parseInt(p.railInd)||0) + (parseInt(p.railBonus)||0);
                         st.canal += canalSum;
@@ -470,9 +407,11 @@
                 let sortedByMargin = [...pArray].filter(p => p.wins > 0).sort((a,b) => b.avgMargin - a.avgMargin).slice(0, 6);
                 let sortedByStreak = [...pArray].sort((a,b) => b.streak - a.streak).slice(0, 6);
 
+                // Trend Array
                 let sortedDates = Object.keys(dateTrends).sort((a,b) => new Date(a) - new Date(b));
                 let trendScores = sortedDates.map(d => dateTrends[d].best);
 
+                // Score Distribution Histogram
                 let minSc = Math.min(...allScores.map(s=>s.score));
                 let maxSc = Math.max(...allScores.map(s=>s.score));
                 let bucketSize = Math.ceil((maxSc - minSc + 1) / 8) || 10;
@@ -483,6 +422,7 @@
                     distBuckets[label] = (distBuckets[label] || 0) + 1;
                 });
 
+                // DRAW THE 15 GRAPHS
                 drawCharts(top5Scores, sortedByWinRate, sortedByAvgScore, sortedByPlays, sortedDates, trendScores, sortRule, sortedByTotal, sortedByMargin, matchTightnessData, margins, sortedByStreak, pArray, maxByPCount, distBuckets, hasEras);
             })
             .catch(error => {
@@ -524,7 +464,7 @@
             // 4. Win Rate
             charts.c4 = new Chart(document.getElementById('winRateChart'), {
                 type: 'doughnut', data: { labels: winRateData.map(s => s.name), datasets: [{ data: winRateData.map(s => s.winRate), backgroundColor: colors, borderWidth: 1 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' }, title: { display: true, text: 'Win Rate %', color: titleColor, font: titleFont }, tooltip: { callbacks: { label: function(context) { return context.label + ': ' + context.raw + '%'; } } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' }, title: { display: true, text: 'Win Rate %', color: titleColor, font: titleFont } } }
             });
 
             // 5. Total Plays
@@ -533,7 +473,7 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' }, title: { display: true, text: 'Most Games Played', color: titleColor, font: titleFont } } }
             });
 
-            // 6. Placement Distribution
+            // 6. Placement Distribution (Stacked Bar)
             let pTop6 = [...pArray].sort((a,b)=>b.plays - a.plays).slice(0, 6);
             charts.c6 = new Chart(document.getElementById('positionChart'), {
                 type: 'bar',
@@ -613,7 +553,7 @@
                         { label: 'Average Score', data: pTop6.map(p=>p.avgScore), backgroundColor: 'rgba(52, 152, 219, 0.4)', borderColor: '#3498db' }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: gridColor }, ticks: { display: false } } }, plugins: { title: { display: true, text: 'Peak Potential vs Average', color: titleColor, font: titleFont } } }
+                options: { responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: gridColor } } }, plugins: { title: { display: true, text: 'Peak Potential vs Average', color: titleColor, font: titleFont } } }
             });
 
             // 15. Score Distribution Histogram
