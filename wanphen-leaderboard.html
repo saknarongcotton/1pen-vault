@@ -21,14 +21,14 @@
             --brass-light: #d4af37; --brass-dark: #8a6522; --copper: #b87333; --border-color: #4a3b22; 
             --text-main: #fff; --bg-gradient-1: #2a241e; --bg-gradient-2: #0d0b0a;
             --card-bg: rgba(30, 26, 23, 0.9); --shadow-color: rgba(0,0,0,0.8);
-            --panel-bg: rgba(0,0,0,0.6); --chart-bg: rgba(0,0,0,0.4);
+            --panel-bg: rgba(0,0,0,0.6); --chart-bg: rgba(0,0,0,0.4); --readonly-bg: rgba(0,0,0,0.4);
         }
 
         body.light-mode {
             --brass-light: #5e4315; --brass-dark: #8a6522; --copper: #9c4c1c; --border-color: #cbbba0; 
             --text-main: #222; --bg-gradient-1: #ffffff; --bg-gradient-2: #e0d8c8;
             --card-bg: rgba(255, 255, 255, 0.95); --shadow-color: rgba(0,0,0,0.15);
-            --panel-bg: rgba(255, 255, 255, 0.5); --chart-bg: rgba(255, 255, 255, 0.5);
+            --panel-bg: rgba(255, 255, 255, 0.5); --chart-bg: rgba(255, 255, 255, 0.5); --readonly-bg: rgba(0,0,0,0.05);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,6 +57,15 @@
         .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .chart-box { background: var(--chart-bg); padding: 20px; border: 1px dashed var(--brass-dark); border-radius: 5px; transition: 0.4s; display: flex; align-items: center; justify-content: center; min-height: 350px;}
         .full-width { grid-column: 1 / -1; }
+
+        /* --- GLOSSARY SECTION --- */
+        .glossary-wrapper { margin-top: 60px; background: var(--readonly-bg); padding: 35px; border-radius: 8px; border: 1px dashed var(--brass-dark); }
+        .glossary-title { font-family: 'Cinzel', serif; color: var(--brass-light); font-size: 1.8rem; text-align: center; margin-bottom: 30px; }
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
+        .glossary-category h3 { color: var(--copper); font-family: 'Cinzel', serif; font-size: 1.3rem; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .glossary-item { margin-bottom: 15px; }
+        .glossary-item strong { color: var(--text-main); font-family: 'Cinzel', serif; font-size: 1rem; }
+        .glossary-item p { color: #aaa; font-size: 0.95rem; margin-top: 4px; line-height: 1.5; }
 
         @media (max-width: 900px) {
             .charts-grid { grid-template-columns: 1fr; }
@@ -166,7 +175,6 @@
                     <div class="stat-sub">Links % vs Industries %</div>
                 </div>
                 
-                <!-- NEW BRASS STATS -->
                 <div class="stat-box">
                     <div class="stat-title">Captain of Industry</div>
                     <div class="stat-value" id="brass-peak-industry">-</div>
@@ -235,7 +243,43 @@
                 <canvas id="canalSurvivalChart"></canvas>
             </div>
         </div>
+
         <div id="no-data-msg" style="text-align: center; color: var(--copper); font-size: 1.5rem; font-family: 'Cinzel', serif; margin-top: 40px;"></div>
+
+        <!-- --- DATA GLOSSARY SECTION --- -->
+        <div class="glossary-wrapper" id="glossary-section" style="display: none;">
+            <div class="glossary-title">📖 The Data Glossary</div>
+            <div class="glossary-grid">
+                <!-- Column 1 -->
+                <div class="glossary-category">
+                    <h3>Core Metrics</h3>
+                    <div class="glossary-item"><strong>Most Active Player</strong><p>The player who has participated in the highest number of matches for the selected game filter.</p></div>
+                    <div class="glossary-item"><strong>Avg Winning Score</strong><p>The statistical average score required to take 1st place based on historical data.</p></div>
+                    <div class="glossary-item"><strong>Avg Overall Score</strong><p>The average score generated across all players, regardless of their finishing placement.</p></div>
+                    <div class="glossary-item"><strong>Biggest Blowout</strong><p>The largest recorded point gap between the 1st place winner and the 2nd place runner-up in a single match.</p></div>
+                    <div class="glossary-item"><strong>Total Points Scored</strong><p>The massive, cumulative sum of every single victory point ever earned by all players combined.</p></div>
+                </div>
+                
+                <!-- Column 2 -->
+                <div class="glossary-category">
+                    <h3>Brass Specific Metrics</h3>
+                    <div class="glossary-item"><strong>The Canal / Rail Baron</strong><p>The record holders for the highest points generated purely during the Canal Era or the Rail Era.</p></div>
+                    <div class="glossary-item"><strong>Captain of Industry / Master Networker</strong><p>Captain of Industry tracks points generated entirely from flipped tiles. Master Networker tracks points generated purely from connections (boats and trains).</p></div>
+                    <div class="glossary-item"><strong>Ultimate Rail Comeback</strong><p>Identifies the player who was losing at the end of the Canal Era, but managed to overcome the largest point deficit during the Rail Era to win the game.</p></div>
+                    <div class="glossary-item"><strong>Greatest Rail Surge</strong><p>Calculates the raw "acceleration" of a player by subtracting their Canal score from their Rail score to find the biggest late-game explosion in points.</p></div>
+                </div>
+
+                <!-- Column 3 -->
+                <div class="glossary-category">
+                    <h3>Graph Breakdown</h3>
+                    <div class="glossary-item"><strong>Victory Margins (Closeness)</strong><p>A timeline tracking the point difference between 1st and 2nd place. Spikes indicate blowouts; dips indicate extremely tight, competitive games.</p></div>
+                    <div class="glossary-item"><strong>Consistency vs. Chaos</strong><p>Maps a player's absolute lowest score to their highest score. A short, tight bar means reliable consistency. A massive, wide bar means wild unpredictability.</p></div>
+                    <div class="glossary-item"><strong>The Heartbreak Board</strong><p>A painful tally of exactly how many times each player has finished just one step away from victory in 2nd place.</p></div>
+                    <div class="glossary-item"><strong>Canal Leader Survival Rate</strong><p>A brutally honest pie chart tracking if the player leading at the end of the Canal Era actually holds on to win, or gets overtaken and crushed in the Rail Era.</p></div>
+                </div>
+            </div>
+        </div>
+
     </div>
     
     <script>
@@ -272,6 +316,7 @@
             document.getElementById('charts-container').style.display = 'none';
             document.getElementById('graphs-header').style.display = 'none';
             document.getElementById('brass-analytics-panel').style.display = 'none';
+            document.getElementById('glossary-section').style.display = 'none';
             document.querySelectorAll('.brass-chart').forEach(el => el.style.display = 'none');
             document.getElementById('no-data-msg').innerText = "Loading Cloud Analytics...";
             destroyAllCharts();
@@ -318,21 +363,20 @@
                 document.getElementById('no-data-msg').innerText = "";
                 document.getElementById('charts-container').style.display = 'grid';
                 document.getElementById('graphs-header').style.display = 'block';
+                document.getElementById('glossary-section').style.display = 'block';
 
                 let allScores = [];
                 let playerStats = {}; 
                 let winningScores = [];
                 let margins = [];
                 let totalPointsScored = 0;
-                let heartbreakCounts = {}; // Track 2nd place
+                let heartbreakCounts = {}; 
 
-                // Chronological Trends
                 let chronologicalGames = [...filteredGames].sort((a,b) => new Date(a.date) - new Date(b.date));
                 let trendLabels = [];
                 let trendWinningScores = [];
                 let trendMargins = [];
 
-                // Brass Specific Tracking
                 let peakCanal = { name: "N/A", score: -1 };
                 let peakRail = { name: "N/A", score: -1 };
                 let peakLink = { name: "N/A", score: -1 };
@@ -394,7 +438,6 @@
                     winningScores.push(winner.score);
                     playerStats[winner.name].wins += 1;
                     
-                    // Track Trends
                     trendLabels.push(`${game.date} (#${index+1})`);
                     trendWinningScores.push(winner.score);
 
@@ -407,7 +450,6 @@
                         trendMargins.push(0);
                     }
 
-                    // Brass Specific Logic
                     if (isBrassGame) {
                         let wCanal = winner.canalLink + winner.canalInd + winner.canalBonus;
                         let wRail = winner.railLink + winner.railInd + winner.railBonus;
@@ -430,7 +472,6 @@
                     }
                 });
 
-                // --- POPULATE GENERAL STATS ---
                 document.getElementById('total-games').innerText = filteredGames.length;
                 let mostActive = Object.keys(playerStats).reduce((a, b) => playerStats[a].plays > playerStats[b].plays ? a : b);
                 document.getElementById('most-active').innerText = mostActive;
@@ -449,7 +490,6 @@
                 document.getElementById('biggest-blowout').innerText = margins.length ? Math.max(...margins) : "N/A";
                 document.getElementById('total-points').innerText = totalPointsScored.toLocaleString();
 
-                // --- POPULATE BRASS SPECIFIC PANEL ---
                 if (isBrassGame && (totalCanalSum + totalRailSum > 0)) {
                     document.getElementById('brass-analytics-panel').style.display = 'block';
                     document.querySelectorAll('.brass-chart').forEach(el => el.style.display = 'flex');
@@ -482,7 +522,6 @@
                     document.getElementById('brass-rail-surge-sub').innerText = bestSurge.name !== "N/A" ? `by ${bestSurge.name}` : "Rail vs Canal Delta";
                 }
 
-                // --- CHART PREPARATION ---
                 allScores.sort((a, b) => sortRule === 'high' ? b.score - a.score : a.score - b.score);
                 let top5Scores = allScores.slice(0, 5);
 
@@ -539,10 +578,9 @@
             let winRateData = [...data.playerArray].sort((a,b) => b.winRate - a.winRate).slice(0, 6);
             let avgScoreData = [...data.playerArray].sort((a,b) => data.sortRule === 'high' ? b.avgScore - a.avgScore : a.avgScore - b.avgScore).slice(0, 6);
             let playCountData = [...data.playerArray].sort((a,b) => b.plays - a.plays).slice(0, 6);
-            let varianceData = [...data.playerArray].sort((a,b) => b.plays - a.plays).slice(0, 6); // Top 6 most active players
+            let varianceData = [...data.playerArray].sort((a,b) => b.plays - a.plays).slice(0, 6); 
             let hbData = Object.keys(data.heartbreakCounts).map(n => ({ name: n, count: data.heartbreakCounts[n] })).sort((a,b) => b.count - a.count).slice(0, 5);
 
-            // 1. Line Chart - Winning Score Timeline
             charts.trend = new Chart(document.getElementById('trendChart').getContext('2d'), {
                 type: 'line',
                 data: {
@@ -560,7 +598,6 @@
                 }
             });
 
-            // 2. Line Chart - Margin Trend (The Blowout Tracker)
             charts.marginTrend = new Chart(document.getElementById('marginTrendChart').getContext('2d'), {
                 type: 'line',
                 data: {
@@ -578,7 +615,6 @@
                 }
             });
 
-            // 3. Floating Bar - Consistency vs Chaos (Min/Max Variance)
             charts.variance = new Chart(document.getElementById('varianceChart').getContext('2d'), {
                 type: 'bar',
                 data: {
@@ -600,7 +636,6 @@
                 }
             });
 
-            // 4. Bar Chart - Top Scores
             charts.score = new Chart(document.getElementById('scoreChart').getContext('2d'), {
                 type: 'bar',
                 data: { labels: data.top5Scores.map(s => s.name), datasets: [{ data: data.top5Scores.map(s => s.score), backgroundColor: colorPalette[0], borderRadius: 4 }] },
@@ -611,7 +646,6 @@
                 }
             });
 
-            // 5. Horizontal Bar - Average Score
             charts.avg = new Chart(document.getElementById('avgScoreChart').getContext('2d'), {
                 type: 'bar',
                 data: { labels: avgScoreData.map(s => s.name), datasets: [{ data: avgScoreData.map(s => s.avgScore), backgroundColor: colorPalette[1], borderRadius: 4 }] },
@@ -622,7 +656,6 @@
                 }
             });
 
-            // 6. Doughnut - Win Rate
             charts.win = new Chart(document.getElementById('winRateChart').getContext('2d'), {
                 type: 'doughnut',
                 data: { labels: winRateData.map(s => s.name), datasets: [{ data: winRateData.map(s => s.winRate), backgroundColor: colorPalette, borderColor: isLightMode ? '#fff' : '#12100e', borderWidth: 2 }] },
@@ -632,14 +665,12 @@
                 }
             });
 
-            // 7. Polar Area - Play Count
             charts.play = new Chart(document.getElementById('playCountChart').getContext('2d'), {
                 type: 'polarArea',
                 data: { labels: playCountData.map(s => s.name), datasets: [{ data: playCountData.map(s => s.plays), backgroundColor: colorPalette.map(c => c.replace('0.8', '0.6')), borderColor: isLightMode ? '#fff' : '#12100e' }] },
                 options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: tickColor } }, title: { display: true, text: 'Most Games Played', color: titleColor, font: titleFont } }, scales: { r: { ticks: { display: false }, grid: { color: gridColor } } } }
             });
 
-            // 8. Bar Chart - The Heartbreak Board (2nd Place)
             charts.heartbreak = new Chart(document.getElementById('heartbreakChart').getContext('2d'), {
                 type: 'bar',
                 data: { labels: hbData.map(s => s.name), datasets: [{ data: hbData.map(s => s.count), backgroundColor: 'rgba(231, 76, 60, 0.8)', borderRadius: 4 }] },
@@ -650,11 +681,9 @@
                 }
             });
 
-            // --- BRASS SPECIFIC CHARTS ---
             if (data.isBrassGame) {
                 let brassPlayers = [...data.playerArray].sort((a,b) => b.plays - a.plays).slice(0, 5);
                 
-                // 9. Brass Era Stacked Chart
                 charts.era = new Chart(document.getElementById('eraChart').getContext('2d'), {
                     type: 'bar',
                     data: {
@@ -671,7 +700,6 @@
                     }
                 });
 
-                // 10. Industry vs Link Radar/Stacked
                 charts.industryLink = new Chart(document.getElementById('industryLinkChart').getContext('2d'), {
                     type: 'bar',
                     data: {
@@ -688,7 +716,6 @@
                     }
                 });
 
-                // 11. Late Bloomers (Rail Surge)
                 charts.railSurge = new Chart(document.getElementById('railSurgeChart').getContext('2d'), {
                     type: 'bar',
                     data: { labels: brassPlayers.map(s => s.name), datasets: [{ data: brassPlayers.map(s => s.surge), backgroundColor: 'rgba(46, 204, 113, 0.8)', borderRadius: 4 }] },
@@ -699,7 +726,6 @@
                     }
                 });
 
-                // 12. Canal Leader Survival Doughnut
                 charts.canalSurvival = new Chart(document.getElementById('canalSurvivalChart').getContext('2d'), {
                     type: 'doughnut',
                     data: { 
