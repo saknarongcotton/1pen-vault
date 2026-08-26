@@ -122,9 +122,9 @@
                 <div class="stat-sub" id="highest-score-sub"></div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Highest Win Streak</div>
-                <div class="stat-value" id="highest-win-streak">-</div>
-                <div class="stat-sub" id="highest-win-streak-sub"></div>
+                <div class="stat-title">Lowest Score Ever</div>
+                <div class="stat-value" id="lowest-score">-</div>
+                <div class="stat-sub" id="lowest-score-sub"></div>
             </div>
             <div class="stat-box">
                 <div class="stat-title">Avg Winning Score</div>
@@ -135,9 +135,8 @@
                 <div class="stat-value" id="avg-overall-score">-</div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Best Rail Era</div>
-                <div class="stat-value" id="best-rail">-</div>
-                <div class="stat-sub" id="best-rail-sub"></div>
+                <div class="stat-title">Avg Player Count</div>
+                <div class="stat-value" id="avg-players">-</div>
             </div>
             <div class="stat-box">
                 <div class="stat-title">Biggest Blowout</div>
@@ -150,9 +149,9 @@
                 <div class="stat-sub">Point margin</div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Best Canal Era</div>
-                <div class="stat-value" id="best-canal">-</div>
-                <div class="stat-sub" id="best-canal-sub"></div>
+                <div class="stat-title">Most Played Date</div>
+                <div class="stat-value" id="most-played-date" style="font-size: 1.4rem;">-</div>
+                <div class="stat-sub" id="most-played-date-sub"></div>
             </div>
             <div class="stat-box">
                 <div class="stat-title">Total Points Scored</div>
@@ -233,8 +232,7 @@
                         let pName = player.name ? player.name.trim() : '';
                         let pScore = parseInt(player.final);
                         if (pName && !isNaN(pScore)) {
-                            // Preserve the raw player data for Canal/Rail era checks
-                            validScoresForGame.push({ name: pName, score: pScore, date: game.date, raw: player });
+                            validScoresForGame.push({ name: pName, score: pScore, date: game.date });
                         }
                     });
                     
@@ -248,9 +246,8 @@
                     document.getElementById('most-active').innerText = "N/A";
                     document.getElementById('most-wins').innerText = "N/A";
                     document.getElementById('highest-score').innerText = "0";
-                    document.getElementById('highest-win-streak').innerText = "0";
-                    document.getElementById('best-canal').innerText = "N/A";
-                    document.getElementById('best-rail').innerText = "N/A";
+                    document.getElementById('lowest-score').innerText = "0";
+                    document.getElementById('most-played-date').innerText = "N/A";
                     document.getElementById('biggest-blowout').innerText = "N/A";
                     document.getElementById('tightest-game').innerText = "N/A";
                     document.getElementById('no-data-msg').innerText = `No ${playerFilter !== 'all' ? playerFilter + '-player' : ''} games found for ${gameKey}.`;
@@ -260,26 +257,22 @@
                 document.getElementById('no-data-msg').innerText = "";
                 document.getElementById('charts-container').style.display = 'grid';
 
-                // CRITICAL: Sort chronologically so streaks calculate properly
-                filteredGames.sort((a, b) => new Date(a.date) - new Date(b.date));
-
                 // --- PASS 2: Crunch the Numbers ---
                 let allScores = [];
                 let playerStats = {}; // {name: {plays, wins, totalScore}}
+                let dateCounts = {};
                 let winningScores = [];
                 let margins = [];
                 let totalPointsScored = 0;
+                let totalPlayersAcrossGames = 0;
                 let dateTrends = {}; // {date: {bestScore: X}}
-                
-                // Deep Stat Tracking
-                let currentStreaks = {};
-                let maxStreaks = {};
-                let bestCanal = { name: "N/A", score: 0 };
-                let bestRail = { name: "N/A", score: 0 };
 
                 filteredGames.forEach(game => {
                     let gScores = game.parsedScores;
+                    totalPlayersAcrossGames += gScores.length;
+                    dateCounts[game.date] = (dateCounts[game.date] || 0) + 1;
 
+                    // Initialize date trend
                     if(!dateTrends[game.date]) dateTrends[game.date] = { best: sortRule === 'high' ? -Infinity : Infinity };
 
                     gScores.forEach(p => {
@@ -288,43 +281,20 @@
                         playerStats[p.name].plays += 1;
                         playerStats[p.name].totalScore += p.score;
                         totalPointsScored += p.score;
-
-                        // Check Canal/Rail Era Totals
-                        let cScore = (parseInt(p.raw.canalLink) || 0) + (parseInt(p.raw.canalInd) || 0) + (parseInt(p.raw.canalBonus) || 0);
-                        if (cScore > bestCanal.score) { bestCanal = { name: p.name, score: cScore }; }
-
-                        let rScore = (parseInt(p.raw.railLink) || 0) + (parseInt(p.raw.railInd) || 0) + (parseInt(p.raw.railBonus) || 0);
-                        if (rScore > bestRail.score) { bestRail = { name: p.name, score: rScore }; }
                     });
 
                     // Sort to find winner of the match
                     gScores.sort((a, b) => sortRule === 'high' ? b.score - a.score : a.score - b.score);
                     
-                    let topScore = gScores[0].score;
-                    winningScores.push(topScore);
-
-                    // Track winners (handles ties cleanly)
-                    let winnersThisGame = gScores.filter(p => p.score === topScore).map(p => p.name);
-                    
-                    winnersThisGame.forEach(w => {
-                        playerStats[w].wins += 1;
-                    });
-
-                    // Win Streak Logic
-                    gScores.forEach(p => {
-                        if (winnersThisGame.includes(p.name)) {
-                            currentStreaks[p.name] = (currentStreaks[p.name] || 0) + 1;
-                            maxStreaks[p.name] = Math.max(maxStreaks[p.name] || 0, currentStreaks[p.name]);
-                        } else {
-                            currentStreaks[p.name] = 0; // Lost this game, break streak
-                        }
-                    });
+                    let winner = gScores[0];
+                    winningScores.push(winner.score);
+                    playerStats[winner.name].wins += 1;
 
                     // Record trend
                     if(sortRule === 'high') {
-                        dateTrends[game.date].best = Math.max(dateTrends[game.date].best, topScore);
+                        dateTrends[game.date].best = Math.max(dateTrends[game.date].best, winner.score);
                     } else {
-                        dateTrends[game.date].best = Math.min(dateTrends[game.date].best, topScore);
+                        dateTrends[game.date].best = Math.min(dateTrends[game.date].best, winner.score);
                     }
 
                     // Margins
@@ -347,36 +317,21 @@
                 document.getElementById('highest-score').innerText = highest.score;
                 document.getElementById('highest-score-sub').innerText = `by ${highest.name}`;
 
-                // Process Streak Display
-                let maxStreakPlayer = "N/A";
-                let maxStreakValue = 0;
-                for (const [player, streak] of Object.entries(maxStreaks)) {
-                    if (streak > maxStreakValue) {
-                        maxStreakValue = streak;
-                        maxStreakPlayer = player;
-                    }
-                }
-                document.getElementById('highest-win-streak').innerText = maxStreakValue;
-                document.getElementById('highest-win-streak-sub').innerText = maxStreakValue > 0 ? `by ${maxStreakPlayer}` : "";
-
-                // Dynamic Era Fields
-                if (gameKey.includes("Brass")) {
-                    document.getElementById('best-canal').innerText = bestCanal.score;
-                    document.getElementById('best-canal-sub').innerText = `by ${bestCanal.name}`;
-                    document.getElementById('best-rail').innerText = bestRail.score;
-                    document.getElementById('best-rail-sub').innerText = `by ${bestRail.name}`;
-                } else {
-                    document.getElementById('best-canal').innerText = "N/A";
-                    document.getElementById('best-canal-sub').innerText = "Brass Only";
-                    document.getElementById('best-rail').innerText = "N/A";
-                    document.getElementById('best-rail-sub').innerText = "Brass Only";
-                }
+                let lowest = allScores.reduce((min, p) => p.score < min.score ? p : min, allScores[0]);
+                document.getElementById('lowest-score').innerText = lowest.score;
+                document.getElementById('lowest-score-sub').innerText = `by ${lowest.name}`;
 
                 document.getElementById('avg-win-score').innerText = (winningScores.reduce((a, b) => a + b, 0) / winningScores.length).toFixed(1);
                 document.getElementById('avg-overall-score').innerText = (totalPointsScored / allScores.length).toFixed(1);
+                document.getElementById('avg-players').innerText = (totalPlayersAcrossGames / filteredGames.length).toFixed(1);
                 document.getElementById('biggest-blowout').innerText = margins.length ? Math.max(...margins) : "N/A";
                 document.getElementById('tightest-game').innerText = margins.length ? Math.min(...margins) : "N/A";
+
+                let topDate = Object.keys(dateCounts).reduce((a, b) => dateCounts[a] > dateCounts[b] ? a : b);
+                document.getElementById('most-played-date').innerText = topDate;
+                document.getElementById('most-played-date-sub').innerText = `${dateCounts[topDate]} games logged`;
                 document.getElementById('total-points').innerText = totalPointsScored.toLocaleString();
+
 
                 // --- PREPARE DATA FOR 5 GRAPHS ---
                 
