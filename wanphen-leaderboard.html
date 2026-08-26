@@ -39,16 +39,17 @@
         .back-btn:hover { background: var(--copper); color: var(--bg-gradient-2); }
         h1 { font-family: 'Cinzel', serif; font-size: 3.5rem; background: linear-gradient(to bottom, var(--brass-light), var(--brass-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 5px var(--shadow-color); text-transform: uppercase; letter-spacing: 2px;}
         
-        .container { max-width: 1000px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--brass-dark); padding: 40px; box-shadow: 0 0 30px var(--shadow-color); border-radius: 8px; transition: 0.4s;}
+        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--brass-dark); padding: 40px; box-shadow: 0 0 30px var(--shadow-color); border-radius: 8px; transition: 0.4s;}
         
-        .controls { text-align: center; margin-bottom: 30px; }
-        select { background: var(--bg-gradient-2); color: var(--brass-light); border: 1px solid var(--brass-dark); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.2rem; width: 100%; max-width: 600px; cursor: pointer; outline: none; border-radius: 4px; transition: 0.3s;}
+        .controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        select { background: var(--bg-gradient-2); color: var(--brass-light); border: 1px solid var(--brass-dark); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.2rem; flex: 1; min-width: 250px; max-width: 450px; cursor: pointer; outline: none; border-radius: 4px; transition: 0.3s;}
         select:focus { border-color: var(--brass-light); box-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .stat-box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 25px; text-align: center; border-radius: 5px; transition: 0.4s;}
-        .stat-title { font-family: 'Cinzel', serif; color: var(--copper); font-size: 1.1rem; margin-bottom: 10px; text-transform: uppercase; }
-        .stat-value { font-size: 2.2rem; color: var(--text-main); font-weight: bold; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .stat-box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 20px; text-align: center; border-radius: 5px; transition: 0.4s; display: flex; flex-direction: column; justify-content: center;}
+        .stat-title { font-family: 'Cinzel', serif; color: var(--copper); font-size: 0.95rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
+        .stat-value { font-size: 1.8rem; color: var(--text-main); font-weight: bold; }
+        .stat-sub { font-size: 0.85rem; color: #aaa; margin-top: 5px; font-family: 'Playfair Display', serif;}
 
         .chart-container { background: var(--chart-bg); padding: 20px; border: 1px dashed var(--brass-dark); border-radius: 5px; transition: 0.4s;}
 
@@ -65,8 +66,9 @@
     </header>
 
     <div class="container">
+        <!-- Dashboard Filters -->
         <div class="controls">
-            <!-- Values mapped to perfectly match your Cloud SQL Game Names -->
+            <!-- Game Selection -->
             <select id="game-selector" onchange="updateDashboard()">
                 <option value="" disabled selected>-- Select a Game to View Analytics --</option>
                 <option value="Brass: Birmingham">Brass: Birmingham</option>
@@ -79,16 +81,77 @@
                 <option value="6 nimmt!">6 nimmt!</option>
                 <option value="Wingspan">Wingspan</option>
             </select>
+            
+            <!-- Player Count Filter -->
+            <select id="player-filter" onchange="updateDashboard()">
+                <option value="all" selected>All Player Counts</option>
+                <option value="2">2 Players</option>
+                <option value="3">3 Players</option>
+                <option value="4">4 Players</option>
+                <option value="5">5 Players</option>
+                <option value="6">6 Players</option>
+            </select>
         </div>
 
         <div class="stats-grid">
+            <!-- Basic Stats -->
             <div class="stat-box">
-                <div class="stat-title">Total Games Logged</div>
+                <div class="stat-title">Total Games</div>
                 <div class="stat-value" id="total-games">-</div>
             </div>
             <div class="stat-box">
                 <div class="stat-title">Most Active Player</div>
                 <div class="stat-value" id="most-active">-</div>
+                <div class="stat-sub" id="most-active-sub"></div>
+            </div>
+
+            <!-- 10 DEEP STATS -->
+            <div class="stat-box">
+                <div class="stat-title">Most Wins</div>
+                <div class="stat-value" id="most-wins">-</div>
+                <div class="stat-sub" id="most-wins-sub"></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Highest Score Ever</div>
+                <div class="stat-value" id="highest-score">-</div>
+                <div class="stat-sub" id="highest-score-sub"></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Lowest Score Ever</div>
+                <div class="stat-value" id="lowest-score">-</div>
+                <div class="stat-sub" id="lowest-score-sub"></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Avg Winning Score</div>
+                <div class="stat-value" id="avg-win-score">-</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Avg Overall Score</div>
+                <div class="stat-value" id="avg-overall-score">-</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Avg Player Count</div>
+                <div class="stat-value" id="avg-players">-</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Biggest Blowout</div>
+                <div class="stat-value" id="biggest-blowout">-</div>
+                <div class="stat-sub">Point margin</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Tightest Game</div>
+                <div class="stat-value" id="tightest-game">-</div>
+                <div class="stat-sub">Point margin</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Most Played Date</div>
+                <div class="stat-value" id="most-played-date" style="font-size: 1.4rem;">-</div>
+                <div class="stat-sub" id="most-played-date-sub"></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Total Points Scored</div>
+                <div class="stat-value" id="total-points">-</div>
+                <div class="stat-sub">Across filtered games</div>
             </div>
         </div>
 
@@ -118,60 +181,158 @@
 
         function updateDashboard() {
             const gameKey = document.getElementById('game-selector').value;
+            if (!gameKey) return; // Wait until a game is selected
+
+            const playerFilter = document.getElementById('player-filter').value;
             const sortRule = gameRules[gameKey].sort;
 
-            // Set loading states
-            document.getElementById('total-games').innerText = "Loading...";
-            document.getElementById('most-active').innerText = "Loading...";
+            // Reset UI
+            document.querySelectorAll('.stat-value').forEach(el => el.innerText = "...");
+            document.querySelectorAll('.stat-sub').forEach(el => el.innerText = "");
             if (scoreChart) { scoreChart.destroy(); scoreChart = null; }
 
             // Fetch live data from Aiven SQL
             fetch('/.netlify/functions/getHistory?game=' + encodeURIComponent(gameKey))
             .then(response => response.json())
             .then(data => {
-                if (!data || data.length === 0) {
-                    document.getElementById('total-games').innerText = "0";
+                
+                // --- PASS 1: Pre-process and apply the Player Count filter ---
+                let filteredGames = [];
+                
+                (data || []).forEach(game => {
+                    let validScoresForGame = [];
+                    
+                    (game.scores || []).forEach(player => {
+                        let pName = player.name ? player.name.trim() : '';
+                        let pScore = parseInt(player.final);
+                        if (pName && !isNaN(pScore)) {
+                            validScoresForGame.push({ name: pName, score: pScore, date: game.date });
+                        }
+                    });
+                    
+                    if (validScoresForGame.length === 0) return; // Skip broken/empty entries
+                    
+                    // Filter logic: Only keep games matching the exact player count dropdown
+                    if (playerFilter !== 'all' && validScoresForGame.length !== parseInt(playerFilter)) {
+                        return; 
+                    }
+                    
+                    filteredGames.push({ ...game, parsedScores: validScoresForGame });
+                });
+
+                // Check if any data remains after filtering
+                if (filteredGames.length === 0) {
+                    document.querySelectorAll('.stat-value').forEach(el => el.innerText = "0");
                     document.getElementById('most-active').innerText = "N/A";
-                    renderChart([], "No Data Found in Cloud");
+                    document.getElementById('most-wins').innerText = "N/A";
+                    document.getElementById('highest-score').innerText = "0";
+                    document.getElementById('lowest-score').innerText = "0";
+                    document.getElementById('most-played-date').innerText = "N/A";
+                    document.getElementById('biggest-blowout').innerText = "N/A";
+                    document.getElementById('tightest-game').innerText = "N/A";
+                    renderChart([], `No ${playerFilter !== 'all' ? playerFilter + '-player' : ''} games logged`);
                     return;
                 }
 
-                document.getElementById('total-games').innerText = data.length;
-
+                // --- PASS 2: Crunch the Numbers for the filtered list ---
                 let allScores = [];
                 let playCounts = {};
+                let winCounts = {};
+                let dateCounts = {};
+                let winningScores = [];
+                let margins = [];
+                let totalPointsScored = 0;
+                let totalPlayersAcrossGames = 0;
 
-                // Crunch the numbers
-                data.forEach(game => {
-                    game.scores.forEach(player => {
-                        let pName = player.name.trim();
-                        let pScore = parseInt(player.final);
-                        if (pName && !isNaN(pScore)) {
-                            allScores.push({ name: pName, score: pScore, date: game.date });
-                            playCounts[pName] = (playCounts[pName] || 0) + 1;
-                        }
+                filteredGames.forEach(game => {
+                    let gScores = game.parsedScores;
+                    totalPlayersAcrossGames += gScores.length;
+                    dateCounts[game.date] = (dateCounts[game.date] || 0) + 1;
+
+                    gScores.forEach(p => {
+                        allScores.push(p);
+                        playCounts[p.name] = (playCounts[p.name] || 0) + 1;
+                        totalPointsScored += p.score;
                     });
+
+                    // Sort scores to determine the winner of this specific match
+                    gScores.sort((a, b) => sortRule === 'high' ? b.score - a.score : a.score - b.score);
+                    
+                    let winner = gScores[0];
+                    winningScores.push(winner.score);
+                    winCounts[winner.name] = (winCounts[winner.name] || 0) + 1;
+
+                    // Calculate point margin if > 1 player
+                    if (gScores.length > 1) {
+                        margins.push(Math.abs(gScores[0].score - gScores[1].score));
+                    }
                 });
 
-                // Find Most Active Player
-                let mostActive = Object.keys(playCounts).reduce((a, b) => playCounts[a] > playCounts[b] ? a : b, "N/A");
-                if(mostActive !== "N/A") {
-                    document.getElementById('most-active').innerText = `${mostActive} (${playCounts[mostActive]} plays)`;
-                } else {
-                    document.getElementById('most-active').innerText = "N/A";
-                }
+                // --- Compute Final Deep Stats ---
+                
+                // 1. Total Games
+                document.getElementById('total-games').innerText = filteredGames.length;
 
-                // Sort Scores (High to Low, unless 6 nimmt!)
+                // 2. Most Active Player
+                let mostActive = Object.keys(playCounts).length ? Object.keys(playCounts).reduce((a, b) => playCounts[a] > playCounts[b] ? a : b) : "N/A";
+                document.getElementById('most-active').innerText = mostActive;
+                if(mostActive !== "N/A") document.getElementById('most-active-sub').innerText = `${playCounts[mostActive]} games played`;
+
+                // 3. Most Wins
+                let mostWins = Object.keys(winCounts).length ? Object.keys(winCounts).reduce((a, b) => winCounts[a] > winCounts[b] ? a : b) : "N/A";
+                document.getElementById('most-wins').innerText = mostWins;
+                if(mostWins !== "N/A") document.getElementById('most-wins-sub').innerText = `${winCounts[mostWins]} victories`;
+
+                // 4. Highest Score Ever
+                let highest = allScores.length ? allScores.reduce((max, p) => p.score > max.score ? p : max, allScores[0]) : {name: "N/A", score: 0};
+                document.getElementById('highest-score').innerText = highest.score;
+                if(highest.name !== "N/A") document.getElementById('highest-score-sub').innerText = `by ${highest.name}`;
+
+                // 5. Lowest Score Ever
+                let lowest = allScores.length ? allScores.reduce((min, p) => p.score < min.score ? p : min, allScores[0]) : {name: "N/A", score: 0};
+                document.getElementById('lowest-score').innerText = lowest.score;
+                if(lowest.name !== "N/A") document.getElementById('lowest-score-sub').innerText = `by ${lowest.name}`;
+
+                // 6. Avg Winning Score
+                let avgWin = winningScores.length ? (winningScores.reduce((a, b) => a + b, 0) / winningScores.length).toFixed(1) : 0;
+                document.getElementById('avg-win-score').innerText = avgWin;
+
+                // 7. Avg Overall Score
+                let avgOverall = allScores.length ? (totalPointsScored / allScores.length).toFixed(1) : 0;
+                document.getElementById('avg-overall-score').innerText = avgOverall;
+
+                // 8. Avg Player Count
+                let avgPlayers = filteredGames.length ? (totalPlayersAcrossGames / filteredGames.length).toFixed(1) : 0;
+                document.getElementById('avg-players').innerText = avgPlayers;
+
+                // 9. Biggest Blowout (Max Margin)
+                let biggestMargin = margins.length ? Math.max(...margins) : "N/A";
+                document.getElementById('biggest-blowout').innerText = biggestMargin;
+
+                // 10. Tightest Game (Min Margin)
+                let tightestMargin = margins.length ? Math.min(...margins) : "N/A";
+                document.getElementById('tightest-game').innerText = tightestMargin;
+
+                // 11. Most Played Date
+                let topDate = Object.keys(dateCounts).length ? Object.keys(dateCounts).reduce((a, b) => dateCounts[a] > dateCounts[b] ? a : b) : "N/A";
+                document.getElementById('most-played-date').innerText = topDate || "N/A";
+                if(topDate && topDate !== "N/A") document.getElementById('most-played-date-sub').innerText = `${dateCounts[topDate]} games logged`;
+
+                // 12. Total Points Scored
+                document.getElementById('total-points').innerText = totalPointsScored.toLocaleString();
+
+                // Sort Scores for Chart (High to Low, unless 6 nimmt!)
                 allScores.sort((a, b) => sortRule === 'high' ? b.score - a.score : a.score - b.score);
                 let top5 = allScores.slice(0, 5);
                 
-                renderChart(top5, sortRule === 'high' ? 'All-Time Highest Scores' : 'All-Time Lowest Bullheads');
+                let chartTitle = sortRule === 'high' ? 'Highest Scores' : 'Lowest Bullheads';
+                if(playerFilter !== 'all') chartTitle += ` (${playerFilter}-Player Games)`;
+                
+                renderChart(top5, chartTitle);
             })
             .catch(error => {
-                document.getElementById('total-games').innerText = "Error";
-                document.getElementById('most-active').innerText = "Error";
+                document.querySelectorAll('.stat-value').forEach(el => el.innerText = "Err");
                 console.error("Cloud Fetch Error:", error);
-                alert("Failed to pull analytics from the cloud database.");
             });
         }
 
