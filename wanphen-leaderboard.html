@@ -110,7 +110,7 @@
                 <div class="stat-sub" id="most-active-sub"></div>
             </div>
 
-            <!-- 10 DEEP STATS -->
+            <!-- DEEP STATS -->
             <div class="stat-box">
                 <div class="stat-title">Most Wins</div>
                 <div class="stat-value" id="most-wins">-</div>
@@ -122,11 +122,6 @@
                 <div class="stat-sub" id="highest-score-sub"></div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Lowest Score Ever</div>
-                <div class="stat-value" id="lowest-score">-</div>
-                <div class="stat-sub" id="lowest-score-sub"></div>
-            </div>
-            <div class="stat-box">
                 <div class="stat-title">Avg Winning Score</div>
                 <div class="stat-value" id="avg-win-score">-</div>
             </div>
@@ -135,28 +130,44 @@
                 <div class="stat-value" id="avg-overall-score">-</div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Avg Player Count</div>
-                <div class="stat-value" id="avg-players">-</div>
-            </div>
-            <div class="stat-box">
                 <div class="stat-title">Biggest Blowout</div>
                 <div class="stat-value" id="biggest-blowout">-</div>
                 <div class="stat-sub">Point margin</div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Tightest Game</div>
-                <div class="stat-value" id="tightest-game">-</div>
-                <div class="stat-sub">Point margin</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-title">Most Played Date</div>
-                <div class="stat-value" id="most-played-date" style="font-size: 1.4rem;">-</div>
-                <div class="stat-sub" id="most-played-date-sub"></div>
-            </div>
-            <div class="stat-box">
                 <div class="stat-title">Total Points Scored</div>
                 <div class="stat-value" id="total-points">-</div>
                 <div class="stat-sub">Across filtered games</div>
+            </div>
+
+            <!-- BRASS ERA STATS (Dynamically Shown) -->
+            <div class="stat-box brass-stat" style="display:none;">
+                <div class="stat-title">Highest Canal Score</div>
+                <div class="stat-value" id="highest-canal">-</div>
+                <div class="stat-sub" id="highest-canal-sub"></div>
+            </div>
+            <div class="stat-box brass-stat" style="display:none;">
+                <div class="stat-title">Highest Rail Score</div>
+                <div class="stat-value" id="highest-rail">-</div>
+                <div class="stat-sub" id="highest-rail-sub"></div>
+            </div>
+            <div class="stat-box brass-stat" style="display:none;">
+                <div class="stat-title">Avg Canal Score</div>
+                <div class="stat-value" id="avg-canal">-</div>
+            </div>
+            <div class="stat-box brass-stat" style="display:none;">
+                <div class="stat-title">Avg Rail Score</div>
+                <div class="stat-value" id="avg-rail">-</div>
+            </div>
+            <div class="stat-box brass-stat" style="display:none;">
+                <div class="stat-title">Canal Era Dominator</div>
+                <div class="stat-value" id="canal-dominator">-</div>
+                <div class="stat-sub">Most times leading Canal</div>
+            </div>
+            <div class="stat-box brass-stat" style="display:none;">
+                <div class="stat-title">Biggest Rail Comeback</div>
+                <div class="stat-value" id="rail-comeback">-</div>
+                <div class="stat-sub" id="rail-comeback-sub"></div>
             </div>
         </div>
 
@@ -211,10 +222,17 @@
 
             const playerFilter = document.getElementById('player-filter').value;
             const sortRule = gameRules[gameKey].sort;
+            const isBrass = gameKey.includes("Brass");
 
             // Reset UI & Destroy Old Charts
             document.querySelectorAll('.stat-value').forEach(el => el.innerText = "...");
-            document.querySelectorAll('.stat-sub').forEach(el => el.innerText = "");
+            document.querySelectorAll('.stat-sub').forEach(el => {
+                if(el.id) el.innerText = ""; // Only clear dynamic subs with IDs
+            });
+            document.querySelectorAll('.brass-stat').forEach(el => {
+                el.style.display = isBrass ? 'flex' : 'none';
+            });
+
             document.getElementById('charts-container').style.display = 'none';
             document.getElementById('no-data-msg').innerText = "Loading Cloud Analytics...";
             destroyAllCharts();
@@ -231,8 +249,11 @@
                     (game.scores || []).forEach(player => {
                         let pName = player.name ? player.name.trim() : '';
                         let pScore = parseInt(player.final);
+                        let pCanal = parseInt(player.canal) || 0;
+                        let pRail = parseInt(player.rail) || 0;
+                        
                         if (pName && !isNaN(pScore)) {
-                            validScoresForGame.push({ name: pName, score: pScore, date: game.date });
+                            validScoresForGame.push({ name: pName, score: pScore, canal: pCanal, rail: pRail, date: game.date });
                         }
                     });
                     
@@ -246,10 +267,7 @@
                     document.getElementById('most-active').innerText = "N/A";
                     document.getElementById('most-wins').innerText = "N/A";
                     document.getElementById('highest-score').innerText = "0";
-                    document.getElementById('lowest-score').innerText = "0";
-                    document.getElementById('most-played-date').innerText = "N/A";
                     document.getElementById('biggest-blowout').innerText = "N/A";
-                    document.getElementById('tightest-game').innerText = "N/A";
                     document.getElementById('no-data-msg').innerText = `No ${playerFilter !== 'all' ? playerFilter + '-player' : ''} games found for ${gameKey}.`;
                     return;
                 }
@@ -259,18 +277,22 @@
 
                 // --- PASS 2: Crunch the Numbers ---
                 let allScores = [];
-                let playerStats = {}; // {name: {plays, wins, totalScore}}
-                let dateCounts = {};
+                let playerStats = {}; 
                 let winningScores = [];
                 let margins = [];
                 let totalPointsScored = 0;
-                let totalPlayersAcrossGames = 0;
-                let dateTrends = {}; // {date: {bestScore: X}}
+                let dateTrends = {}; 
+                
+                // Era Tracking
+                let hasCanalRailData = false;
+                let maxCanal = {name: '-', score: -1};
+                let maxRail = {name: '-', score: -1};
+                let totalCanal = 0, totalRail = 0, validEraScores = 0;
+                let canalLeaders = {};
+                let maxComeback = {name: '-', deficit: -1};
 
                 filteredGames.forEach(game => {
                     let gScores = game.parsedScores;
-                    totalPlayersAcrossGames += gScores.length;
-                    dateCounts[game.date] = (dateCounts[game.date] || 0) + 1;
 
                     // Initialize date trend
                     if(!dateTrends[game.date]) dateTrends[game.date] = { best: sortRule === 'high' ? -Infinity : Infinity };
@@ -281,6 +303,15 @@
                         playerStats[p.name].plays += 1;
                         playerStats[p.name].totalScore += p.score;
                         totalPointsScored += p.score;
+                        
+                        // Gather Era Data
+                        if (p.canal > 0 || p.rail > 0) {
+                            if (p.canal > maxCanal.score) maxCanal = {name: p.name, score: p.canal};
+                            if (p.rail > maxRail.score) maxRail = {name: p.name, score: p.rail};
+                            totalCanal += p.canal;
+                            totalRail += p.rail;
+                            validEraScores++;
+                        }
                     });
 
                     // Sort to find winner of the match
@@ -289,6 +320,25 @@
                     let winner = gScores[0];
                     winningScores.push(winner.score);
                     playerStats[winner.name].wins += 1;
+
+                    // Era Logic
+                    let gameHasEras = gScores.some(p => p.canal > 0 || p.rail > 0);
+                    if (gameHasEras) {
+                        hasCanalRailData = true;
+                        
+                        let canalLeader = [...gScores].sort((a,b) => b.canal - a.canal)[0];
+                        if (canalLeader) {
+                            canalLeaders[canalLeader.name] = (canalLeaders[canalLeader.name] || 0) + 1;
+                        }
+
+                        // Check if someone overcame a deficit to win
+                        if (winner.name !== canalLeader.name && sortRule === 'high') {
+                            let deficit = canalLeader.canal - winner.canal;
+                            if (deficit > maxComeback.deficit) {
+                                maxComeback = {name: winner.name, deficit: deficit};
+                            }
+                        }
+                    }
 
                     // Record trend
                     if(sortRule === 'high') {
@@ -303,7 +353,7 @@
                     }
                 });
 
-                // --- POPULATE 10 STAT BOXES ---
+                // --- POPULATE MAIN STAT BOXES ---
                 document.getElementById('total-games').innerText = filteredGames.length;
                 let mostActive = Object.keys(playerStats).reduce((a, b) => playerStats[a].plays > playerStats[b].plays ? a : b);
                 document.getElementById('most-active').innerText = mostActive;
@@ -317,20 +367,34 @@
                 document.getElementById('highest-score').innerText = highest.score;
                 document.getElementById('highest-score-sub').innerText = `by ${highest.name}`;
 
-                let lowest = allScores.reduce((min, p) => p.score < min.score ? p : min, allScores[0]);
-                document.getElementById('lowest-score').innerText = lowest.score;
-                document.getElementById('lowest-score-sub').innerText = `by ${lowest.name}`;
-
                 document.getElementById('avg-win-score').innerText = (winningScores.reduce((a, b) => a + b, 0) / winningScores.length).toFixed(1);
                 document.getElementById('avg-overall-score').innerText = (totalPointsScored / allScores.length).toFixed(1);
-                document.getElementById('avg-players').innerText = (totalPlayersAcrossGames / filteredGames.length).toFixed(1);
                 document.getElementById('biggest-blowout').innerText = margins.length ? Math.max(...margins) : "N/A";
-                document.getElementById('tightest-game').innerText = margins.length ? Math.min(...margins) : "N/A";
 
-                let topDate = Object.keys(dateCounts).reduce((a, b) => dateCounts[a] > dateCounts[b] ? a : b);
-                document.getElementById('most-played-date').innerText = topDate;
-                document.getElementById('most-played-date-sub').innerText = `${dateCounts[topDate]} games logged`;
                 document.getElementById('total-points').innerText = totalPointsScored.toLocaleString();
+                
+                // --- POPULATE BRASS STAT BOXES ---
+                if (isBrass && hasCanalRailData) {
+                    document.getElementById('highest-canal').innerText = maxCanal.score;
+                    document.getElementById('highest-canal-sub').innerText = `by ${maxCanal.name}`;
+                    document.getElementById('highest-rail').innerText = maxRail.score;
+                    document.getElementById('highest-rail-sub').innerText = `by ${maxRail.name}`;
+                    document.getElementById('avg-canal').innerText = (totalCanal / validEraScores).toFixed(1);
+                    document.getElementById('avg-rail').innerText = (totalRail / validEraScores).toFixed(1);
+                    
+                    let dominator = Object.keys(canalLeaders).length > 0 ? Object.keys(canalLeaders).reduce((a, b) => canalLeaders[a] > canalLeaders[b] ? a : b) : "N/A";
+                    document.getElementById('canal-dominator').innerText = dominator;
+                    
+                    if (maxComeback.deficit > 0) {
+                        document.getElementById('rail-comeback').innerText = maxComeback.name;
+                        document.getElementById('rail-comeback-sub').innerText = `Overcame ${maxComeback.deficit} pt deficit`;
+                    } else {
+                        document.getElementById('rail-comeback').innerText = "None";
+                        document.getElementById('rail-comeback-sub').innerText = "No major comebacks";
+                    }
+                } else if (isBrass) {
+                    document.querySelectorAll('.brass-stat .stat-value').forEach(el => el.innerText = "N/A");
+                }
 
 
                 // --- PREPARE DATA FOR 5 GRAPHS ---
