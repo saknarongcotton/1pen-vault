@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dune: Imperium Uprising - Score Tracker</title>
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#12100e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="1PEN Vault">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* --- DYNAMIC THEME VARIABLES --- */
+        :root { 
+            --brass-light: #d4af37; --brass-dark: #8a6522; --copper: #b87333; --border-color: #4a3b22; 
+            --text-main: #fff; --input-bg: #110e0c; --th-bg: #16120f; --readonly-bg: rgba(0,0,0,0.4);
+            --card-bg: rgba(30, 26, 23, 0.9); --col-btn-bg: rgba(0,0,0,0.6); --col-content-bg: rgba(0, 0, 0, 0.4);
+            --modal-overlay: rgba(0,0,0,0.85); --celeb-bg-1: #25201c; --celeb-bg-2: #161311;
+            --bg-gradient-1: #2a241e; --bg-gradient-2: #0d0b0a; --btn-hover-text: #12100e; --shadow-color: rgba(0,0,0,0.8);
+            
+            /* Dune Colors */
+            --p0-color: #ffd700; /* Yellow */
+            --p1-color: #e74c3c; /* Red */
+            --p2-color: #2ecc71; /* Green */
+            --p3-color: #3498db; /* Blue */
+            
+            --chart-bg: rgba(0,0,0,0.4);
+        }
+
+        body.light-mode {
+            --brass-light: #5e4315; --brass-dark: #8a6522; --copper: #9c4c1c; --border-color: #cbbba0; 
+            --text-main: #222; --input-bg: #fff; --th-bg: #e8ddcb; --readonly-bg: rgba(0,0,0,0.05);
+            --card-bg: rgba(255, 255, 255, 0.95); --col-btn-bg: #e8ddcb; --col-content-bg: rgba(255, 255, 255, 0.6);
+            --modal-overlay: rgba(255,255,255,0.85); --celeb-bg-1: #ffffff; --celeb-bg-2: #e0d8c8;
+            --bg-gradient-1: #ffffff; --bg-gradient-2: #e0d8c8; --btn-hover-text: #fff; --shadow-color: rgba(0,0,0,0.15);
+            --chart-bg: rgba(255,255,255,0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { background-color: var(--bg-gradient-2); background-image: radial-gradient(circle at center, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%), url('https://www.transparenttextures.com/patterns/stardust.png'); color: var(--brass-light); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; transition: background-color 0.4s, color 0.4s; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; }
+        .back-btn { color: var(--copper); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--copper); padding: 5px 15px; transition: 0.3s; background: transparent; cursor: pointer; border-radius: 4px; }
+        .back-btn:hover { background: var(--copper); color: var(--btn-hover-text); }
+        h1 { font-family: 'Cinzel', serif; font-size: 2.8rem; background: linear-gradient(to bottom, #3498db, #2980b9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 5px var(--shadow-color); flex-grow: 1; text-align: center; margin: 0 15px; text-transform: uppercase;}
+        
+        /* --- THEME TOGGLE SWITCH --- */
+        .theme-switch-wrapper { display: flex; align-items: center; gap: 10px; }
+        #theme-icon { font-size: 1.4rem; transition: 0.3s; }
+        .theme-switch { display: inline-block; height: 24px; position: relative; width: 46px; }
+        .theme-switch input { display: none; }
+        .slider { background-color: var(--bg-gradient-1); border: 1px solid var(--copper); bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 24px; }
+        .slider:before { background-color: var(--copper); bottom: 3px; content: ""; height: 16px; left: 3px; position: absolute; transition: .4s; width: 16px; border-radius: 50%; }
+        input:checked + .slider { background-color: #e8ddcb; }
+        input:checked + .slider:before { transform: translateX(22px); background-color: var(--copper); }
+
+        @media (max-width: 768px) { header { flex-direction: column; gap: 15px; } .back-btn { width: 100%; text-align: center; } h1 { font-size: 2rem; } .theme-switch-wrapper { width: 100%; justify-content: center; margin-top: 5px; } }
+
+        .container { max-width: 1300px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--brass-dark); padding: 30px; box-shadow: inset 0 0 20px var(--shadow-color), 0 5px 15px var(--shadow-color); transition: background-color 0.4s; }
+        
+        /* Setup & Meta */
+        .setup-card { background: var(--readonly-bg); border: 1px dashed var(--brass-light); padding: 20px; margin-bottom: 20px; border-radius: 4px; }
+        .setup-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
+        .setup-row label { font-family: 'Cinzel', serif; color: var(--copper); font-size: 1.1rem; }
+        .color-checkboxes { display: flex; gap: 15px; flex-wrap: wrap; }
+        .color-label { display: flex; align-items: center; gap: 5px; color: var(--text-main); font-family: 'Playfair Display', serif; cursor: pointer; }
+        .color-label input { width: 18px; height: 18px; accent-color: var(--brass-light); cursor: pointer; }
+        
+        .game-meta { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 20px; }
+        .input-group { display: flex; flex-direction: column; width: 48%; }
+        label { font-family: 'Cinzel', serif; color: var(--copper); margin-bottom: 5px; }
+        input[type="text"], input[type="date"], input[type="number"], select { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; font-family: 'Playfair Display', serif; font-size: 1.1rem; transition: 0.4s; width: 100%;}
+        input:focus, select:focus { outline: none; border-color: var(--brass-light); }
+
+        /* Collapsible Sections */
+        .collapsible-btn { background: var(--col-btn-bg); color: var(--brass-light); cursor: pointer; padding: 15px 20px; width: 100%; border: 1px solid var(--brass-dark); text-align: center; outline: none; font-family: 'Cinzel', serif; font-size: 1.5rem; transition: 0.4s; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
+        .collapsible-btn:hover, .collapsible-btn.active { background: var(--brass-dark); color: #fff; }
+        .collapsible-content { padding: 0 15px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease, background-color 0.4s; background: var(--col-content-bg); border: 1px solid transparent; }
+        .collapsible-content.expanded { padding: 20px 15px; border-color: var(--brass-dark); border-top: none; margin-bottom: 20px; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; }
+        
+        /* Tables */
+        .table-wrapper { overflow-x: auto; margin-bottom: 25px;}
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        th { background: var(--th-bg); color: var(--copper); font-family: 'Cinzel', serif; padding: 15px 10px; border: 1px solid var(--brass-dark); font-size: 0.9rem; transition: 0.4s; }
+        td { padding: 0; border: 1px solid var(--border-color); transition: 0.4s; position: relative; }
+        td input { width: 100%; height: 100%; border: none; padding: 15px 5px; text-align: center; background: transparent; color: var(--text-main); transition: 0.4s; font-family: 'Playfair Display', serif; font-size: 1.1rem;}
+        td input.player-name { padding-left: 30px; } /* Space for color dot */
+        .readonly-cell { padding: 15px 5px; background: var(--readonly-bg); font-weight: bold; color: var(--brass-light); font-size: 1.1rem; transition: 0.4s; }
+        
+        .highlight-col { background-color: rgba(52, 152, 219, 0.12) !important; border-left: 2px solid #3498db !important; border-right: 2px solid #3498db !important; font-size: 1.3rem !important; color: #fff !important; }
+        th.highlight-col { background-color: #2980b9 !important; font-size: 1.1rem !important; color: #fff !important; }
+
+        .color-dot { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); pointer-events: none; }
+
+        /* --- Timer UI --- */
+        .timer-tool { background: var(--readonly-bg); padding: 25px; border: 1px solid var(--brass-dark); border-radius: 5px; width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; }
+        .timer-row { display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); padding: 15px 20px; margin-bottom: 15px; border-radius: 5px; opacity: 0.5; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .timer-row:hover { border-color: var(--brass-light); opacity: 0.9; }
+        .timer-row.active { opacity: 1; border-color: var(--brass-light); box-shadow: 0 0 25px rgba(212, 175, 55, 0.5); background: rgba(212, 175, 55, 0.15); transform: scale(1.05); padding: 30px 25px; margin-bottom: 20px; }
+        .timer-name { font-family: 'Cinzel', serif; font-weight: bold; font-size: 1.3rem; width: 40%; display: flex; align-items: center; gap: 12px; transition: 0.4s; }
+        .timer-row.active .timer-name { font-size: 1.8rem; color: #fff; }
+        .timer-dot-t { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); transition: 0.4s;}
+        .timer-row.active .timer-dot-t { width: 20px; height: 20px; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .timer-times { display: flex; flex-direction: column; align-items: flex-end; width: 60%; }
+        .t-round { font-size: 2.2rem; font-weight: bold; color: var(--brass-light); font-family: monospace; transition: 0.4s; }
+        .timer-row.active .t-round { font-size: 4.5rem; color: #fff; text-shadow: 0 0 20px var(--brass-light); line-height: 1; margin-bottom: 5px;}
+        .t-reserve { font-size: 1.1rem; color: var(--copper); font-family: monospace; transition: 0.4s; }
+        .timer-row.active .t-reserve { font-size: 1.5rem; color: var(--brass-light); }
+        .t-round.danger, .t-reserve.danger { color: red !important; text-shadow: 0 0 15px red !important; }
+        .timer-controls { display: flex; gap: 15px; margin-top: auto; padding-top: 20px; flex-wrap: wrap;}
+        .t-btn { flex: 1; min-width: 30%; padding: 15px; background: var(--brass-dark); color: #fff; border: 1px solid var(--brass-light); font-family: 'Cinzel', serif; cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.3s; font-size: 1.2rem; }
+        .t-btn:hover { background: var(--brass-light); color: #000; box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
+        .t-btn.play { background: #27ae60; border-color: #2ecc71; }
+        .t-btn.pause { background: #e67e22; border-color: #f39c12; }
+        .t-btn.edit { background: var(--col-btn-bg); color: var(--brass-light); border-color: var(--copper); }
+
+        .save-btn { display: block; width: 100%; background: linear-gradient(145deg, #2980b9, #2c3e50); color: #fff; border: 1px solid #3498db; padding: 15px; font-family: 'Cinzel', serif; font-size: 1.5rem; cursor: pointer; transition: 0.3s; margin-top: 20px; border-radius: 4px; margin-bottom: 50px;}
+        .save-btn:hover { background: #3498db; color: #fff; box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);}
+        
+        /* Section Headers */
+        .section-header { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--brass-light); border-bottom: 1px dashed var(--brass-dark); padding-bottom: 10px; margin-bottom: 25px; text-align: center; margin-top: 40px;}
+
+        /* History Table */
+        .history-card { background: var(--readonly-bg); border: 1px solid var(--brass-dark); margin-bottom: 30px; padding: 20px; transition: 0.4s; }
+        .history-header { display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: var(--brass-light); margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; }
+        
+        /* Charts Grid */
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .chart-box { background: var(--chart-bg); padding: 20px; border: 1px dashed var(--brass-dark); border-radius: 5px; transition: 0.4s; display: flex; align-items: center; justify-content: center; min-height: 350px;}
+        .full-width { grid-column: 1 / -1; }
+        @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } .full-width { grid-column: 1; } }
+
+        /* Modals */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-overlay); align-items: center; justify-content: center; padding: 15px; }
+        .modal-content { background: linear-gradient(145deg, var(--celeb-bg-1), var(--celeb-bg-2)); border: 2px solid var(--brass-light); padding: 30px; border-radius: 8px; box-shadow: 0 0 50px rgba(212, 175, 55, 0.3); animation: popIn 0.3s forwards; transition: 0.4s; max-width: 500px; width: 100%; }
+        .modal-content h3 { font-family: 'Cinzel', serif; color: var(--brass-light); margin-bottom: 15px; text-align: center; }
+        .time-edit-group { display: flex; justify-content: space-around; gap: 20px; margin-bottom: 20px; }
+        .time-edit-group div { display: flex; flex-direction: column; align-items: center; }
+        .time-edit-group label { color: var(--copper); font-size: 0.9rem; margin-bottom: 5px; }
+        .time-edit-inputs { display: flex; align-items: center; gap: 5px; color: var(--text-main); }
+        .time-edit-inputs input { width: 60px; text-align: center; padding: 8px; }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+    </style>
+</head>
+<body onload="initSetup()">
+    <header>
+        <a href="index.html" class="back-btn">← Main Menu</a>
+        <h1>Dune: Imperium Uprising</h1>
+        <div class="theme-switch-wrapper">
+            <span id="theme-icon">🌙</span>
+            <label class="theme-switch" for="theme-checkbox">
+                <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()" />
+                <div class="slider round"></div>
+            </label>
+        </div>
+    </header>
+    
+    <div class="container">
+        
+        <!-- GAME SETUP PANEL -->
+        <div class="setup-card">
+            <h3 style="font-family:'Cinzel', serif; color: var(--brass-light); margin-bottom: 15px; font-size: 1.5rem; text-align: center;">Game Setup</h3>
+            
+            <div class="setup-row">
+                <label>Number of Players:</label>
+                <select id="setup-pcount" onchange="handlePCountChange()">
+                    <option value="1">1 Player</option>
+                    <option value="2">2 Players</option>
+                    <option value="3">3 Players</option>
+                    <option value="4" selected>4 Players</option>
+                </select>
+            </div>
+
+            <div class="setup-row">
+                <label>Active Colors:</label>
+                <div class="color-checkboxes">
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="0" checked onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p0-color); width:12px; height:12px; position:static;"></div> Yellow</label>
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="1" checked onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p1-color); width:12px; height:12px; position:static;"></div> Red</label>
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="2" checked onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p2-color); width:12px; height:12px; position:static;"></div> Green</label>
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="3" checked onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p3-color); width:12px; height:12px; position:static;"></div> Blue</label>
+                </div>
+            </div>
+            <div id="setup-warning" style="color: #e74c3c; font-family: 'Playfair Display', serif; display: none;">Please select exact colors to match player count.</div>
+        </div>
+
+        <div class="game-meta">
+            <div class="input-group"><label>Party Name</label><input type="text" id="party-name" placeholder="e.g. The Fremen Rebellion"></div>
+            <div class="input-group"><label>Date</label><input type="date" id="game-date"></div>
+        </div>
+
+        <!-- COLLAPSIBLE: TIMER -->
+        <button class="collapsible-btn">
+            <span></span> 
+            <span>⏱️ Turn Timer</span>
+            <span class="toggle-icon">▼</span>
+        </button>
+        <div class="collapsible-content">
+            <div class="timer-tool" style="margin-top: 15px;">
+                <p style="text-align:center; color: #aaa; margin-bottom: 25px; font-size: 0.9rem; font-style: italic;">Tap a player to begin.<br>Unused round time banks to Reserve.</p>
+                <div id="timer-players">
+                    <!-- Timer rows injected via JS -->
+                </div>
+                <div class="timer-controls">
+                    <button class="t-btn play" id="global-timer-btn" onclick="toggleGlobalTimer()">Start Time</button>
+                    <button class="t-btn" onclick="nextTurn()">End Turn</button>
+                    <button class="t-btn edit" onclick="openTimeEdit()">⚙️ Edit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN SCORING TABLE -->
+        <div class="table-wrapper" style="margin-top: 25px;">
+            <h3 style="color: var(--brass-light); font-family:'Cinzel', serif; margin-bottom:10px; font-size: 1.5rem;">Final Ledger</h3>
+            <table id="scoring-table">
+                <thead><tr>
+                    <th>Player Name</th>
+                    <th>Leader</th>
+                    <th class="highlight-col">Final Point</th>
+                    <th>Spice</th>
+                    <th>Solari</th>
+                    <th>Water</th>
+                </tr></thead>
+                <tbody id="scoring-body"></tbody>
+            </table>
+        </div>
+        
+        <button class="save-btn" onclick="saveGame()">Seal the Ledger</button>
+
+        <!-- HISTORY SECTION -->
+        <div class="section-header">📜 History Score Table</div>
+        <div id="history-container">
+            <p style='text-align:center; color: #aaa;'>Loading past games...</p>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="section-header">📊 Imperial Analytics</div>
+        <div class="charts-grid" id="charts-container" style="display: none;">
+            <div class="chart-box full-width">
+                <canvas id="trendChart"></canvas>
+            </div>
+            <div class="chart-box full-width">
+                <canvas id="leaderBoardChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <canvas id="mostWinsChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <canvas id="winRateChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <canvas id="avgScoreChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <canvas id="playCountChart"></canvas>
+            </div>
+            <div class="chart-box full-width">
+                <canvas id="resourceChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- Modals -->
+    <div id="celebration-modal" class="modal-overlay" style="z-index: 3000;"><div class="modal-content" style="max-width:400px; text-align:center;"><h2 style="font-size:3.5rem; margin:0; font-family:'Cinzel', serif; color:#3498db;">Victory!</h2></div></div>
+    
+    <div id="time-modal" class="modal-overlay" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 450px;">
+            <h3>Adjust Active Player Time</h3>
+            <div class="time-edit-group">
+                <div>
+                    <label>Round Timer (Min : Sec)</label>
+                    <div class="time-edit-inputs">
+                        <input type="number" id="edit-round-m" min="0"> : <input type="number" id="edit-round-s" min="0" max="59">
+                    </div>
+                </div>
+                <div>
+                    <label>Reserve Timer (Min : Sec)</label>
+                    <div class="time-edit-inputs">
+                        <input type="number" id="edit-res-m"> : <input type="number" id="edit-res-s" min="0" max="59">
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="t-btn play" style="flex:1; border:none;" onclick="saveTimeEdit()">Save</button>
+                <button class="t-btn edit" style="flex:1;" onclick="document.getElementById('time-modal').style.display='none'">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        // --- THEME LOGIC ---
+        function checkTheme() {
+            if (localStorage.getItem('vault_theme') === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-icon').innerText = '☀️';
+                document.getElementById('theme-checkbox').checked = true;
+            } else {
+                document.getElementById('theme-icon').innerText = '🌙';
+                document.getElementById('theme-checkbox').checked = false;
+            }
+        }
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('light-mode');
+            const icon = document.getElementById('theme-icon');
+            const checkbox = document.getElementById('theme-checkbox');
+            
+            if (isLight) { 
+                localStorage.setItem('vault_theme', 'light'); 
+                icon.innerText = '☀️'; 
+                checkbox.checked = true;
+            } else { 
+                localStorage.setItem('vault_theme', 'dark'); 
+                icon.innerText = '🌙'; 
+                checkbox.checked = false;
+            }
+            if(chartInstances.length > 0) loadHistory(); // Redraw charts for colors
+        }
+
+        document.getElementById('game-date').valueAsDate = new Date();
+        const pColors = ['var(--p0-color)', 'var(--p1-color)', 'var(--p2-color)', 'var(--p3-color)'];
+        
+        const ROUND_DEFAULT = 180; 
+        let timerData = [];
+        let activePlayer = 0;
+        let timerRunning = false;
+        let timerInterval;
+        let activeColorList = [];
+        let chartInstances = [];
+
+        // --- AUDIO ALARM SYSTEM ---
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+        }
+        function playBeep(freq, duration, type = 'sine', volume = 0.1) {
+            if (!audioCtx) return;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+        function playTick() { playBeep(800, 0.1, 'sine', 0.05); }
+        function playAlarm() { 
+            playBeep(400, 0.4, 'square', 0.15); 
+            setTimeout(() => playBeep(400, 0.6, 'square', 0.15), 500); 
+        }
+
+        // --- SETUP LOGIC ---
+        function initSetup() {
+            checkTheme();
+            handlePCountChange(); 
+            loadHistory(); // Load history & charts immediately on boot
+        }
+
+        function handlePCountChange() {
+            const count = parseInt(document.getElementById('setup-pcount').value);
+            let checked = document.querySelectorAll('.color-tick:checked');
+            while(checked.length > count) {
+                checked[checked.length - 1].checked = false;
+                checked = document.querySelectorAll('.color-tick:checked');
+            }
+            validateAndBuild();
+        }
+
+        function handleColorTick(checkbox) {
+            const count = parseInt(document.getElementById('setup-pcount').value);
+            let checked = document.querySelectorAll('.color-tick:checked');
+            if (checked.length > count) { checkbox.checked = false; return; }
+            validateAndBuild();
+        }
+
+        function validateAndBuild() {
+            const count = parseInt(document.getElementById('setup-pcount').value);
+            const checked = document.querySelectorAll('.color-tick:checked');
+            const warning = document.getElementById('setup-warning');
+
+            if (checked.length < count) {
+                warning.style.display = 'block';
+                warning.innerText = `Please tick ${count - checked.length} more color(s).`;
+            } else {
+                warning.style.display = 'none';
+                activeColorList = Array.from(checked).map(cb => parseInt(cb.value));
+                buildGameUI(activeColorList);
+            }
+        }
+
+        function buildGameUI(selectedColors) {
+            const scoreBody = document.getElementById('scoring-body');
+            const timerContainer = document.getElementById('timer-players');
+
+            scoreBody.innerHTML = '';
+            timerContainer.innerHTML = '';
+            
+            if(timerRunning) toggleGlobalTimer();
+            timerData = [];
+            activePlayer = 0;
+
+            selectedColors.forEach((colorIdx, loopIndex) => {
+                const cVar = pColors[colorIdx];
+                
+                const trScore = document.createElement('tr');
+                trScore.innerHTML = `
+                    <td><div class="color-dot" style="background-color:${cVar}"></div><input type="text" class="player-name" data-player="${loopIndex}" placeholder="Player ${loopIndex+1}"></td>
+                    <td><input type="text" class="leader-input" placeholder="Leader Name"></td>
+                    <td><input type="number" class="final-input highlight-col" min="0" placeholder="0"></td>
+                    <td><input type="number" class="spice-input" min="0" placeholder="0" style="color:#f39c12;"></td>
+                    <td><input type="number" class="solari-input" min="0" placeholder="0" style="color:#f1c40f;"></td>
+                    <td><input type="number" class="water-input" min="0" placeholder="0" style="color:#3498db;"></td>
+                `;
+                scoreBody.appendChild(trScore);
+
+                timerContainer.innerHTML += `
+                    <div class="timer-row" id="timer-row-${loopIndex}" onclick="selectPlayer(${loopIndex})">
+                        <div class="timer-name">
+                            <div class="timer-dot-t" style="background-color:${cVar}"></div>
+                            <span id="t-name-${loopIndex}">Player ${loopIndex+1}</span>
+                        </div>
+                        <div class="timer-times">
+                            <div class="t-round" id="t-round-${loopIndex}">03:00</div>
+                            <div class="t-reserve" id="t-res-${loopIndex}">Res: 10:00</div>
+                        </div>
+                    </div>`;
+                
+                timerData.push({ round: ROUND_DEFAULT, reserve: 600 });
+            });
+
+            // Sync names to timer
+            document.querySelectorAll('.player-name').forEach(input => { 
+                input.addEventListener('input', (e) => { 
+                    const idx = e.target.getAttribute('data-player');
+                    document.getElementById(`t-name-${idx}`).innerText = e.target.value || `Player ${parseInt(idx)+1}`;
+                }); 
+            });
+
+            updateTimerUI();
+        }
+
+        // Collapsible Logic
+        document.querySelectorAll('.collapsible-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('.toggle-icon');
+                if (content.style.maxHeight) { 
+                    content.style.maxHeight = null; content.classList.remove('expanded'); icon.innerText = '▼'; 
+                } else { 
+                    content.classList.add('expanded'); content.style.maxHeight = content.scrollHeight + 300 + "px"; icon.innerText = '▲'; 
+                }
+            });
+        });
+
+        // --- TIMER LOGIC ---
+        function formatSecs(s) {
+            let sign = s < 0 ? "-" : "";
+            let abs = Math.abs(s);
+            let mins = Math.floor(abs / 60).toString().padStart(2, '0');
+            let secs = (abs % 60).toString().padStart(2, '0');
+            return `${sign}${mins}:${secs}`;
+        }
+        function updateTimerUI() {
+            timerData.forEach((td, i) => {
+                document.getElementById(`timer-row-${i}`).classList.remove('active');
+                const roundEl = document.getElementById(`t-round-${i}`);
+                const resEl = document.getElementById(`t-res-${i}`);
+                roundEl.innerText = formatSecs(td.round);
+                resEl.innerText = `Res: ${formatSecs(td.reserve)}`;
+                if(td.round === 0) roundEl.classList.add('danger'); else roundEl.classList.remove('danger');
+                if(td.reserve < 0) resEl.classList.add('danger'); else resEl.classList.remove('danger');
+            });
+            document.getElementById(`timer-row-${activePlayer}`).classList.add('active');
+        }
+        function selectPlayer(id) { activePlayer = id; updateTimerUI(); }
+        function toggleGlobalTimer() {
+            initAudio(); 
+            const btn = document.getElementById('global-timer-btn');
+            if(timerRunning) {
+                clearInterval(timerInterval); timerRunning = false;
+                btn.innerText = "Resume Time"; btn.classList.remove('pause'); btn.classList.add('play');
+            } else {
+                timerRunning = true;
+                btn.innerText = "Pause Time"; btn.classList.remove('play'); btn.classList.add('pause');
+                timerInterval = setInterval(() => {
+                    let p = timerData[activePlayer];
+                    if (p.round > 0) {
+                        p.round--;
+                        if (p.round <= 10 && p.round > 0) playTick(); 
+                        else if (p.round === 0) playAlarm(); 
+                    } else { p.reserve--; }
+                    updateTimerUI();
+                }, 1000);
+            }
+            updateTimerUI();
+        }
+        function nextTurn() {
+            if (timerData[activePlayer].round > 0) timerData[activePlayer].reserve += timerData[activePlayer].round;
+            timerData[activePlayer].round = ROUND_DEFAULT; 
+            if(timerRunning) {
+                clearInterval(timerInterval); timerRunning = false;
+                const btn = document.getElementById('global-timer-btn');
+                btn.innerText = "Start Time"; btn.classList.remove('pause'); btn.classList.add('play');
+            }
+            updateTimerUI();
+        }
+        function openTimeEdit() {
+            if(timerRunning) toggleGlobalTimer(); 
+            let p = timerData[activePlayer];
+            document.getElementById('edit-round-m').value = Math.floor(p.round / 60);
+            document.getElementById('edit-round-s').value = p.round % 60;
+            let resSign = p.reserve < 0 ? -1 : 1;
+            let absRes = Math.abs(p.reserve);
+            document.getElementById('edit-res-m').value = Math.floor(absRes / 60) * resSign;
+            document.getElementById('edit-res-s').value = absRes % 60;
+            document.getElementById('time-modal').style.display = 'flex';
+        }
+        function saveTimeEdit() {
+            let rm = parseInt(document.getElementById('edit-round-m').value) || 0;
+            let rs = parseInt(document.getElementById('edit-round-s').value) || 0;
+            timerData[activePlayer].round = (rm * 60) + rs;
+            let rsm = parseInt(document.getElementById('edit-res-m').value) || 0;
+            let rss = parseInt(document.getElementById('edit-res-s').value) || 0;
+            let resSign = rsm < 0 || Object.is(rsm, -0) ? -1 : 1;
+            timerData[activePlayer].reserve = (rsm * 60) + (rss * resSign);
+            document.getElementById('time-modal').style.display = 'none';
+            updateTimerUI();
+        }
+        
+        // --- DUNE TIE-BREAKER LOGIC ---
+        function getWinners(scores) {
+            let winners = [];
+            let maxP = -1, maxSp = -1, maxSo = -1, maxW = -1;
+            
+            scores.forEach((s, idx) => {
+                let p = parseInt(s.final) || 0;
+                let sp = parseInt(s.spice) || 0;
+                let so = parseInt(s.solari) || 0;
+                let w = parseInt(s.water) || 0;
+                
+                if (p > maxP) { setMax(p, sp, so, w, idx); }
+                else if (p === maxP) {
+                    if (sp > maxSp) { setMax(p, sp, so, w, idx); }
+                    else if (sp === maxSp) {
+                        if (so > maxSo) { setMax(p, sp, so, w, idx); }
+                        else if (so === maxSo) {
+                            if (w > maxW) { setMax(p, sp, so, w, idx); }
+                            else if (w === maxW) { winners.push(idx); } // True Tie
+                        }
+                    }
+                }
+            });
+            function setMax(p, sp, so, w, idx) {
+                maxP = p; maxSp = sp; maxSo = so; maxW = w;
+                winners = [idx];
+            }
+            return winners;
+        }
+
+        // --- CLOUD SAVE LOGIC ---
+        function saveGame() {
+            let playersData = [];
+            document.querySelectorAll('#scoring-body tr').forEach((row) => {
+                const name = row.querySelector('.player-name').value.trim();
+                if(name !== "") { 
+                    playersData.push({ 
+                        name: name, 
+                        leader: row.querySelector('.leader-input').value.trim() || "-", 
+                        final: row.querySelector('.final-input').value || 0,
+                        spice: row.querySelector('.spice-input').value || 0,
+                        solari: row.querySelector('.solari-input').value || 0,
+                        water: row.querySelector('.water-input').value || 0
+                    }); 
+                }
+            });
+            if(playersData.length === 0) return alert("Please enter at least one player name and score!");
+            
+            const gameRecord = { 
+                id: Date.now(), 
+                game: "Dune Imperium Uprising", 
+                party: document.getElementById('party-name').value || "Unknown Party", 
+                date: document.getElementById('game-date').value, 
+                scores: playersData 
+            };
+            
+            fetch('/.netlify/functions/saveGame', { method: 'POST', body: JSON.stringify(gameRecord) })
+            .then(response => { if (!response.ok) throw new Error("Network error"); return response.json(); })
+            .then(data => { showCelebration(); })
+            .catch(error => { alert("Failed to save to cloud database!"); console.error(error); });
+        }
+        
+        function showCelebration() {
+            document.getElementById('celebration-modal').style.display = 'flex';
+            let duration = 2.5 * 1000; let animationEnd = Date.now() + duration; let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3001, colors: ['#3498db', '#e74c3c', '#f1c40f'] };
+            let interval = setInterval(function() {
+                let timeLeft = animationEnd - Date.now(); if (timeLeft <= 0) return clearInterval(interval); let particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.9 - 0.7) + 0.7, y: Math.random() - 0.2 } }));
+            }, 250);
+            setTimeout(() => { 
+                document.getElementById('celebration-modal').style.display = 'none'; 
+                document.querySelectorAll('input[type="text"]:not(#party-name), input[type="number"]').forEach(inp => inp.value = ''); 
+                loadHistory(); 
+            }, 3000);
+        }
+        
+        // --- HISTORY & CHARTS LOGIC ---
+        function destroyOldCharts() {
+            chartInstances.forEach(c => c.destroy());
+            chartInstances = [];
+        }
+
+        function loadHistory() {
+            const container = document.getElementById('history-container'); 
+            container.innerHTML = "<p style='text-align:center; color: var(--brass-light);'>Summoning records from the Cloud...</p>";
+            document.getElementById('charts-container').style.display = 'none';
+            destroyOldCharts();
+
+            fetch('/.netlify/functions/getHistory?game=' + encodeURIComponent("Dune Imperium Uprising"))
+            .then(response => response.json())
+            .then(history => {
+                if(!history || history.length === 0) { 
+                    container.innerHTML = "<p style='text-align:center;'>No historical records found.</p>"; return; 
+                }
+
+                // 1. Render History Table
+                let html = '';
+                history.forEach(game => {
+                    let winners = getWinners(game.scores);
+                    html += `<div class="history-card"><div class="history-header"><h3>Party: ${game.party}</h3><h3>Date: ${game.date}</h3></div><div class="table-wrapper"><table><thead><tr><th>Player Name</th><th>Leader</th><th class="highlight-col">Final Point</th></tr></thead><tbody>`;
+                    
+                    game.scores.forEach((player, idx) => { 
+                        let isWinner = winners.includes(idx); 
+                        let crown = isWinner ? ' 👑' : ''; 
+                        let rowStyle = isWinner ? 'background: rgba(52, 152, 219, 0.2); font-weight: bold;' : '';
+                        
+                        html += `<tr style="${rowStyle}">
+                            <td class="readonly-cell">${player.name}${crown}</td>
+                            <td class="readonly-cell" style="color:#aaa;">${player.leader || '-'}</td>
+                            <td class="readonly-cell highlight-col">${player.final || 0}</td>
+                        </tr>`; 
+                    });
+                    html += `</tbody></table></div></div>`;
+                });
+                container.innerHTML = html;
+
+                // 2. Crunch Chart Analytics
+                document.getElementById('charts-container').style.display = 'grid';
+                
+                let playerStats = {}; // {name: {plays, wins, scoreTotal, spice, solari, water}}
+                let leaderStats = {}; // {leader: {plays, scoreTotal}}
+                let trendDates = [];
+                let trendWinningScores = [];
+
+                history.reverse().forEach((game, index) => { // Reverse for chronological order
+                    let winners = getWinners(game.scores);
+                    let matchWinScore = 0;
+
+                    game.scores.forEach((p, idx) => {
+                        let name = p.name;
+                        let leader = p.leader && p.leader !== '-' ? p.leader : 'Unknown';
+                        let score = parseInt(p.final) || 0;
+
+                        // Player Aggregation
+                        if(!playerStats[name]) playerStats[name] = { plays: 0, wins: 0, score: 0, sp: 0, so: 0, w: 0 };
+                        playerStats[name].plays++;
+                        playerStats[name].score += score;
+                        playerStats[name].sp += parseInt(p.spice) || 0;
+                        playerStats[name].so += parseInt(p.solari) || 0;
+                        playerStats[name].w += parseInt(p.water) || 0;
+                        if(winners.includes(idx)) {
+                            playerStats[name].wins++;
+                            matchWinScore = score;
+                        }
+
+                        // Leader Aggregation
+                        if(!leaderStats[leader]) leaderStats[leader] = { plays: 0, score: 0 };
+                        leaderStats[leader].plays++;
+                        leaderStats[leader].score += score;
+                    });
+
+                    trendDates.push(`${game.date} (#${index+1})`);
+                    trendWinningScores.push(matchWinScore);
+                });
+
+                let pArray = Object.keys(playerStats).map(p => ({
+                    name: p,
+                    wins: playerStats[p].wins,
+                    plays: playerStats[p].plays,
+                    winRate: ((playerStats[p].wins / playerStats[p].plays) * 100).toFixed(1),
+                    avgScore: (playerStats[p].score / playerStats[p].plays).toFixed(1),
+                    avgSp: (playerStats[p].sp / playerStats[p].plays).toFixed(1),
+                    avgSo: (playerStats[p].so / playerStats[p].plays).toFixed(1),
+                    avgW: (playerStats[p].w / playerStats[p].plays).toFixed(1)
+                }));
+
+                let lArray = Object.keys(leaderStats).map(l => ({
+                    name: l,
+                    plays: leaderStats[l].plays,
+                    avgScore: (leaderStats[l].score / leaderStats[l].plays).toFixed(1)
+                }));
+
+                drawCharts(pArray, lArray, trendDates, trendWinningScores);
+            })
+            .catch(error => { container.innerHTML = "<p style='text-align:center; color: red;'>Failed to load cloud history.</p>"; console.error(error); });
+        }
+
+        function drawCharts(players, leaders, trendDates, trendScores) {
+            Chart.defaults.font.family = "'Playfair Display', serif";
+            const isLightMode = document.body.classList.contains('light-mode');
+            const tickColor = isLightMode ? '#9c4c1c' : '#b87333';
+            const titleColor = isLightMode ? '#5e4315' : '#3498db';
+            const gridColor = isLightMode ? 'rgba(0,0,0,0.1)' : 'rgba(52, 152, 219, 0.2)';
+            const titleFont = { family: 'Cinzel', size: 18 };
+
+            const colors = ['#3498db', '#e74c3c', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22'];
+
+            // 1. Most Wins (Bar)
+            let winData = [...players].sort((a,b) => b.wins - a.wins).slice(0, 6);
+            chartInstances.push(new Chart(document.getElementById('mostWinsChart'), {
+                type: 'bar',
+                data: { labels: winData.map(p => p.name), datasets: [{ label: 'Total Wins', data: winData.map(p => p.wins), backgroundColor: '#3498db' }] },
+                options: { plugins: { legend: { display: false }, title: { display: true, text: 'All-Time Most Wins', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor, stepSize: 1 }, grid: { color: gridColor } }, x: { ticks: { color: tickColor } } } }
+            }));
+
+            // 2. Score Trend (Line)
+            chartInstances.push(new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: { labels: trendDates, datasets: [{ label: 'Winning Score', data: trendScores, borderColor: '#e74c3c', backgroundColor: 'rgba(231, 76, 60, 0.2)', borderWidth: 3, fill: true, tension: 0.3 }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Winning Score Timeline', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { display: false } } } }
+            }));
+
+            // 3. Average Score (Horizontal Bar)
+            let avgData = [...players].sort((a,b) => b.avgScore - a.avgScore).slice(0, 6);
+            chartInstances.push(new Chart(document.getElementById('avgScoreChart'), {
+                type: 'bar',
+                data: { labels: avgData.map(p => p.name), datasets: [{ data: avgData.map(p => p.avgScore), backgroundColor: '#2ecc71' }] },
+                options: { indexAxis: 'y', plugins: { legend: { display: false }, title: { display: true, text: 'Average Score', color: titleColor, font: titleFont } }, scales: { x: { ticks: { color: tickColor }, grid: { color: gridColor } }, y: { ticks: { color: tickColor } } } }
+            }));
+
+            // 4. Win Rate (Doughnut)
+            let wrData = [...players].sort((a,b) => b.winRate - a.winRate).slice(0, 6);
+            chartInstances.push(new Chart(document.getElementById('winRateChart'), {
+                type: 'doughnut',
+                data: { labels: wrData.map(p => p.name), datasets: [{ data: wrData.map(p => p.winRate), backgroundColor: colors, borderColor: isLightMode ? '#fff' : '#12100e', borderWidth: 2 }] },
+                options: { plugins: { legend: { position: 'right', labels: { color: tickColor } }, title: { display: true, text: 'Win Rate (%)', color: titleColor, font: titleFont } } }
+            }));
+
+            // 5. Leader Leaderboard (Bar)
+            let topLeaders = [...leaders].sort((a,b) => b.avgScore - a.avgScore).slice(0, 8);
+            chartInstances.push(new Chart(document.getElementById('leaderBoardChart'), {
+                type: 'bar',
+                data: { labels: topLeaders.map(l => `${l.name} (${l.plays} plays)`), datasets: [{ data: topLeaders.map(l => l.avgScore), backgroundColor: '#9b59b6' }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Best Performing Leaders (Avg Score)', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { color: tickColor } } } }
+            }));
+
+            // 6. Play Count (Polar)
+            let pcData = [...players].sort((a,b) => b.plays - a.plays).slice(0, 6);
+            chartInstances.push(new Chart(document.getElementById('playCountChart'), {
+                type: 'polarArea',
+                data: { labels: pcData.map(p => p.name), datasets: [{ data: pcData.map(p => p.plays), backgroundColor: colors.map(c => c.replace(')', ', 0.6)').replace('rgb', 'rgba')), borderColor: isLightMode ? '#fff' : '#12100e' }] },
+                options: { plugins: { legend: { position: 'right', labels: { color: tickColor } }, title: { display: true, text: 'Most Games Played', color: titleColor, font: titleFont } }, scales: { r: { ticks: { display: false }, grid: { color: gridColor } } } }
+            }));
+
+            // 7. Resource Hoarders (Stacked Bar)
+            let resData = [...players].sort((a,b) => b.plays - a.plays).slice(0, 5); // Top 5 most active
+            chartInstances.push(new Chart(document.getElementById('resourceChart'), {
+                type: 'bar',
+                data: {
+                    labels: resData.map(p => p.name),
+                    datasets: [
+                        { label: 'Avg Spice', data: resData.map(p => p.avgSp), backgroundColor: '#e67e22' },
+                        { label: 'Avg Solari', data: resData.map(p => p.avgSo), backgroundColor: '#f1c40f' },
+                        { label: 'Avg Water', data: resData.map(p => p.avgW), backgroundColor: '#3498db' }
+                    ]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { labels: { color: tickColor } }, title: { display: true, text: 'End-Game Resource Hoarding', color: titleColor, font: titleFont } }, scales: { x: { stacked: true, ticks: { color: tickColor } }, y: { stacked: true, ticks: { color: tickColor }, grid: { color: gridColor } } } }
+            }));
+        }
+    </script>
+</body>
+</html>
