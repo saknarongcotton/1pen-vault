@@ -6,7 +6,7 @@
     <title>Dune: Imperium Uprising - Score Tracker</title>
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#12100e">
+    <meta name="theme-color" content="#f5eedc">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="1PEN Vault">
@@ -15,135 +15,173 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* --- DYNAMIC THEME VARIABLES --- */
+        /* --- DUNE CINEMATIC THEME (LIGHT - ARRAKIS DAY) --- */
         :root { 
-            --brass-light: #d4af37; --brass-dark: #8a6522; --copper: #b87333; --border-color: #4a3b22; 
-            --text-main: #fff; --input-bg: #110e0c; --th-bg: #16120f; --readonly-bg: rgba(0,0,0,0.4);
-            --card-bg: rgba(30, 26, 23, 0.9); --col-btn-bg: rgba(0,0,0,0.6); --col-content-bg: rgba(0, 0, 0, 0.4);
-            --modal-overlay: rgba(0,0,0,0.85); --celeb-bg-1: #25201c; --celeb-bg-2: #161311;
-            --bg-gradient-1: #2a241e; --bg-gradient-2: #0d0b0a; --btn-hover-text: #12100e; --shadow-color: rgba(0,0,0,0.8);
+            --spice-light: #d35400; /* Burnt Spice Orange */
+            --spice-dark: #8a3600; /* Deep Rust */
+            --fremen-blue: #006b99; /* Eyes of Ibad */
+            --border-color: #c8b99e; /* Sandstone */
             
-            /* Dune Colors */
-            --p0-color: #ffd700; /* Yellow */
+            --text-main: #3e2723; /* Dark Charcoal/Brown */
+            --input-bg: rgba(255, 255, 255, 0.75); 
+            --th-bg: #eaddcf; 
+            --readonly-bg: rgba(211, 84, 0, 0.08); /* Faint Spice Tint */
+            
+            --card-bg: rgba(250, 246, 238, 0.95); /* Bleached Sand */
+            --col-btn-bg: #f3e9d8; 
+            --col-content-bg: rgba(255, 255, 255, 0.6);
+            --modal-overlay: rgba(245, 238, 220, 0.9); 
+            --celeb-bg-1: #ffffff; --celeb-bg-2: #eaddcf;
+            --bg-gradient-1: #fdfbf7; --bg-gradient-2: #e4d5b7; /* Bright Sand to Deep Sand */
+            --btn-hover-text: #fff; 
+            --shadow-color: rgba(138, 54, 0, 0.2);
+            
+            /* Player Colors */
+            --p0-color: #f1c40f; /* Yellow */
             --p1-color: #e74c3c; /* Red */
             --p2-color: #2ecc71; /* Green */
             --p3-color: #3498db; /* Blue */
             
-            --chart-bg: rgba(0,0,0,0.4);
+            --chart-bg: rgba(255, 255, 255, 0.5);
         }
 
-        body.light-mode {
-            --brass-light: #5e4315; --brass-dark: #8a6522; --copper: #9c4c1c; --border-color: #cbbba0; 
-            --text-main: #222; --input-bg: #fff; --th-bg: #e8ddcb; --readonly-bg: rgba(0,0,0,0.05);
-            --card-bg: rgba(255, 255, 255, 0.95); --col-btn-bg: #e8ddcb; --col-content-bg: rgba(255, 255, 255, 0.6);
-            --modal-overlay: rgba(255,255,255,0.85); --celeb-bg-1: #ffffff; --celeb-bg-2: #e0d8c8;
-            --bg-gradient-1: #ffffff; --bg-gradient-2: #e0d8c8; --btn-hover-text: #fff; --shadow-color: rgba(0,0,0,0.15);
-            --chart-bg: rgba(255,255,255,0.5);
+        /* --- DUNE CINEMATIC THEME (DARK - DEEP SPACE/NIGHT) --- */
+        body.dark-mode {
+            --spice-light: #ff7b25; /* Glowing Spice */
+            --spice-dark: #c0392b; 
+            --fremen-blue: #3498db; /* Bright Blue */
+            --border-color: #3e2723; 
+            
+            --text-main: #f0e6d2; /* Pale Sand */
+            --input-bg: #15110f; 
+            --th-bg: #1a1412; 
+            --readonly-bg: rgba(0,0,0,0.4);
+            
+            --card-bg: rgba(20, 16, 14, 0.95); 
+            --col-btn-bg: rgba(0,0,0,0.6); 
+            --col-content-bg: rgba(0, 0, 0, 0.4);
+            --modal-overlay: rgba(0,0,0,0.85); 
+            --celeb-bg-1: #25201c; --celeb-bg-2: #15110f;
+            --bg-gradient-1: #1a1412; --bg-gradient-2: #080605; 
+            --btn-hover-text: #15110f; 
+            --shadow-color: rgba(0,0,0,0.8);
+            
+            --chart-bg: rgba(0,0,0,0.4);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        body { background-color: var(--bg-gradient-2); background-image: radial-gradient(circle at center, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%), url('https://www.transparenttextures.com/patterns/stardust.png'); color: var(--brass-light); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; transition: background-color 0.4s, color 0.4s; }
+        /* Background uses a sand texture for light mode, stardust for dark mode */
+        body { background-color: var(--bg-gradient-2); background-image: radial-gradient(circle at center, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%), url('https://www.transparenttextures.com/patterns/sand.png'); color: var(--text-main); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; transition: background-color 0.5s, color 0.5s; }
+        body.dark-mode { background-image: radial-gradient(circle at center, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%), url('https://www.transparenttextures.com/patterns/stardust.png'); }
         
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; }
-        .back-btn { color: var(--copper); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--copper); padding: 5px 15px; transition: 0.3s; background: transparent; cursor: pointer; border-radius: 4px; }
-        .back-btn:hover { background: var(--copper); color: var(--btn-hover-text); }
-        h1 { font-family: 'Cinzel', serif; font-size: 2.8rem; background: linear-gradient(to bottom, #3498db, #2980b9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 5px var(--shadow-color); flex-grow: 1; text-align: center; margin: 0 15px; text-transform: uppercase;}
+        .back-btn { color: var(--spice-dark); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--spice-dark); padding: 5px 15px; transition: 0.3s; background: transparent; cursor: pointer; border-radius: 4px; box-shadow: 0 4px 6px var(--shadow-color);}
+        .back-btn:hover { background: var(--spice-dark); color: var(--btn-hover-text); box-shadow: 0 0 15px var(--spice-light);}
+        
+        /* Epic Cinematic Movie Poster Text Gradient (Orange to Blue) */
+        h1 { font-family: 'Cinzel', serif; font-size: 3.2rem; background: linear-gradient(to right, var(--spice-light), var(--fremen-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 10px var(--shadow-color); flex-grow: 1; text-align: center; margin: 0 15px; text-transform: uppercase; letter-spacing: 4px;}
         
         /* --- THEME TOGGLE SWITCH --- */
         .theme-switch-wrapper { display: flex; align-items: center; gap: 10px; }
-        #theme-icon { font-size: 1.4rem; transition: 0.3s; }
-        .theme-switch { display: inline-block; height: 24px; position: relative; width: 46px; }
+        #theme-icon { font-size: 1.4rem; transition: 0.3s; text-shadow: 0 0 10px var(--spice-light);}
+        .theme-switch { display: inline-block; height: 26px; position: relative; width: 50px; }
         .theme-switch input { display: none; }
-        .slider { background-color: var(--bg-gradient-1); border: 1px solid var(--copper); bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 24px; }
-        .slider:before { background-color: var(--copper); bottom: 3px; content: ""; height: 16px; left: 3px; position: absolute; transition: .4s; width: 16px; border-radius: 50%; }
-        input:checked + .slider { background-color: #e8ddcb; }
-        input:checked + .slider:before { transform: translateX(22px); background-color: var(--copper); }
+        .slider { background-color: var(--border-color); border: 2px solid var(--spice-dark); bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 24px; }
+        .slider:before { background-color: var(--spice-light); bottom: 2px; content: ""; height: 18px; left: 3px; position: absolute; transition: .4s; width: 18px; border-radius: 50%; box-shadow: 0 0 8px var(--spice-light);}
+        input:checked + .slider { background-color: #1a1412; border-color: var(--fremen-blue);}
+        input:checked + .slider:before { transform: translateX(22px); background-color: var(--fremen-blue); box-shadow: 0 0 10px var(--fremen-blue);}
 
-        @media (max-width: 768px) { header { flex-direction: column; gap: 15px; } .back-btn { width: 100%; text-align: center; } h1 { font-size: 2rem; } .theme-switch-wrapper { width: 100%; justify-content: center; margin-top: 5px; } }
+        @media (max-width: 768px) { header { flex-direction: column; gap: 15px; } .back-btn { width: 100%; text-align: center; } h1 { font-size: 2.2rem; letter-spacing: 2px;} .theme-switch-wrapper { width: 100%; justify-content: center; margin-top: 5px; } }
 
-        .container { max-width: 1300px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--brass-dark); padding: 30px; box-shadow: inset 0 0 20px var(--shadow-color), 0 5px 15px var(--shadow-color); transition: background-color 0.4s; }
+        .container { max-width: 1300px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--spice-dark); padding: 30px; box-shadow: inset 0 0 20px rgba(211, 84, 0, 0.1), 0 10px 25px var(--shadow-color); transition: background-color 0.4s; border-radius: 8px;}
         
         /* Setup & Meta */
-        .setup-card { background: var(--readonly-bg); border: 1px dashed var(--brass-light); padding: 20px; margin-bottom: 20px; border-radius: 4px; }
+        .setup-card { background: var(--readonly-bg); border: 1px dashed var(--spice-light); padding: 20px; margin-bottom: 20px; border-radius: 4px; }
         .setup-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
-        .setup-row label { font-family: 'Cinzel', serif; color: var(--copper); font-size: 1.1rem; }
+        .setup-row label { font-family: 'Cinzel', serif; color: var(--spice-dark); font-size: 1.1rem; font-weight: bold;}
         .color-checkboxes { display: flex; gap: 15px; flex-wrap: wrap; }
         .color-label { display: flex; align-items: center; gap: 5px; color: var(--text-main); font-family: 'Playfair Display', serif; cursor: pointer; }
-        .color-label input { width: 18px; height: 18px; accent-color: var(--brass-light); cursor: pointer; }
+        .color-label input { width: 18px; height: 18px; accent-color: var(--spice-light); cursor: pointer; }
         
         .game-meta { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 20px; }
         .input-group { display: flex; flex-direction: column; width: 48%; }
-        label { font-family: 'Cinzel', serif; color: var(--copper); margin-bottom: 5px; }
-        input[type="text"], input[type="date"], input[type="number"], select { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; font-family: 'Playfair Display', serif; font-size: 1.1rem; transition: 0.4s; width: 100%;}
-        input:focus, select:focus { outline: none; border-color: var(--brass-light); }
+        .input-group label { font-family: 'Cinzel', serif; color: var(--spice-dark); margin-bottom: 5px; font-weight: bold;}
+        input[type="text"], input[type="date"], input[type="number"], select { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; font-family: 'Playfair Display', serif; font-size: 1.1rem; transition: 0.4s; width: 100%; border-radius: 4px; outline: none;}
+        input:focus, select:focus { border-color: var(--spice-light); box-shadow: 0 0 10px rgba(211,84,0,0.3); }
 
         /* Collapsible Sections */
-        .collapsible-btn { background: var(--col-btn-bg); color: var(--brass-light); cursor: pointer; padding: 15px 20px; width: 100%; border: 1px solid var(--brass-dark); text-align: center; outline: none; font-family: 'Cinzel', serif; font-size: 1.5rem; transition: 0.4s; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
-        .collapsible-btn:hover, .collapsible-btn.active { background: var(--brass-dark); color: #fff; }
-        .collapsible-content { padding: 0 15px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease, background-color 0.4s; background: var(--col-content-bg); border: 1px solid transparent; }
-        .collapsible-content.expanded { padding: 20px 15px; border-color: var(--brass-dark); border-top: none; margin-bottom: 20px; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; }
+        .collapsible-btn { background: var(--col-btn-bg); color: var(--spice-dark); cursor: pointer; padding: 15px 20px; width: 100%; border: 1px solid var(--spice-dark); text-align: center; outline: none; font-family: 'Cinzel', serif; font-size: 1.5rem; transition: 0.4s; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
+        .collapsible-btn:hover, .collapsible-btn.active { background: var(--spice-dark); color: var(--btn-hover-text); box-shadow: 0 0 15px var(--spice-light);}
+        .collapsible-content { padding: 0 15px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease; background: var(--col-content-bg); border: 1px solid transparent; }
+        .collapsible-content.expanded { padding: 20px 15px; border-color: var(--spice-dark); margin-bottom: 20px; border-radius: 0 0 4px 4px; }
         
         /* Tables */
-        .table-wrapper { overflow-x: auto; margin-bottom: 25px;}
-        table { width: 100%; border-collapse: collapse; text-align: center; }
-        th { background: var(--th-bg); color: var(--copper); font-family: 'Cinzel', serif; padding: 15px 10px; border: 1px solid var(--brass-dark); font-size: 0.9rem; transition: 0.4s; }
+        .table-wrapper { overflow-x: auto; margin-bottom: 25px; box-shadow: 0 5px 15px var(--shadow-color); border: 1px solid var(--border-color);}
+        table { width: 100%; border-collapse: collapse; text-align: center; background: var(--input-bg);}
+        th { background: var(--th-bg); color: var(--spice-dark); font-family: 'Cinzel', serif; padding: 15px 10px; border: 1px solid var(--border-color); font-size: 1rem; transition: 0.4s; text-transform: uppercase;}
         td { padding: 0; border: 1px solid var(--border-color); transition: 0.4s; position: relative; }
-        td input { width: 100%; height: 100%; border: none; padding: 15px 5px; text-align: center; background: transparent; color: var(--text-main); transition: 0.4s; font-family: 'Playfair Display', serif; font-size: 1.1rem;}
-        td input.player-name { padding-left: 30px; } /* Space for color dot */
-        .readonly-cell { padding: 15px 5px; background: var(--readonly-bg); font-weight: bold; color: var(--brass-light); font-size: 1.1rem; transition: 0.4s; }
+        td input { width: 100%; height: 100%; border: none; padding: 15px 5px; text-align: center; background: transparent; color: var(--text-main); transition: 0.4s; font-family: 'Playfair Display', serif; font-size: 1.2rem; outline: none; font-weight: bold;}
+        td input:focus { background: rgba(211,84,0,0.05); }
+        td input.player-name { padding-left: 30px; text-align: left; } 
+        .readonly-cell { padding: 15px 5px; background: var(--readonly-bg); font-weight: bold; color: var(--spice-dark); font-size: 1.2rem; transition: 0.4s; }
         
-        .highlight-col { background-color: rgba(52, 152, 219, 0.12) !important; border-left: 2px solid #3498db !important; border-right: 2px solid #3498db !important; font-size: 1.3rem !important; color: #fff !important; }
-        th.highlight-col { background-color: #2980b9 !important; font-size: 1.1rem !important; color: #fff !important; }
+        /* Highlight Column in Fremen Blue to contrast the Spice */
+        .highlight-col { background-color: rgba(0, 107, 153, 0.12) !important; border-left: 2px solid var(--fremen-blue) !important; border-right: 2px solid var(--fremen-blue) !important; font-size: 1.4rem !important; color: var(--fremen-blue) !important; text-shadow: 0 0 5px rgba(0,107,153,0.3);}
+        body.dark-mode .highlight-col { color: #3498db !important; }
+        th.highlight-col { background-color: var(--fremen-blue) !important; font-size: 1.1rem !important; color: #fff !important; text-shadow: none;}
 
         .color-dot { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); pointer-events: none; }
 
         /* --- Timer UI --- */
-        .timer-tool { background: var(--readonly-bg); padding: 25px; border: 1px solid var(--brass-dark); border-radius: 5px; width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; }
-        .timer-row { display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); padding: 15px 20px; margin-bottom: 15px; border-radius: 5px; opacity: 0.5; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
-        .timer-row:hover { border-color: var(--brass-light); opacity: 0.9; }
-        .timer-row.active { opacity: 1; border-color: var(--brass-light); box-shadow: 0 0 25px rgba(212, 175, 55, 0.5); background: rgba(212, 175, 55, 0.15); transform: scale(1.05); padding: 30px 25px; margin-bottom: 20px; }
+        .timer-tool { background: var(--readonly-bg); padding: 25px; border: 1px solid var(--spice-dark); border-radius: 5px; width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; }
+        .timer-row { display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); padding: 15px 20px; margin-bottom: 15px; border-radius: 5px; opacity: 0.6; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .timer-row:hover { border-color: var(--spice-light); opacity: 0.9; }
+        .timer-row.active { opacity: 1; border-color: var(--spice-light); box-shadow: 0 0 25px rgba(211, 84, 0, 0.5); background: rgba(211, 84, 0, 0.15); transform: scale(1.05); padding: 30px 25px; margin-bottom: 20px; }
         .timer-name { font-family: 'Cinzel', serif; font-weight: bold; font-size: 1.3rem; width: 40%; display: flex; align-items: center; gap: 12px; transition: 0.4s; }
-        .timer-row.active .timer-name { font-size: 1.8rem; color: #fff; }
+        .timer-row.active .timer-name { font-size: 1.8rem; color: var(--spice-dark); text-shadow: 0 0 5px var(--spice-light);}
+        body.dark-mode .timer-row.active .timer-name { color: #fff; }
         .timer-dot-t { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); transition: 0.4s;}
         .timer-row.active .timer-dot-t { width: 20px; height: 20px; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
         .timer-times { display: flex; flex-direction: column; align-items: flex-end; width: 60%; }
-        .t-round { font-size: 2.2rem; font-weight: bold; color: var(--brass-light); font-family: monospace; transition: 0.4s; }
-        .timer-row.active .t-round { font-size: 4.5rem; color: #fff; text-shadow: 0 0 20px var(--brass-light); line-height: 1; margin-bottom: 5px;}
-        .t-reserve { font-size: 1.1rem; color: var(--copper); font-family: monospace; transition: 0.4s; }
-        .timer-row.active .t-reserve { font-size: 1.5rem; color: var(--brass-light); }
-        .t-round.danger, .t-reserve.danger { color: red !important; text-shadow: 0 0 15px red !important; }
+        .t-round { font-size: 2.2rem; font-weight: bold; color: var(--spice-dark); font-family: monospace; transition: 0.4s; }
+        .timer-row.active .t-round { font-size: 4.5rem; color: var(--spice-dark); text-shadow: 0 0 20px var(--spice-light); line-height: 1; margin-bottom: 5px;}
+        body.dark-mode .timer-row.active .t-round { color: #fff; }
+        .t-reserve { font-size: 1.1rem; color: var(--text-main); font-family: monospace; transition: 0.4s; }
+        .timer-row.active .t-reserve { font-size: 1.5rem; color: var(--spice-dark); }
+        body.dark-mode .timer-row.active .t-reserve { color: var(--spice-light); }
+        .t-round.danger, .t-reserve.danger { color: #c0392b !important; text-shadow: 0 0 15px #c0392b !important; }
         .timer-controls { display: flex; gap: 15px; margin-top: auto; padding-top: 20px; flex-wrap: wrap;}
-        .t-btn { flex: 1; min-width: 30%; padding: 15px; background: var(--brass-dark); color: #fff; border: 1px solid var(--brass-light); font-family: 'Cinzel', serif; cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.3s; font-size: 1.2rem; }
-        .t-btn:hover { background: var(--brass-light); color: #000; box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
-        .t-btn.play { background: #27ae60; border-color: #2ecc71; }
+        .t-btn { flex: 1; min-width: 30%; padding: 15px; background: var(--spice-dark); color: #fff; border: 1px solid var(--spice-light); font-family: 'Cinzel', serif; cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.3s; font-size: 1.2rem; letter-spacing: 1px;}
+        .t-btn:hover { background: var(--spice-light); box-shadow: 0 0 15px var(--spice-light); color: var(--btn-hover-text);}
+        .t-btn.play { background: var(--fremen-blue); border-color: #3498db; }
         .t-btn.pause { background: #e67e22; border-color: #f39c12; }
-        .t-btn.edit { background: var(--col-btn-bg); color: var(--brass-light); border-color: var(--copper); }
 
-        .save-btn { display: block; width: 100%; background: linear-gradient(145deg, #2980b9, #2c3e50); color: #fff; border: 1px solid #3498db; padding: 15px; font-family: 'Cinzel', serif; font-size: 1.5rem; cursor: pointer; transition: 0.3s; margin-top: 20px; border-radius: 4px; margin-bottom: 50px;}
-        .save-btn:hover { background: #3498db; color: #fff; box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);}
+        /* Save Button Cinematic Gradient */
+        .save-btn { display: block; width: 100%; background: linear-gradient(145deg, var(--fremen-blue), var(--spice-dark)); color: #fff; border: 2px solid var(--spice-light); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.6rem; cursor: pointer; transition: 0.3s; margin-top: 20px; border-radius: 4px; margin-bottom: 50px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px rgba(0,0,0,0.5);}
+        .save-btn:hover { box-shadow: 0 0 20px var(--spice-light); background: linear-gradient(145deg, var(--spice-dark), var(--fremen-blue));}
         
         /* Section Headers */
-        .section-header { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--brass-light); border-bottom: 1px dashed var(--brass-dark); padding-bottom: 10px; margin-bottom: 25px; text-align: center; margin-top: 40px;}
+        .section-header { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--spice-dark); border-bottom: 1px dashed var(--spice-dark); padding-bottom: 10px; margin-bottom: 25px; text-align: center; margin-top: 40px; text-transform: uppercase;}
 
         /* History Table */
-        .history-card { background: var(--readonly-bg); border: 1px solid var(--brass-dark); margin-bottom: 30px; padding: 20px; transition: 0.4s; }
-        .history-header { display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: var(--brass-light); margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; }
+        .history-card { background: var(--input-bg); border: 1px solid var(--spice-dark); margin-bottom: 30px; padding: 20px; transition: 0.4s; border-radius: 4px; box-shadow: 0 5px 10px var(--shadow-color);}
+        .history-header { display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: var(--spice-dark); margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; }
         
         /* Charts Grid */
         .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .chart-box { background: var(--chart-bg); padding: 20px; border: 1px dashed var(--brass-dark); border-radius: 5px; transition: 0.4s; display: flex; align-items: center; justify-content: center; min-height: 350px;}
+        .chart-box { background: var(--chart-bg); padding: 20px; border: 1px dashed var(--spice-dark); border-radius: 5px; transition: 0.4s; display: flex; align-items: center; justify-content: center; min-height: 350px;}
         .full-width { grid-column: 1 / -1; }
         @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } .full-width { grid-column: 1; } }
 
         /* Modals */
         .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-overlay); align-items: center; justify-content: center; padding: 15px; }
-        .modal-content { background: linear-gradient(145deg, var(--celeb-bg-1), var(--celeb-bg-2)); border: 2px solid var(--brass-light); padding: 30px; border-radius: 8px; box-shadow: 0 0 50px rgba(212, 175, 55, 0.3); animation: popIn 0.3s forwards; transition: 0.4s; max-width: 500px; width: 100%; }
-        .modal-content h3 { font-family: 'Cinzel', serif; color: var(--brass-light); margin-bottom: 15px; text-align: center; }
+        .modal-content { background: linear-gradient(145deg, var(--celeb-bg-1), var(--celeb-bg-2)); border: 2px solid var(--spice-light); padding: 30px; border-radius: 8px; box-shadow: 0 0 50px rgba(211, 84, 0, 0.4); animation: popIn 0.3s forwards; transition: 0.4s; max-width: 500px; width: 100%; }
+        .modal-content h3 { font-family: 'Cinzel', serif; color: var(--spice-dark); margin-bottom: 15px; text-align: center; }
         .time-edit-group { display: flex; justify-content: space-around; gap: 20px; margin-bottom: 20px; }
         .time-edit-group div { display: flex; flex-direction: column; align-items: center; }
-        .time-edit-group label { color: var(--copper); font-size: 0.9rem; margin-bottom: 5px; }
-        .time-edit-inputs { display: flex; align-items: center; gap: 5px; color: var(--text-main); }
+        .time-edit-group label { color: var(--spice-dark); font-size: 0.9rem; margin-bottom: 5px; font-weight: bold;}
+        .time-edit-inputs { display: flex; align-items: center; gap: 5px; color: var(--text-main); font-size: 1.2rem;}
         .time-edit-inputs input { width: 60px; text-align: center; padding: 8px; }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
@@ -154,11 +192,12 @@
         <a href="index.html" class="back-btn">← Main Menu</a>
         <h1>Dune: Imperium Uprising</h1>
         <div class="theme-switch-wrapper">
-            <span id="theme-icon">🌙</span>
+            <span id="theme-icon">☀️</span>
             <label class="theme-switch" for="theme-checkbox">
                 <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()" />
                 <div class="slider round"></div>
             </label>
+            <span style="font-size: 1.2rem;">🌙</span>
         </div>
     </header>
     
@@ -166,7 +205,7 @@
         
         <!-- GAME SETUP PANEL -->
         <div class="setup-card">
-            <h3 style="font-family:'Cinzel', serif; color: var(--brass-light); margin-bottom: 15px; font-size: 1.5rem; text-align: center;">Game Setup</h3>
+            <h3 style="font-family:'Cinzel', serif; color: var(--spice-light); margin-bottom: 15px; font-size: 1.5rem; text-align: center;">🪐 House Charter</h3>
             
             <div class="setup-row">
                 <label>Number of Players:</label>
@@ -187,7 +226,7 @@
                     <label class="color-label"><input type="checkbox" class="color-tick" value="3" checked onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p3-color); width:12px; height:12px; position:static;"></div> Blue</label>
                 </div>
             </div>
-            <div id="setup-warning" style="color: #e74c3c; font-family: 'Playfair Display', serif; display: none;">Please select exact colors to match player count.</div>
+            <div id="setup-warning" style="color: #c0392b; font-family: 'Playfair Display', serif; display: none;">Please select exact colors to match player count.</div>
         </div>
 
         <div class="game-meta">
@@ -198,12 +237,12 @@
         <!-- COLLAPSIBLE: TIMER -->
         <button class="collapsible-btn">
             <span></span> 
-            <span>⏱️ Turn Timer</span>
+            <span>⏳ The Spice Must Flow</span>
             <span class="toggle-icon">▼</span>
         </button>
         <div class="collapsible-content">
             <div class="timer-tool" style="margin-top: 15px;">
-                <p style="text-align:center; color: #aaa; margin-bottom: 25px; font-size: 0.9rem; font-style: italic;">Tap a player to begin.<br>Unused round time banks to Reserve.</p>
+                <p style="text-align:center; color: var(--text-main); margin-bottom: 25px; font-size: 0.9rem; font-style: italic; opacity: 0.7;">Tap a player to begin.<br>Unused round time banks to Reserve.</p>
                 <div id="timer-players">
                     <!-- Timer rows injected via JS -->
                 </div>
@@ -217,7 +256,6 @@
 
         <!-- MAIN SCORING TABLE -->
         <div class="table-wrapper" style="margin-top: 25px;">
-            <h3 style="color: var(--brass-light); font-family:'Cinzel', serif; margin-bottom:10px; font-size: 1.5rem;">Final Ledger</h3>
             <table id="scoring-table">
                 <thead><tr>
                     <th>Player Name</th>
@@ -231,16 +269,16 @@
             </table>
         </div>
         
-        <button class="save-btn" onclick="saveGame()">Seal the Ledger</button>
+        <button class="save-btn" onclick="saveGame()">Seal the Archives</button>
 
         <!-- HISTORY SECTION -->
-        <div class="section-header">📜 History Score Table</div>
+        <div class="section-header">📜 Chronicles of Arrakis</div>
         <div id="history-container">
-            <p style='text-align:center; color: #aaa;'>Loading past games...</p>
+            <p style='text-align:center; color: var(--spice-dark);'>Loading past games...</p>
         </div>
 
         <!-- CHARTS SECTION -->
-        <div class="section-header">📊 Imperial Analytics</div>
+        <div class="section-header">👁️ Mentat Projections</div>
         <div class="charts-grid" id="charts-container" style="display: none;">
             <div class="chart-box full-width">
                 <canvas id="trendChart"></canvas>
@@ -268,11 +306,16 @@
     </div>
     
     <!-- Modals -->
-    <div id="celebration-modal" class="modal-overlay" style="z-index: 3000;"><div class="modal-content" style="max-width:400px; text-align:center;"><h2 style="font-size:3.5rem; margin:0; font-family:'Cinzel', serif; color:#3498db;">Victory!</h2></div></div>
+    <div id="celebration-modal" class="modal-overlay" style="z-index: 3000;">
+        <div class="modal-content" style="max-width:400px; text-align:center; background: transparent; border: none; box-shadow: none;">
+            <h2 style="font-size:3.5rem; margin:0; font-family:'Cinzel', serif; color:var(--spice-light); text-shadow: 0 0 20px #000;">VICTORY</h2>
+            <div style="font-size: 4rem; margin-top: 10px; text-shadow: 0 0 20px var(--fremen-blue);">🦅</div>
+        </div>
+    </div>
     
     <div id="time-modal" class="modal-overlay" style="z-index: 2000;">
         <div class="modal-content" style="max-width: 450px;">
-            <h3>Adjust Active Player Time</h3>
+            <h3>Adjust Spice Timer</h3>
             <div class="time-edit-group">
                 <div>
                     <label>Round Timer (Min : Sec)</label>
@@ -298,27 +341,23 @@
     <script>
         // --- THEME LOGIC ---
         function checkTheme() {
-            if (localStorage.getItem('vault_theme') === 'light') {
-                document.body.classList.add('light-mode');
-                document.getElementById('theme-icon').innerText = '☀️';
+            if (localStorage.getItem('vault_theme') === 'dark') {
+                document.body.classList.add('dark-mode');
                 document.getElementById('theme-checkbox').checked = true;
             } else {
-                document.getElementById('theme-icon').innerText = '🌙';
+                document.body.classList.remove('dark-mode');
                 document.getElementById('theme-checkbox').checked = false;
             }
         }
         function toggleTheme() {
-            const isLight = document.body.classList.toggle('light-mode');
-            const icon = document.getElementById('theme-icon');
+            const isDark = document.body.classList.toggle('dark-mode');
             const checkbox = document.getElementById('theme-checkbox');
             
-            if (isLight) { 
-                localStorage.setItem('vault_theme', 'light'); 
-                icon.innerText = '☀️'; 
+            if (isDark) { 
+                localStorage.setItem('vault_theme', 'dark'); 
                 checkbox.checked = true;
             } else { 
-                localStorage.setItem('vault_theme', 'dark'); 
-                icon.innerText = '🌙'; 
+                localStorage.setItem('vault_theme', 'light'); 
                 checkbox.checked = false;
             }
             if(chartInstances.length > 0) loadHistory(); // Redraw charts for colors
@@ -364,7 +403,7 @@
         function initSetup() {
             checkTheme();
             handlePCountChange(); 
-            loadHistory(); // Load history & charts immediately on boot
+            loadHistory(); 
         }
 
         function handlePCountChange() {
@@ -373,6 +412,12 @@
             while(checked.length > count) {
                 checked[checked.length - 1].checked = false;
                 checked = document.querySelectorAll('.color-tick:checked');
+            }
+            if (checked.length < count) {
+                let allTicks = document.querySelectorAll('.color-tick');
+                for(let i=0; i<allTicks.length && document.querySelectorAll('.color-tick:checked').length < count; i++) {
+                    allTicks[i].checked = true;
+                }
             }
             validateAndBuild();
         }
@@ -418,9 +463,9 @@
                     <td><div class="color-dot" style="background-color:${cVar}"></div><input type="text" class="player-name" data-player="${loopIndex}" placeholder="Player ${loopIndex+1}"></td>
                     <td><input type="text" class="leader-input" placeholder="Leader Name"></td>
                     <td><input type="number" class="final-input highlight-col" min="0" placeholder="0"></td>
-                    <td><input type="number" class="spice-input" min="0" placeholder="0" style="color:#f39c12;"></td>
+                    <td><input type="number" class="spice-input" min="0" placeholder="0" style="color:var(--spice-light);"></td>
                     <td><input type="number" class="solari-input" min="0" placeholder="0" style="color:#f1c40f;"></td>
-                    <td><input type="number" class="water-input" min="0" placeholder="0" style="color:#3498db;"></td>
+                    <td><input type="number" class="water-input" min="0" placeholder="0" style="color:var(--fremen-blue);"></td>
                 `;
                 scoreBody.appendChild(trScore);
 
@@ -439,7 +484,6 @@
                 timerData.push({ round: ROUND_DEFAULT, reserve: 600 });
             });
 
-            // Sync names to timer
             document.querySelectorAll('.player-name').forEach(input => { 
                 input.addEventListener('input', (e) => { 
                     const idx = e.target.getAttribute('data-player');
@@ -450,7 +494,6 @@
             updateTimerUI();
         }
 
-        // Collapsible Logic
         document.querySelectorAll('.collapsible-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 this.classList.toggle('active');
@@ -603,7 +646,9 @@
         
         function showCelebration() {
             document.getElementById('celebration-modal').style.display = 'flex';
-            let duration = 2.5 * 1000; let animationEnd = Date.now() + duration; let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3001, colors: ['#3498db', '#e74c3c', '#f1c40f'] };
+            let duration = 2.5 * 1000; let animationEnd = Date.now() + duration; 
+            // Dune Confetti: Spice Orange, Fremen Blue, Sand
+            let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3001, colors: ['#d35400', '#006b99', '#f5eedc'] };
             let interval = setInterval(function() {
                 let timeLeft = animationEnd - Date.now(); if (timeLeft <= 0) return clearInterval(interval); let particleCount = 50 * (timeLeft / duration);
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
@@ -624,7 +669,7 @@
 
         function loadHistory() {
             const container = document.getElementById('history-container'); 
-            container.innerHTML = "<p style='text-align:center; color: var(--brass-light);'>Summoning records from the Cloud...</p>";
+            container.innerHTML = "<p style='text-align:center; color: var(--spice-dark); opacity: 0.8;'>Summoning records from the Imperial Archives...</p>";
             document.getElementById('charts-container').style.display = 'none';
             destroyOldCharts();
 
@@ -639,12 +684,12 @@
                 let html = '';
                 history.forEach(game => {
                     let winners = getWinners(game.scores);
-                    html += `<div class="history-card"><div class="history-header"><h3>Party: ${game.party}</h3><h3>Date: ${game.date}</h3></div><div class="table-wrapper"><table><thead><tr><th>Player Name</th><th>Leader</th><th class="highlight-col">Final Point</th></tr></thead><tbody>`;
+                    html += `<div class="history-card"><div class="history-header"><h3>🪐 ${game.party}</h3><h3>Date: ${game.date}</h3></div><div class="table-wrapper"><table><thead><tr><th>Player Name</th><th>Leader</th><th class="highlight-col">Final Point</th></tr></thead><tbody>`;
                     
                     game.scores.forEach((player, idx) => { 
                         let isWinner = winners.includes(idx); 
-                        let crown = isWinner ? ' 👑' : ''; 
-                        let rowStyle = isWinner ? 'background: rgba(52, 152, 219, 0.2); font-weight: bold;' : '';
+                        let crown = isWinner ? ' 🦅' : ''; 
+                        let rowStyle = isWinner ? 'background: rgba(0, 107, 153, 0.15); font-weight: bold;' : '';
                         
                         html += `<tr style="${rowStyle}">
                             <td class="readonly-cell">${player.name}${crown}</td>
@@ -659,12 +704,12 @@
                 // 2. Crunch Chart Analytics
                 document.getElementById('charts-container').style.display = 'grid';
                 
-                let playerStats = {}; // {name: {plays, wins, scoreTotal, spice, solari, water}}
-                let leaderStats = {}; // {leader: {plays, scoreTotal}}
+                let playerStats = {}; 
+                let leaderStats = {}; 
                 let trendDates = [];
                 let trendWinningScores = [];
 
-                history.reverse().forEach((game, index) => { // Reverse for chronological order
+                history.reverse().forEach((game, index) => { 
                     let winners = getWinners(game.scores);
                     let matchWinScore = 0;
 
@@ -673,7 +718,6 @@
                         let leader = p.leader && p.leader !== '-' ? p.leader : 'Unknown';
                         let score = parseInt(p.final) || 0;
 
-                        // Player Aggregation
                         if(!playerStats[name]) playerStats[name] = { plays: 0, wins: 0, score: 0, sp: 0, so: 0, w: 0 };
                         playerStats[name].plays++;
                         playerStats[name].score += score;
@@ -685,7 +729,6 @@
                             matchWinScore = score;
                         }
 
-                        // Leader Aggregation
                         if(!leaderStats[leader]) leaderStats[leader] = { plays: 0, score: 0 };
                         leaderStats[leader].plays++;
                         leaderStats[leader].score += score;
@@ -719,26 +762,26 @@
 
         function drawCharts(players, leaders, trendDates, trendScores) {
             Chart.defaults.font.family = "'Playfair Display', serif";
-            const isLightMode = document.body.classList.contains('light-mode');
-            const tickColor = isLightMode ? '#9c4c1c' : '#b87333';
-            const titleColor = isLightMode ? '#5e4315' : '#3498db';
-            const gridColor = isLightMode ? 'rgba(0,0,0,0.1)' : 'rgba(52, 152, 219, 0.2)';
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const tickColor = isDarkMode ? '#f0e6d2' : '#3e2723';
+            const titleColor = isDarkMode ? '#3498db' : '#d35400';
+            const gridColor = isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
             const titleFont = { family: 'Cinzel', size: 18 };
 
-            const colors = ['#3498db', '#e74c3c', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22'];
+            const colors = ['#006b99', '#d35400', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22'];
 
             // 1. Most Wins (Bar)
             let winData = [...players].sort((a,b) => b.wins - a.wins).slice(0, 6);
             chartInstances.push(new Chart(document.getElementById('mostWinsChart'), {
                 type: 'bar',
-                data: { labels: winData.map(p => p.name), datasets: [{ label: 'Total Wins', data: winData.map(p => p.wins), backgroundColor: '#3498db' }] },
+                data: { labels: winData.map(p => p.name), datasets: [{ label: 'Total Wins', data: winData.map(p => p.wins), backgroundColor: '#006b99' }] },
                 options: { plugins: { legend: { display: false }, title: { display: true, text: 'All-Time Most Wins', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor, stepSize: 1 }, grid: { color: gridColor } }, x: { ticks: { color: tickColor } } } }
             }));
 
             // 2. Score Trend (Line)
             chartInstances.push(new Chart(document.getElementById('trendChart'), {
                 type: 'line',
-                data: { labels: trendDates, datasets: [{ label: 'Winning Score', data: trendScores, borderColor: '#e74c3c', backgroundColor: 'rgba(231, 76, 60, 0.2)', borderWidth: 3, fill: true, tension: 0.3 }] },
+                data: { labels: trendDates, datasets: [{ label: 'Winning Score', data: trendScores, borderColor: '#d35400', backgroundColor: 'rgba(211, 84, 0, 0.2)', borderWidth: 3, fill: true, tension: 0.3 }] },
                 options: { maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Winning Score Timeline', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { display: false } } } }
             }));
 
@@ -754,7 +797,7 @@
             let wrData = [...players].sort((a,b) => b.winRate - a.winRate).slice(0, 6);
             chartInstances.push(new Chart(document.getElementById('winRateChart'), {
                 type: 'doughnut',
-                data: { labels: wrData.map(p => p.name), datasets: [{ data: wrData.map(p => p.winRate), backgroundColor: colors, borderColor: isLightMode ? '#fff' : '#12100e', borderWidth: 2 }] },
+                data: { labels: wrData.map(p => p.name), datasets: [{ data: wrData.map(p => p.winRate), backgroundColor: colors, borderColor: isDarkMode ? '#15110f' : '#fff', borderWidth: 2 }] },
                 options: { plugins: { legend: { position: 'right', labels: { color: tickColor } }, title: { display: true, text: 'Win Rate (%)', color: titleColor, font: titleFont } } }
             }));
 
@@ -762,7 +805,7 @@
             let topLeaders = [...leaders].sort((a,b) => b.avgScore - a.avgScore).slice(0, 8);
             chartInstances.push(new Chart(document.getElementById('leaderBoardChart'), {
                 type: 'bar',
-                data: { labels: topLeaders.map(l => `${l.name} (${l.plays} plays)`), datasets: [{ data: topLeaders.map(l => l.avgScore), backgroundColor: '#9b59b6' }] },
+                data: { labels: topLeaders.map(l => `${l.name} (${l.plays} plays)`), datasets: [{ data: topLeaders.map(l => l.avgScore), backgroundColor: '#d35400' }] },
                 options: { maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Best Performing Leaders (Avg Score)', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { color: tickColor } } } }
             }));
 
@@ -770,20 +813,20 @@
             let pcData = [...players].sort((a,b) => b.plays - a.plays).slice(0, 6);
             chartInstances.push(new Chart(document.getElementById('playCountChart'), {
                 type: 'polarArea',
-                data: { labels: pcData.map(p => p.name), datasets: [{ data: pcData.map(p => p.plays), backgroundColor: colors.map(c => c.replace(')', ', 0.6)').replace('rgb', 'rgba')), borderColor: isLightMode ? '#fff' : '#12100e' }] },
+                data: { labels: pcData.map(p => p.name), datasets: [{ data: pcData.map(p => p.plays), backgroundColor: colors.map(c => c.replace('rgb', 'rgba').replace(')', ', 0.6)')), borderColor: isDarkMode ? '#15110f' : '#fff' }] },
                 options: { plugins: { legend: { position: 'right', labels: { color: tickColor } }, title: { display: true, text: 'Most Games Played', color: titleColor, font: titleFont } }, scales: { r: { ticks: { display: false }, grid: { color: gridColor } } } }
             }));
 
             // 7. Resource Hoarders (Stacked Bar)
-            let resData = [...players].sort((a,b) => b.plays - a.plays).slice(0, 5); // Top 5 most active
+            let resData = [...players].sort((a,b) => b.plays - a.plays).slice(0, 5);
             chartInstances.push(new Chart(document.getElementById('resourceChart'), {
                 type: 'bar',
                 data: {
                     labels: resData.map(p => p.name),
                     datasets: [
-                        { label: 'Avg Spice', data: resData.map(p => p.avgSp), backgroundColor: '#e67e22' },
+                        { label: 'Avg Spice', data: resData.map(p => p.avgSp), backgroundColor: '#d35400' },
                         { label: 'Avg Solari', data: resData.map(p => p.avgSo), backgroundColor: '#f1c40f' },
-                        { label: 'Avg Water', data: resData.map(p => p.avgW), backgroundColor: '#3498db' }
+                        { label: 'Avg Water', data: resData.map(p => p.avgW), backgroundColor: '#006b99' }
                     ]
                 },
                 options: { maintainAspectRatio: false, plugins: { legend: { labels: { color: tickColor } }, title: { display: true, text: 'End-Game Resource Hoarding', color: titleColor, font: titleFont } }, scales: { x: { stacked: true, ticks: { color: tickColor } }, y: { stacked: true, ticks: { color: tickColor }, grid: { color: gridColor } } } }
