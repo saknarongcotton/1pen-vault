@@ -50,47 +50,17 @@
         .action-buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
         
         /* The physical iPhone wheel container */
-        #spinner-container {
-            height: 120px;
-            overflow: hidden;
-            position: relative;
-            margin: 30px 0 10px 0;
-            background: #000;
-            border: 2px solid var(--brass-dark);
-            border-radius: 8px;
-            box-shadow: inset 0 0 30px rgba(0,0,0,1);
-        }
-        
-        #spinner-container::before, #spinner-container::after {
-            content: ''; position: absolute; left: 0; right: 0; height: 40px; z-index: 2; pointer-events: none;
-        }
+        #spinner-container { height: 120px; overflow: hidden; position: relative; margin: 30px 0 10px 0; background: #000; border: 2px solid var(--brass-dark); border-radius: 8px; box-shadow: inset 0 0 30px rgba(0,0,0,1); }
+        #spinner-container::before, #spinner-container::after { content: ''; position: absolute; left: 0; right: 0; height: 40px; z-index: 2; pointer-events: none; }
         #spinner-container::before { top: 0; background: linear-gradient(to bottom, #1a1614 0%, transparent 100%); }
         #spinner-container::after { bottom: 0; background: linear-gradient(to top, #1a1614 0%, transparent 100%); }
         
-        #spinner-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        /* Motion Blur Class (Applied via JS during high speed) */
+        #spinner-list { list-style: none; padding: 0; margin: 0; }
         .spinning-fast { filter: blur(1.5px) brightness(1.3); }
 
-        .spinner-item {
-            height: 120px;
-            line-height: 120px;
-            font-family: 'Cinzel', serif;
-            font-size: 4rem;
-            color: var(--brass-light);
-            text-align: center;
-        }
+        .spinner-item { height: 120px; line-height: 120px; font-family: 'Cinzel', serif; font-size: 4rem; color: var(--brass-light); text-align: center; }
 
-        /* Epic Winner Pulse */
-        .winner-text {
-            color: #fff;
-            font-weight: bold;
-            animation: epicPulse 0.5s infinite alternate;
-        }
+        .winner-text { color: #fff; font-weight: bold; animation: epicPulse 0.5s infinite alternate; }
         @keyframes epicPulse { 
             0% { transform: scale(1.0); text-shadow: 0 0 20px var(--brass-light); } 
             50% { transform: scale(1.2); text-shadow: 0 0 40px #fff, 0 0 60px var(--brass-light); } 
@@ -127,6 +97,7 @@
         </div>
 
         <div class="game-grid">
+            <a href="dune-imperium-uprising.html" class="game-card" style="border-color: #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.4);">Dune: Imperium Uprising</a>
             <a href="brass-birmingham.html" class="game-card">Brass Birmingham</a>
             <a href="brass-lancashire.html" class="game-card">Brass Lancashire</a>
             <a href="white-castle.html" class="game-card">White Castle</a>
@@ -136,7 +107,6 @@
             <a href="flip-7.html" class="game-card">Flip 7</a>
             <a href="6-nimmt.html" class="game-card">6 nimmt!</a>
             <a href="wingspan.html" class="game-card">Wingspan</a>
-            <a href="#" class="game-card" style="opacity: 0.6; cursor: not-allowed;">Not Update Yet</a>
         </div>
     </div>
 
@@ -144,38 +114,24 @@
     <div id="randomizer-modal">
         <div class="random-content">
             <h2>Who Goes First?</h2>
-            
             <div id="player-inputs">
-                <!-- Starting default boxes -->
                 <div class="player-row"><input type="text" class="player-name-box" placeholder="Bank"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button></div>
                 <div class="player-row"><input type="text" class="player-name-box" placeholder="Bam"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button></div>
                 <div class="player-row"><input type="text" class="player-name-box" placeholder="Job"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button></div>
                 <div class="player-row"><input type="text" class="player-name-box" placeholder="Build"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button></div>
             </div>
-            
             <div class="action-buttons">
                 <button class="tool-btn" onclick="addPlayerBox()">+ Add Player</button>
                 <button class="tool-btn" style="background: var(--brass-dark); color: #fff; border-color: var(--brass-light); padding: 10px 25px; font-size:1.4rem;" onclick="spinWheel()">Spin the Wheel!</button>
             </div>
-            
-            <!-- Wheel UI -->
-            <div id="spinner-container">
-                <ul id="spinner-list">
-                    <li class="spinner-item">...</li>
-                </ul>
-            </div>
-            
-            <div id="post-spin-actions">
-                <button class="tool-btn" style="border-color: var(--blood-red); color: var(--blood-red);" onclick="eliminateWinner()">Eliminate Winner & Spin Again</button>
-            </div>
-
+            <div id="spinner-container"><ul id="spinner-list"><li class="spinner-item">...</li></ul></div>
+            <div id="post-spin-actions"><button class="tool-btn" style="border-color: var(--blood-red); color: var(--blood-red);" onclick="eliminateWinner()">Eliminate Winner & Spin Again</button></div>
             <button class="close-btn" onclick="closeRandomizer()">Close</button>
         </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        // --- LOGIN LOGIC ---
         const inputs = document.querySelectorAll('.code-box');
         const CORRECT_PASS = "1184";
         
@@ -209,7 +165,6 @@
             inputs[0].focus(); 
         }
 
-        // --- EPIC AUDIO ENGINE FOR SPINNER ---
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -221,7 +176,6 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'square';
-            // Pitch shifts down as it slows
             osc.frequency.setValueAtTime(600 * pitchLevel, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
@@ -247,16 +201,14 @@
                 osc.start(startTime);
                 osc.stop(startTime + dur);
             }
-            // Triumphant ascending arpeggio ending on a chord
-            playNote(523.25, 'triangle', t, 0.15, 0.2);       // C5
-            playNote(659.25, 'triangle', t + 0.1, 0.15, 0.2); // E5
-            playNote(783.99, 'triangle', t + 0.2, 0.15, 0.2); // G5
-            playNote(1046.50, 'square',  t + 0.3, 1.0, 0.1);  // C6 Peak Hold
-            playNote(523.25, 'triangle', t + 0.3, 1.0, 0.2);  // C5 Base
-            playNote(659.25, 'triangle', t + 0.3, 1.0, 0.2);  // E5 Base
+            playNote(523.25, 'triangle', t, 0.15, 0.2);
+            playNote(659.25, 'triangle', t + 0.1, 0.15, 0.2);
+            playNote(783.99, 'triangle', t + 0.2, 0.15, 0.2);
+            playNote(1046.50, 'square',  t + 0.3, 1.0, 0.1); 
+            playNote(523.25, 'triangle', t + 0.3, 1.0, 0.2); 
+            playNote(659.25, 'triangle', t + 0.3, 1.0, 0.2); 
         }
 
-        // --- iOS RANDOMIZER LOGIC ---
         const extraNames = ['Pun', 'Jin', 'Bowling', 'Theerawech'];
         let placeholderIndex = 0;
         let lastWinnerElement = null; 
@@ -265,18 +217,15 @@
             const container = document.getElementById('player-inputs');
             const row = document.createElement('div');
             row.className = 'player-row';
-            
             const input = document.createElement('input');
             input.type = 'text';
             input.className = 'player-name-box';
             input.placeholder = extraNames[placeholderIndex % extraNames.length];
             placeholderIndex++;
-            
             const btn = document.createElement('button');
             btn.className = 'remove-btn';
             btn.innerHTML = '✕';
             btn.onclick = function() { row.remove(); };
-            
             row.appendChild(input);
             row.appendChild(btn);
             container.appendChild(row);
@@ -284,27 +233,22 @@
         }
 
         function spinWheel() {
-            initAudio(); // Wake up audio
+            initAudio(); 
             document.getElementById('post-spin-actions').style.display = 'none'; 
-            
             let inputRows = document.querySelectorAll('.player-row');
             let candidates = [];
-            
             inputRows.forEach(row => {
                 let inp = row.querySelector('.player-name-box');
                 let val = inp.value.trim() || inp.placeholder;
                 if(val !== "") candidates.push({ name: val, element: row });
             });
-            
             if (candidates.length < 2) return alert("You need at least two players to spin!");
-            
             let list = document.getElementById('spinner-list');
             list.style.transition = 'none'; 
             list.style.transform = 'translateY(0px)';
             list.innerHTML = ''; 
             list.classList.remove('spinning-fast');
             
-            // Build long tape
             let tape = [];
             for(let i=0; i<20; i++) tape = tape.concat(candidates);
             
@@ -312,7 +256,6 @@
             let randomOffset = Math.floor(Math.random() * candidates.length);
             let winningIndex = startIndex + randomOffset;
             let winnerObj = tape[winningIndex];
-            
             lastWinnerElement = winnerObj.element; 
             
             tape.forEach((item, idx) => {
@@ -322,45 +265,35 @@
                 if(idx === 0) li.innerText = "🎲"; 
                 list.appendChild(li);
             });
-            
             void list.offsetWidth; 
             
-            // Audio Effects: Precise dynamic ticking curve
             let spinDurationMs = 4500;
             let totalTicks = 65; 
             for(let i=0; i<totalTicks; i++) {
                 let progress = i / totalTicks;
-                // Exaggerated curve makes it tick very fast at first, and extremely slow at the end
                 let tickTime = spinDurationMs * Math.pow(progress, 3.2);
-                let pitch = 1.0 - (progress * 0.6); // Pitch drops as wheel slows
+                let pitch = 1.0 - (progress * 0.6);
                 setTimeout(() => playRatchet(pitch), tickTime);
             }
 
-            let itemHeight = 120; // Height of spinner item
+            let itemHeight = 120;
             let targetY = -(winningIndex * itemHeight);
             
-            // The magic CSS bezier for a physical mechanical overshoot & bounce back
             list.style.transition = 'transform 4.5s cubic-bezier(0.15, 0.85, 0.15, 1.15)';
             list.style.transform = `translateY(${targetY}px)`;
-            
-            // Add high-speed blur effect, then remove right before it settles
             list.classList.add('spinning-fast');
             setTimeout(() => list.classList.remove('spinning-fast'), 3800);
             
-            // When the wheel physically lands (allowing extra 100ms for the CSS bounce to settle)
             setTimeout(() => {
                 playEpicFanfare(); 
-                
-                // Screen Flash Gold Effect
                 let modal = document.getElementById('randomizer-modal');
                 let origBg = modal.style.backgroundColor;
                 modal.style.backgroundColor = "rgba(212, 175, 55, 0.6)"; 
                 setTimeout(() => { modal.style.backgroundColor = origBg; }, 150);
 
                 let winnerLi = list.children[winningIndex];
-                winnerLi.classList.add('winner-text'); // Make winner glow
+                winnerLi.classList.add('winner-text'); 
                 
-                // Double Confetti Explosion
                 let defaults = { startVelocity: 60, spread: 360, ticks: 120, zIndex: 1001, colors: ['#d4af37', '#8a6522', '#ffffff', '#e74c3c'] };
                 function blast() {
                     confetti(Object.assign({}, defaults, { particleCount: 80, origin: { x: 0.1, y: 0.9 } }));
@@ -370,10 +303,7 @@
                 blast();
                 setTimeout(blast, 400); 
                 
-                setTimeout(() => {
-                    document.getElementById('post-spin-actions').style.display = 'block';
-                }, 800);
-                
+                setTimeout(() => { document.getElementById('post-spin-actions').style.display = 'block'; }, 800);
             }, 4600); 
         }
 
@@ -381,13 +311,11 @@
             if (lastWinnerElement) {
                 lastWinnerElement.remove(); 
                 lastWinnerElement = null;
-                
                 let list = document.getElementById('spinner-list');
                 list.style.transition = 'none';
                 list.style.transform = 'translateY(0px)';
                 list.innerHTML = '<li class="spinner-item">🎲</li>';
                 list.classList.remove('spinning-fast');
-                
                 document.getElementById('post-spin-actions').style.display = 'none';
             }
         }
