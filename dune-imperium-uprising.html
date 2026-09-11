@@ -71,35 +71,80 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        /* Epic Cinematic Movie Poster Background */
+        /* Epic Cinematic Panning Desert Background */
         body { 
             background-color: var(--bg-gradient-2); 
-            background-image: linear-gradient(to bottom, rgba(250, 246, 238, 0.3), rgba(20, 16, 14, 0.8)), url('wallpapersden.com_dune-hd-2021-movie-poster_3840x2160.jpg'); 
-            background-size: cover;
-            background-position: center top;
+            background-image: linear-gradient(to bottom, rgba(250, 246, 238, 0.3), rgba(20, 16, 14, 0.8)), url('https://images.unsplash.com/photo-1509316785289-025f5b846b35?q=80&w=3840&auto=format&fit=crop'); 
+            background-size: 150% 150%;
+            background-position: 0% 50%;
             background-attachment: fixed;
             color: var(--text-main); 
             font-family: 'Playfair Display', serif; 
             min-height: 100vh; 
             padding: 20px; 
             transition: background-color 0.5s, color 0.5s; 
+            animation: panSandworms 50s linear infinite alternate;
         }
         body.dark-mode { 
-            background-image: linear-gradient(to bottom, rgba(20, 16, 14, 0.7), rgba(20, 16, 14, 0.98)), url('wallpapersden.com_dune-hd-2021-movie-poster_3840x2160.jpg'); 
+            background-image: linear-gradient(to bottom, rgba(20, 16, 14, 0.7), rgba(20, 16, 14, 0.98)), url('https://images.unsplash.com/photo-1509316785289-025f5b846b35?q=80&w=3840&auto=format&fit=crop'); 
+        }
+        @keyframes panSandworms {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
         
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; }
         .back-btn { color: var(--spice-dark); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--spice-dark); padding: 5px 15px; transition: all 0.3s; background: transparent; cursor: pointer; border-radius: 4px; box-shadow: 0 4px 6px var(--shadow-color);}
         .back-btn:hover { background: var(--spice-dark); color: var(--btn-hover-text); box-shadow: 0 0 15px var(--spice-light);}
         
-        /* Epic Cinematic Movie Poster Text Gradient WITH FLOATING SAND EFFECT */
-        h1 { font-family: 'Cinzel', serif; font-size: 3.2rem; background: linear-gradient(to right, var(--spice-light), var(--fremen-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-grow: 1; text-align: center; margin: 0 15px; text-transform: uppercase; letter-spacing: 4px; transition: opacity 0.4s; animation: sandFloat 4s ease-in-out infinite; }
+        /* Epic Cinematic Movie Poster Text Gradient WITH FLOATING SPICE SAND EFFECT */
+        h1 { position: relative; font-family: 'Cinzel', serif; font-size: 3.2rem; background: linear-gradient(to right, var(--spice-light), var(--fremen-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 10px var(--shadow-color); flex-grow: 1; text-align: center; margin: 0 15px; text-transform: uppercase; letter-spacing: 4px; transition: opacity 0.4s; animation: sandFloat 4s ease-in-out infinite; }
         @keyframes sandFloat {
             0% { filter: drop-shadow(0px 2px 4px rgba(211, 84, 0, 0.8)) drop-shadow(2px 4px 6px rgba(241, 196, 15, 0.5)); }
             50% { filter: drop-shadow(0px -4px 10px rgba(211, 84, 0, 0.6)) drop-shadow(-4px -10px 15px rgba(250, 246, 238, 0.7)) drop-shadow(4px -6px 12px rgba(241, 196, 15, 0.8)); }
             100% { filter: drop-shadow(0px 2px 4px rgba(211, 84, 0, 0.8)) drop-shadow(-2px 4px 6px rgba(241, 196, 15, 0.5)); }
         }
         
+        h1::before, h1::after {
+            content: ''; position: absolute; top: -20px; left: -20px; right: -20px; bottom: -20px;
+            z-index: -1; pointer-events: none; -webkit-text-fill-color: initial; -webkit-background-clip: initial;
+            background-image: 
+                radial-gradient(circle at 10% 20%, var(--spice-light) 1.5px, transparent 2px),
+                radial-gradient(circle at 20% 80%, #f1c40f 1px, transparent 2px),
+                radial-gradient(circle at 30% 40%, var(--spice-dark) 2px, transparent 3px),
+                radial-gradient(circle at 40% 90%, var(--spice-light) 1.5px, transparent 2px),
+                radial-gradient(circle at 50% 10%, #f1c40f 1px, transparent 2px),
+                radial-gradient(circle at 60% 60%, var(--spice-dark) 2px, transparent 3px),
+                radial-gradient(circle at 70% 30%, var(--spice-light) 1.5px, transparent 2px),
+                radial-gradient(circle at 80% 70%, #f1c40f 1px, transparent 2px),
+                radial-gradient(circle at 90% 20%, var(--spice-dark) 2px, transparent 3px);
+            background-size: 150px 100px; opacity: 0; filter: drop-shadow(0 0 4px var(--spice-light));
+        }
+        h1::before { animation: sandDrift1 6s linear infinite; }
+        h1::after {
+            background-image: 
+                radial-gradient(circle at 15% 50%, #f1c40f 1.5px, transparent 2px),
+                radial-gradient(circle at 25% 10%, var(--spice-dark) 2px, transparent 3px),
+                radial-gradient(circle at 35% 70%, var(--spice-light) 1px, transparent 2px),
+                radial-gradient(circle at 45% 30%, #f1c40f 1.5px, transparent 2px),
+                radial-gradient(circle at 55% 80%, var(--spice-dark) 2px, transparent 3px),
+                radial-gradient(circle at 65% 20%, var(--spice-light) 1px, transparent 2px),
+                radial-gradient(circle at 75% 90%, #f1c40f 1.5px, transparent 2px),
+                radial-gradient(circle at 85% 40%, var(--spice-dark) 2px, transparent 3px),
+                radial-gradient(circle at 95% 60%, var(--spice-light) 1px, transparent 2px);
+            background-size: 200px 120px; animation: sandDrift2 9s linear infinite; animation-delay: 2s;
+        }
+        @keyframes sandDrift1 {
+            0% { background-position: 0px 50px; opacity: 0; transform: translateY(10px); }
+            15% { opacity: 0.9; } 85% { opacity: 0.9; }
+            100% { background-position: 300px -50px; opacity: 0; transform: translateY(-10px); }
+        }
+        @keyframes sandDrift2 {
+            0% { background-position: -50px 0px; opacity: 0; transform: translateY(15px) scale(1.1); }
+            15% { opacity: 0.7; } 85% { opacity: 0.7; }
+            100% { background-position: 250px 100px; opacity: 0; transform: translateY(-15px) scale(0.9); }
+        }
+
         /* --- THEME TOGGLE SWITCH & HIDE BUTTON --- */
         .theme-switch-wrapper { display: flex; align-items: center; gap: 10px; }
         #theme-icon { font-size: 1.4rem; transition: 0.3s; text-shadow: 0 0 10px var(--spice-light);}
