@@ -6,128 +6,781 @@
     <title>Wingspan - Score Tracker</title>
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#12100e">
+    <meta name="theme-color" content="#d5e8d4">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="1PEN Vault">
     <link rel="apple-touch-icon" href="icon-192.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --forest-green: #2d4a22; --sky-blue: #87ceeb; --eggshell: #f0ead6; --bg-dark: #1a1f18; --panel-bg: #232a21; }
+        /* --- WINGSPAN AVIAN SANCTUARY THEME (LIGHT) --- */
+        :root { 
+            --leaf-green: #27ae60; 
+            --forest-dark: #1e8449; 
+            --sky-blue: #2980b9; 
+            --border-color: #a9dfbf; 
+            
+            --text-main: #2c3e50; 
+            --input-bg: rgba(255, 255, 255, 0.85); 
+            --th-bg: #eafaf1; 
+            --readonly-bg: rgba(39, 174, 96, 0.08); 
+            
+            --card-bg: rgba(244, 248, 245, 0.95); 
+            --col-btn-bg: #d4efdf; 
+            --col-content-bg: rgba(255, 255, 255, 0.6);
+            --modal-overlay: rgba(230, 245, 235, 0.9); 
+            --celeb-bg-1: #ffffff; --celeb-bg-2: #d4efdf;
+            --bg-gradient-1: #ffffff; --bg-gradient-2: #d5e8d4; 
+            --btn-hover-text: #fff; 
+            --shadow-color: rgba(30, 132, 73, 0.2);
+            
+            /* 7 Player Colors: Blue, Green, Yellow, Red, Purple, White, Black */
+            --p0-color: #3498db; /* Blue */
+            --p1-color: #2ecc71; /* Green */
+            --p2-color: #f1c40f; /* Yellow */
+            --p3-color: #e74c3c; /* Red */
+            --p4-color: #9b59b6; /* Purple */
+            --p5-color: #ffffff; /* White */
+            --p6-color: #222222; /* Black */
+            
+            --chart-bg: rgba(255, 255, 255, 0.6);
+        }
+
+        /* --- WINGSPAN AVIAN SANCTUARY THEME (DARK) --- */
+        body.dark-mode {
+            --leaf-green: #52be80; 
+            --forest-dark: #27ae60; 
+            --sky-blue: #5dade2; 
+            --border-color: #1e8449; 
+            
+            --text-main: #eaeded; 
+            --input-bg: #151d18; 
+            --th-bg: #1b261f; 
+            --readonly-bg: rgba(0,0,0,0.4);
+            
+            --card-bg: rgba(21, 29, 24, 0.95); 
+            --col-btn-bg: rgba(0,0,0,0.6); 
+            --col-content-bg: rgba(0, 0, 0, 0.4);
+            --modal-overlay: rgba(0,0,0,0.85); 
+            --celeb-bg-1: #1e8449; --celeb-bg-2: #151d18;
+            --bg-gradient-1: #1b261f; --bg-gradient-2: #0b110d; 
+            --btn-hover-text: #151d18; 
+            --shadow-color: rgba(0,0,0,0.8);
+            
+            --chart-bg: rgba(0,0,0,0.4);
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-dark); background-image: radial-gradient(circle at center, #232a21 0%, #1a1f18 100%), url('https://www.transparenttextures.com/patterns/rice-paper.png'); color: var(--eggshell); font-family: 'Playfair Display', serif; min-height: 100vh; padding: 20px; }
         
-        header { text-align: center; margin-bottom: 30px; position: relative; }
-        .back-btn { position: absolute; left: 0; top: 50%; transform: translateY(-50%); color: var(--sky-blue); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--sky-blue); padding: 5px 15px; transition: 0.3s; }
-        .back-btn:hover { background: var(--sky-blue); color: var(--bg-dark); }
-        h1 { font-family: 'Cinzel', serif; font-size: 4rem; color: var(--eggshell); text-shadow: 2px 2px 0px var(--forest-green), 4px 4px 0px rgba(0,0,0,0.8); }
+        /* Epic Cinematic Canopy Background */
+        body { 
+            background-color: var(--bg-gradient-2); 
+            background-image: linear-gradient(to bottom, rgba(244, 248, 245, 0.3), rgba(21, 29, 24, 0.85)), url('https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=3840&auto=format&fit=crop'); 
+            background-size: 150% 150%;
+            background-position: 0% 50%;
+            background-attachment: fixed;
+            color: var(--text-main); 
+            font-family: 'Playfair Display', serif; 
+            min-height: 100vh; 
+            padding: 20px; 
+            transition: background-color 0.5s, color 0.5s; 
+            animation: panCanopy 60s linear infinite alternate;
+        }
+        body.dark-mode { 
+            background-image: linear-gradient(to bottom, rgba(21, 29, 24, 0.7), rgba(21, 29, 24, 0.98)), url('https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=3840&auto=format&fit=crop'); 
+        }
+        @keyframes panCanopy {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
         
-        .tabs { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
-        .tab-btn { background: var(--bg-dark); border: 2px solid var(--forest-green); color: var(--eggshell); padding: 10px 30px; font-family: 'Cinzel', serif; font-size: 1.2rem; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        .tab-btn.active, .tab-btn:hover { background: var(--forest-green); color: #fff; box-shadow: 0 0 15px rgba(45, 74, 34, 0.8); border-color: var(--sky-blue); }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; }
+        .back-btn { color: var(--forest-dark); text-decoration: none; font-family: 'Cinzel', serif; font-size: 1.2rem; border: 1px solid var(--forest-dark); padding: 5px 15px; transition: all 0.3s; background: transparent; cursor: pointer; border-radius: 4px; box-shadow: 0 4px 6px var(--shadow-color);}
+        .back-btn:hover { background: var(--forest-dark); color: var(--btn-hover-text); box-shadow: 0 0 15px var(--leaf-green);}
         
-        .container { max-width: 1200px; margin: 0 auto; background: rgba(35, 42, 33, 0.95); border: 3px solid var(--sky-blue); padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border-radius: 4px; }
+        /* Floating Feather Effect around Title */
+        h1 { position: relative; font-family: 'Cinzel', serif; font-size: 3.2rem; background: linear-gradient(to right, var(--leaf-green), var(--sky-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 10px var(--shadow-color); flex-grow: 1; text-align: center; margin: 0 15px; text-transform: uppercase; letter-spacing: 4px; transition: opacity 0.4s; animation: featherFloat 4s ease-in-out infinite; }
+        @keyframes featherFloat {
+            0% { filter: drop-shadow(0px 2px 4px rgba(39, 174, 96, 0.8)) drop-shadow(2px 4px 6px rgba(41, 128, 185, 0.5)); }
+            50% { filter: drop-shadow(0px -4px 10px rgba(39, 174, 96, 0.6)) drop-shadow(-4px -10px 15px rgba(255, 255, 255, 0.7)) drop-shadow(4px -6px 12px rgba(41, 128, 185, 0.8)); }
+            100% { filter: drop-shadow(0px 2px 4px rgba(39, 174, 96, 0.8)) drop-shadow(-2px 4px 6px rgba(41, 128, 185, 0.5)); }
+        }
+        
+        h1::before, h1::after {
+            content: ''; position: absolute; top: -20px; left: -20px; right: -20px; bottom: -20px;
+            z-index: -1; pointer-events: none; -webkit-text-fill-color: initial; -webkit-background-clip: initial;
+            background-image: 
+                radial-gradient(circle at 10% 20%, var(--leaf-green) 1.5px, transparent 2px),
+                radial-gradient(circle at 20% 80%, #ffffff 1px, transparent 2px),
+                radial-gradient(circle at 30% 40%, var(--forest-dark) 2px, transparent 3px),
+                radial-gradient(circle at 50% 10%, #ffffff 1px, transparent 2px),
+                radial-gradient(circle at 70% 30%, var(--sky-blue) 1.5px, transparent 2px),
+                radial-gradient(circle at 90% 20%, var(--forest-dark) 2px, transparent 3px);
+            background-size: 150px 100px; opacity: 0; filter: drop-shadow(0 0 4px var(--leaf-green));
+        }
+        h1::before { animation: featherDrift1 6s linear infinite; }
+        h1::after {
+            background-image: 
+                radial-gradient(circle at 15% 50%, #ffffff 1.5px, transparent 2px),
+                radial-gradient(circle at 35% 70%, var(--leaf-green) 1px, transparent 2px),
+                radial-gradient(circle at 55% 80%, var(--forest-dark) 2px, transparent 3px),
+                radial-gradient(circle at 75% 90%, #ffffff 1.5px, transparent 2px);
+            background-size: 200px 120px; animation: featherDrift2 9s linear infinite; animation-delay: 2s;
+        }
+        @keyframes featherDrift1 {
+            0% { background-position: 0px 50px; opacity: 0; transform: translateY(10px); }
+            15% { opacity: 0.9; } 85% { opacity: 0.9; }
+            100% { background-position: 300px -50px; opacity: 0; transform: translateY(-10px); }
+        }
+        @keyframes featherDrift2 {
+            0% { background-position: -50px 0px; opacity: 0; transform: translateY(15px) scale(1.1); }
+            15% { opacity: 0.7; } 85% { opacity: 0.7; }
+            100% { background-position: 250px 100px; opacity: 0; transform: translateY(-15px) scale(0.9); }
+        }
+
+        /* --- THEME TOGGLE SWITCH & HIDE BUTTON --- */
+        .theme-switch-wrapper { display: flex; align-items: center; gap: 10px; }
+        #theme-icon { font-size: 1.4rem; transition: 0.3s; text-shadow: 0 0 10px var(--leaf-green);}
+        .theme-switch { display: inline-block; height: 26px; position: relative; width: 50px; }
+        .theme-switch input { display: none; }
+        .slider { background-color: var(--border-color); border: 2px solid var(--forest-dark); bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 24px; }
+        .slider:before { background-color: var(--leaf-green); bottom: 2px; content: ""; height: 18px; left: 3px; position: absolute; transition: .4s; width: 18px; border-radius: 50%; box-shadow: 0 0 8px var(--leaf-green);}
+        input:checked + .slider { background-color: #151d18; border-color: var(--sky-blue);}
+        input:checked + .slider:before { transform: translateX(22px); background-color: var(--sky-blue); box-shadow: 0 0 10px var(--sky-blue);}
+
+        @media (max-width: 768px) { header { flex-direction: column; gap: 15px; } .back-btn { width: 100%; text-align: center; } h1 { font-size: 2.2rem; letter-spacing: 2px;} .theme-switch-wrapper { width: 100%; justify-content: center; margin-top: 5px; } }
+
+        .container { max-width: 1300px; margin: 0 auto; background: var(--card-bg); border: 2px solid var(--forest-dark); padding: 30px; box-shadow: inset 0 0 20px rgba(39, 174, 96, 0.1), 0 10px 25px var(--shadow-color); transition: all 0.4s; border-radius: 8px;}
+        
+        /* Setup & Meta */
+        .setup-card { background: var(--readonly-bg); border: 1px dashed var(--leaf-green); padding: 20px; margin-bottom: 20px; border-radius: 4px; }
+        .setup-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
+        .setup-row label { font-family: 'Cinzel', serif; color: var(--forest-dark); font-size: 1.1rem; font-weight: bold;}
+        .color-checkboxes { display: flex; gap: 15px; flex-wrap: wrap; }
+        .color-label { display: flex; align-items: center; gap: 5px; color: var(--text-main); font-family: 'Playfair Display', serif; cursor: pointer; }
+        .color-label input { width: 18px; height: 18px; accent-color: var(--leaf-green); cursor: pointer; }
+        
         .game-meta { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 20px; }
         .input-group { display: flex; flex-direction: column; width: 48%; }
-        label { font-family: 'Cinzel', serif; color: var(--sky-blue); margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="date"], input[type="number"] { background: var(--bg-dark); border: 1px solid var(--sky-blue); color: #fff; padding: 10px; font-family: 'Playfair Display', serif; font-size: 1.1rem; }
-        input:focus { outline: none; border-color: var(--forest-green); box-shadow: 0 0 8px rgba(45, 74, 34, 0.6); }
+        .input-group label { font-family: 'Cinzel', serif; color: var(--forest-dark); margin-bottom: 5px; font-weight: bold;}
+        input[type="text"], input[type="date"], input[type="number"], select { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; font-family: 'Playfair Display', serif; font-size: 1.1rem; transition: 0.4s; width: 100%; border-radius: 4px; outline: none;}
+        input:focus, select:focus { border-color: var(--leaf-green); box-shadow: 0 0 10px rgba(39,174,96,0.3); }
+
+        /* Collapsible Sections */
+        .collapsible-btn { background: var(--col-btn-bg); color: var(--forest-dark); cursor: pointer; padding: 15px 20px; width: 100%; border: 1px solid var(--forest-dark); text-align: center; outline: none; font-family: 'Cinzel', serif; font-size: 1.5rem; transition: 0.4s; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
+        .collapsible-btn:hover, .collapsible-btn.active { background: var(--forest-dark); color: var(--btn-hover-text); box-shadow: 0 0 15px var(--leaf-green);}
+        .collapsible-content { padding: 0 15px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease; background: var(--col-content-bg); border: 1px solid transparent; }
+        .collapsible-content.expanded { padding: 20px 15px; border-color: var(--forest-dark); margin-bottom: 20px; border-radius: 0 0 4px 4px; }
         
-        .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; text-align: center; }
-        th { background: var(--forest-green); color: var(--eggshell); font-family: 'Cinzel', serif; padding: 15px 10px; border: 2px solid var(--sky-blue); font-size: 0.95rem; text-transform: uppercase;}
-        td { padding: 0; border: 1px solid var(--sky-blue); }
-        td input { width: 100%; height: 100%; border: none; padding: 15px 5px; text-align: center; background: transparent; color: #fff; font-size: 1.1rem; }
-        .readonly-cell { padding: 15px 5px; background: rgba(0,0,0,0.4); font-weight: bold; color: var(--eggshell); font-size: 1.1rem; }
+        /* Tables */
+        .table-wrapper { overflow-x: auto; margin-bottom: 25px; box-shadow: 0 5px 15px var(--shadow-color); border: 1px solid var(--border-color);}
+        table { width: 100%; border-collapse: collapse; text-align: center; background: var(--input-bg);}
+        th { background: var(--th-bg); color: var(--forest-dark); font-family: 'Cinzel', serif; padding: 15px 8px; border: 1px solid var(--border-color); font-size: 0.9rem; transition: 0.4s; text-transform: uppercase;}
+        td { padding: 0; border: 1px solid var(--border-color); transition: 0.4s; position: relative; }
+        td input { width: 100%; height: 100%; border: none; padding: 15px 5px; text-align: center; background: transparent; color: var(--text-main); transition: 0.4s; font-family: 'Playfair Display', serif; font-size: 1.2rem; outline: none; font-weight: bold;}
+        td input:focus { background: rgba(39,174,96,0.05); }
+        td input.player-name { padding-left: 30px; text-align: left; } 
+        .readonly-cell { padding: 15px 5px; background: var(--readonly-bg); font-weight: bold; color: var(--forest-dark); font-size: 1.2rem; transition: 0.4s; }
         
-        .save-btn { display: block; width: 100%; background: linear-gradient(145deg, var(--forest-green), #162b0f); color: var(--eggshell); border: 2px solid var(--sky-blue); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.8rem; cursor: pointer; transition: 0.3s; font-weight: bold; text-transform: uppercase; border-radius: 5px; }
-        .save-btn:hover { background: var(--sky-blue); color: var(--forest-green); box-shadow: 0 0 20px rgba(135, 206, 235, 0.5); }
+        /* Highlight Column in Sky Blue */
+        .highlight-col { background-color: rgba(41, 128, 185, 0.12) !important; border-left: 2px solid var(--sky-blue) !important; border-right: 2px solid var(--sky-blue) !important; font-size: 1.4rem !important; color: var(--sky-blue) !important; text-shadow: 0 0 5px rgba(41,128,185,0.3);}
+        body.dark-mode .highlight-col { color: #5dade2 !important; }
+        th.highlight-col { background-color: var(--sky-blue) !important; font-size: 0.95rem !important; color: #fff !important; text-shadow: none;}
+
+        .color-dot { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.5); box-shadow: 0 0 5px rgba(0,0,0,0.5); pointer-events: none; }
+        body.dark-mode .color-dot { border-color: rgba(255,255,255,0.6); }
+
+        /* --- Timer UI --- */
+        .timer-tool { background: var(--readonly-bg); padding: 25px; border: 1px solid var(--forest-dark); border-radius: 5px; width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; }
+        .timer-row { display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); border: 1px solid var(--border-color); padding: 15px 20px; margin-bottom: 15px; border-radius: 5px; opacity: 0.6; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .timer-row:hover { border-color: var(--leaf-green); opacity: 0.9; }
+        .timer-row.active { opacity: 1; border-color: var(--leaf-green); box-shadow: 0 0 25px rgba(39, 174, 96, 0.5); background: rgba(39, 174, 96, 0.15); transform: scale(1.05); padding: 30px 25px; margin-bottom: 20px; }
+        .timer-name { font-family: 'Cinzel', serif; font-weight: bold; font-size: 1.3rem; width: 40%; display: flex; align-items: center; gap: 12px; transition: 0.4s; }
+        .timer-row.active .timer-name { font-size: 1.8rem; color: var(--forest-dark); text-shadow: 0 0 5px var(--leaf-green);}
+        body.dark-mode .timer-row.active .timer-name { color: #fff; }
         
-        #history-section { display: none; }
-        .history-card { background: rgba(0, 0, 0, 0.5); border: 2px solid var(--sky-blue); margin-bottom: 30px; padding: 20px; border-radius: 8px; }
-        .history-header { display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: var(--sky-blue); margin-bottom: 15px; border-bottom: 2px dashed var(--forest-green); padding-bottom: 10px; font-size: 1.2rem; }
+        .timer-dot-t { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.5); box-shadow: 0 0 5px rgba(0,0,0,0.5); transition: 0.4s;}
+        body.dark-mode .timer-dot-t { border-color: rgba(255,255,255,0.6); }
+        .timer-row.active .timer-dot-t { width: 20px; height: 20px; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
         
-        #celebration-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(26, 31, 24, 0.9); align-items: center; justify-content: center; }
-        .celebration-content { background: var(--panel-bg); border: 4px solid var(--sky-blue); padding: 50px; text-align: center; border-radius: 10px; box-shadow: 0 0 50px rgba(135, 206, 235, 0.5); animation: popIn 0.4s forwards; }
-        .celebration-content h2 { font-family: 'Cinzel', serif; font-size: 4rem; color: var(--eggshell); margin-bottom: 10px; text-shadow: 2px 2px 0px var(--forest-green);}
-        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        /* Spinning Feather Emoji */
+        .spin-emoji { font-size: 1.2rem; display: inline-block; transition: 0.4s; opacity: 0.7;}
+        .timer-row.active .spin-emoji { font-size: 1.8rem; opacity: 1; animation: spinEmoji 4s linear infinite; filter: drop-shadow(0 0 5px var(--leaf-green)); }
+        @keyframes spinEmoji { 100% { transform: rotate(360deg); } }
+
+        .timer-times { display: flex; flex-direction: column; align-items: flex-end; width: 60%; }
+        .t-round { font-size: 2.2rem; font-weight: bold; color: var(--forest-dark); font-family: monospace; transition: 0.4s; }
+        .timer-row.active .t-round { font-size: 4.5rem; color: var(--forest-dark); text-shadow: 0 0 20px var(--leaf-green); line-height: 1; margin-bottom: 5px;}
+        body.dark-mode .timer-row.active .t-round { color: #fff; }
+        .t-reserve { font-size: 1.1rem; color: var(--text-main); font-family: monospace; transition: 0.4s; }
+        .timer-row.active .t-reserve { font-size: 1.5rem; color: var(--forest-dark); }
+        body.dark-mode .timer-row.active .t-reserve { color: var(--leaf-green); }
+        .t-round.danger, .t-reserve.danger { color: #c0392b !important; text-shadow: 0 0 15px #c0392b !important; }
+        .timer-controls { display: flex; gap: 15px; margin-top: auto; padding-top: 20px; flex-wrap: wrap;}
+        .t-btn { flex: 1; min-width: 30%; padding: 15px; background: var(--forest-dark); color: #fff; border: 1px solid var(--leaf-green); font-family: 'Cinzel', serif; cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.3s; font-size: 1.2rem; letter-spacing: 1px;}
+        .t-btn:hover { background: var(--leaf-green); box-shadow: 0 0 15px var(--leaf-green); color: var(--btn-hover-text);}
+        .t-btn.play { background: var(--sky-blue); border-color: #3498db; }
+        .t-btn.pause { background: #e67e22; border-color: #f39c12; }
+
+        /* Save Button */
+        .save-btn { display: block; width: 100%; background: linear-gradient(145deg, var(--sky-blue), var(--forest-dark)); color: #fff; border: 2px solid var(--leaf-green); padding: 15px; font-family: 'Cinzel', serif; font-size: 1.6rem; cursor: pointer; transition: 0.3s; margin-top: 20px; border-radius: 4px; margin-bottom: 50px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px rgba(0,0,0,0.5);}
+        .save-btn:hover { box-shadow: 0 0 20px var(--leaf-green); background: linear-gradient(145deg, var(--forest-dark), var(--sky-blue));}
+        
+        /* Section Headers */
+        .section-header { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--forest-dark); border-bottom: 1px dashed var(--forest-dark); padding-bottom: 10px; margin-bottom: 25px; text-align: center; margin-top: 40px; text-transform: uppercase;}
+
+        /* History Table */
+        .history-card { background: var(--input-bg); border: 1px solid var(--forest-dark); margin-bottom: 30px; padding: 20px; transition: 0.4s; border-radius: 4px; box-shadow: 0 5px 10px var(--shadow-color);}
+        .history-header { display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: var(--forest-dark); margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; }
+        
+        /* Charts Grid (10 Charts) */
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .chart-box { background: var(--chart-bg); padding: 20px; border: 1px dashed var(--forest-dark); border-radius: 5px; transition: 0.4s; display: flex; align-items: center; justify-content: center; min-height: 350px;}
+        .full-width { grid-column: 1 / -1; }
+        @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } .full-width { grid-column: 1; } }
+
+        /* Modals */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-overlay); align-items: center; justify-content: center; padding: 15px; }
+        .modal-content { background: linear-gradient(145deg, var(--celeb-bg-1), var(--celeb-bg-2)); border: 2px solid var(--leaf-green); padding: 30px; border-radius: 8px; box-shadow: 0 0 50px rgba(39, 174, 96, 0.4); animation: popIn 0.3s forwards; transition: 0.4s; max-width: 500px; width: 100%; }
+        .modal-content h3 { font-family: 'Cinzel', serif; color: var(--forest-dark); margin-bottom: 15px; text-align: center; }
+        .time-edit-group { display: flex; justify-content: space-around; gap: 20px; margin-bottom: 20px; }
+        .time-edit-group div { display: flex; flex-direction: column; align-items: center; }
+        .time-edit-group label { color: var(--forest-dark); font-size: 0.9rem; margin-bottom: 5px; font-weight: bold;}
+        .time-edit-inputs { display: flex; align-items: center; gap: 5px; color: var(--text-main); font-size: 1.2rem;}
+        .time-edit-inputs input { width: 60px; text-align: center; padding: 8px; }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
     </style>
 </head>
-<body>
-    <header><a href="index.html" class="back-btn">← Back to Vault</a><h1>Wingspan</h1></header>
-    
-    <div class="tabs">
-        <button class="tab-btn active" id="tab-new" onclick="switchTab('new')">Current Game</button>
-        <button class="tab-btn" id="tab-history" onclick="switchTab('history')">History</button>
-    </div>
+<body onload="initSetup()">
+    <header>
+        <a href="index.html" class="back-btn" style="transition: opacity 0.4s, background 0.3s, color 0.3s, box-shadow 0.3s;">← Main Menu</a>
+        <h1>Wingspan</h1>
+        <div class="theme-switch-wrapper">
+            <!-- UI Toggle Button -->
+            <button onclick="toggleUI()" style="background: transparent; border: none; font-size: 1.5rem; cursor: pointer; filter: drop-shadow(0 0 5px var(--leaf-green)); margin-right: 5px;" title="Toggle UI">👁️</button>
+            <span id="theme-icon">☀️</span>
+            <label class="theme-switch" for="theme-checkbox">
+                <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()" />
+                <div class="slider round"></div>
+            </label>
+            <span style="font-size: 1.2rem;">🌙</span>
+        </div>
+    </header>
     
     <div class="container">
-        <div id="new-section">
-            <div class="game-meta">
-                <div class="input-group"><label>Party Name</label><input type="text" id="party-name" placeholder="e.g. The Ornithologists"></div>
-                <div class="input-group"><label>Date</label><input type="date" id="game-date"></div>
+        
+        <!-- GAME SETUP PANEL (7 Players: Blue, Green, Yellow, Red, Purple, White, Black) -->
+        <div class="setup-card">
+            <h3 style="font-family:'Cinzel', serif; color: var(--leaf-green); margin-bottom: 15px; font-size: 1.5rem; text-align: center;">🐦 Wildlife Preserve Charter</h3>
+            
+            <div class="setup-row">
+                <label>Number of Players:</label>
+                <select id="setup-pcount" onchange="handlePCountChange()">
+                    <option value="1">1 Player</option>
+                    <option value="2">2 Players</option>
+                    <option value="3">3 Players</option>
+                    <option value="4" selected>4 Players</option>
+                    <option value="5">5 Players</option>
+                    <option value="6">6 Players</option>
+                    <option value="7">7 Players</option>
+                </select>
             </div>
 
-            <div class="table-wrapper">
-                <table id="scoring-table">
-                    <thead><tr><th>Player Name</th><th>Birds</th><th>Bonus Cards</th><th>End of Round</th><th>Eggs</th><th>Food Cache</th><th>Tucked Cards</th><th>Final Score</th></tr></thead>
-                    <tbody id="scoring-body"></tbody>
-                </table>
+            <div class="setup-row">
+                <label>Active Colors:</label>
+                <div class="color-checkboxes">
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="0" checked onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p0-color); width:12px; height:12px; position:static;"></div> Blue</label>
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="1" checked onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p1-color); width:12px; height:12px; position:static;"></div> Green</label>
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="2" checked onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p2-color); width:12px; height:12px; position:static; border:1px solid #777;"></div> Yellow</label>
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="3" checked onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p3-color); width:12px; height:12px; position:static;"></div> Red</label>
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="4" onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p4-color); width:12px; height:12px; position:static;"></div> Purple</label>
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="5" onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p5-color); width:12px; height:12px; position:static; border:1px solid #777;"></div> White</label>
+                    <label class="color-label"><input type="checkbox" class="color-tick" value="6" onchange="handleColorTick(this)"> <div class="timer-dot-t" style="background:var(--p6-color); width:12px; height:12px; position:static;"></div> Black</label>
+                </div>
             </div>
-            
-            <button class="save-btn" onclick="saveGame()">Seal the Ledger</button>
+            <div id="setup-warning" style="color: #c0392b; font-family: 'Playfair Display', serif; display: none;">Please select exact colors to match player count.</div>
+        </div>
+
+        <div class="game-meta">
+            <div class="input-group"><label>Party Name</label><input type="text" id="party-name" placeholder="e.g. North American Region"></div>
+            <div class="input-group"><label>Date</label><input type="date" id="game-date"></div>
+        </div>
+
+        <!-- COLLAPSIBLE: TIMER -->
+        <button class="collapsible-btn">
+            <span></span> 
+            <span>⏳ Migration Turn Timer</span>
+            <span class="toggle-icon">▼</span>
+        </button>
+        <div class="collapsible-content">
+            <div class="timer-tool" style="margin-top: 15px;">
+                <p style="text-align:center; color: var(--text-main); margin-bottom: 25px; font-size: 0.9rem; font-style: italic; opacity: 0.7;">Tap a player to begin.<br>Unused round time banks to Reserve.</p>
+                <div id="timer-players">
+                    <!-- Timer rows injected via JS -->
+                </div>
+                <div class="timer-controls">
+                    <button class="t-btn play" id="global-timer-btn" onclick="toggleGlobalTimer()">Start Time</button>
+                    <button class="t-btn" onclick="nextTurn()">End Turn</button>
+                    <button class="t-btn edit" onclick="openTimeEdit()">⚙️ Edit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN SCORING TABLE (Leader Removed; Birds, Bonus Cards, End Round, Egg, Food Cache, Tucked Cards, Nectar Added) -->
+        <div class="table-wrapper" style="margin-top: 25px;">
+            <table id="scoring-table">
+                <thead><tr>
+                    <th>Player Name</th>
+                    <th class="highlight-col">Final Point</th>
+                    <th>Birds</th>
+                    <th>Bonus Cards</th>
+                    <th>End Round</th>
+                    <th>Egg</th>
+                    <th>Food Cache</th>
+                    <th>Tucked Cars</th>
+                    <th>Nectar</th>
+                </tr></thead>
+                <tbody id="scoring-body"></tbody>
+            </table>
         </div>
         
-        <div id="history-section"><div id="history-container"></div></div>
+        <button class="save-btn" onclick="saveGame()">Seal the Archives</button>
+
+        <!-- HISTORY SECTION -->
+        <div class="section-header">📜 Sanctuary Archives</div>
+        <div id="history-container">
+            <p style='text-align:center; color: var(--forest-dark);'>Loading past games...</p>
+        </div>
+
+        <!-- 10 ANALYSIS CHARTS SECTION -->
+        <div class="section-header">👁️ Avian Projections (10 Charts)</div>
+        <div class="charts-grid" id="charts-container" style="display: none;">
+            <!-- Chart 1: Winning Score Timeline -->
+            <div class="chart-box full-width">
+                <canvas id="trendChart"></canvas>
+            </div>
+            <!-- Chart 2: Top Players Comparison -->
+            <div class="chart-box full-width">
+                <canvas id="leaderBoardChart"></canvas>
+            </div>
+            <!-- Chart 3: All-Time Most Wins -->
+            <div class="chart-box">
+                <canvas id="mostWinsChart"></canvas>
+            </div>
+            <!-- Chart 4: Win Rate (%) -->
+            <div class="chart-box">
+                <canvas id="winRateChart"></canvas>
+            </div>
+            <!-- Chart 5: Average Score -->
+            <div class="chart-box">
+                <canvas id="avgScoreChart"></canvas>
+            </div>
+            <!-- Chart 6: Most Games Played -->
+            <div class="chart-box">
+                <canvas id="playCountChart"></canvas>
+            </div>
+            <!-- Chart 7: Peak Score per Player -->
+            <div class="chart-box">
+                <canvas id="maxScoreChart"></canvas>
+            </div>
+            <!-- Chart 8: Runner-Up / Heartbreak Tracker -->
+            <div class="chart-box">
+                <canvas id="runnerUpChart"></canvas>
+            </div>
+            <!-- Chart 9: Victory Margin Timeline -->
+            <div class="chart-box full-width">
+                <canvas id="marginTrendChart"></canvas>
+            </div>
+            <!-- Chart 10: End-Game Component Tracking -->
+            <div class="chart-box full-width">
+                <canvas id="resourceChart"></canvas>
+            </div>
+        </div>
+
     </div>
     
-    <div id="celebration-modal"><div class="celebration-content"><h2>Take Flight!</h2></div></div>
+    <!-- Modals -->
+    <div id="celebration-modal" class="modal-overlay" style="z-index: 3000;">
+        <div class="modal-content" style="max-width:400px; text-align:center; background: transparent; border: none; box-shadow: none;">
+            <h2 style="font-size:3.5rem; margin:0; font-family:'Cinzel', serif; color:var(--leaf-green); text-shadow: 0 0 20px #000;">VICTORY</h2>
+            <div style="font-size: 4rem; margin-top: 10px; text-shadow: 0 0 20px var(--sky-blue);">🐦</div>
+        </div>
+    </div>
     
-    <!-- PWA Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.log('Service Worker failed:', err)); });
-        }
-    </script>
+    <div id="time-modal" class="modal-overlay" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 450px;">
+            <h3>Adjust Sanctuary Timer</h3>
+            <div class="time-edit-group">
+                <div>
+                    <label>Round Timer (Min : Sec)</label>
+                    <div class="time-edit-inputs">
+                        <input type="number" id="edit-round-m" min="0"> : <input type="number" id="edit-round-s" min="0" max="59">
+                    </div>
+                </div>
+                <div>
+                    <label>Reserve Timer (Min : Sec)</label>
+                    <div class="time-edit-inputs">
+                        <input type="number" id="edit-res-m"> : <input type="number" id="edit-res-s" min="0" max="59">
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="t-btn play" style="flex:1; border:none;" onclick="saveTimeEdit()">Save</button>
+                <button class="t-btn edit" style="flex:1;" onclick="document.getElementById('time-modal').style.display='none'">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        document.getElementById('game-date').valueAsDate = new Date();
-        const scoreBody = document.getElementById('scoring-body');
-        
-        for(let i=0; i<4; i++) {
-            const trScore = document.createElement('tr');
-            trScore.innerHTML = `<td><input type="text" class="player-name" placeholder="Player ${i+1}"></td>
-                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
-                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
-                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
-                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
-                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
-                <td><input type="number" class="score-input p${i}" data-row="${i}" min="0"></td>
-                <td class="readonly-cell final-score" id="final-${i}">0</td>`;
-            scoreBody.appendChild(trScore);
+        // --- UI HIDE/SHOW LOGIC ---
+        function toggleUI() {
+            const container = document.querySelector('.container');
+            const backBtn = document.querySelector('.back-btn');
+            const h1 = document.querySelector('h1');
+            
+            if (container.style.opacity === '0') {
+                container.style.opacity = '1';
+                container.style.pointerEvents = 'auto';
+                backBtn.style.opacity = '1';
+                backBtn.style.pointerEvents = 'auto';
+                h1.style.opacity = '1';
+            } else {
+                container.style.opacity = '0';
+                container.style.pointerEvents = 'none';
+                backBtn.style.opacity = '0';
+                backBtn.style.pointerEvents = 'none';
+                h1.style.opacity = '0';
+            }
         }
 
-        document.querySelectorAll('.score-input').forEach(input => { 
-            input.addEventListener('input', (e) => { 
-                const row = e.target.getAttribute('data-row'); let sum = 0; 
-                document.querySelectorAll(`.p${row}`).forEach(inp => { sum += parseInt(inp.value) || 0; }); 
-                document.getElementById(`final-${row}`).innerText = sum; 
-            }); 
-        });
+        // --- THEME LOGIC ---
+        function checkTheme() {
+            if (localStorage.getItem('vault_theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-checkbox').checked = true;
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('theme-checkbox').checked = false;
+            }
+        }
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            const checkbox = document.getElementById('theme-checkbox');
+            
+            if (isDark) { 
+                localStorage.setItem('vault_theme', 'dark'); 
+                checkbox.checked = true;
+            } else { 
+                localStorage.setItem('vault_theme', 'light'); 
+                checkbox.checked = false;
+            }
+            if(chartInstances.length > 0) loadHistory(); // Redraw charts for colors
+        }
+
+        document.getElementById('game-date').valueAsDate = new Date();
+        const pColors = ['var(--p0-color)', 'var(--p1-color)', 'var(--p2-color)', 'var(--p3-color)', 'var(--p4-color)', 'var(--p5-color)', 'var(--p6-color)'];
         
+        const ROUND_DEFAULT = 180; 
+        let timerData = [];
+        let activePlayer = 0;
+        let timerRunning = false;
+        let timerInterval;
+        let activeColorList = [];
+        let chartInstances = [];
+
+        // --- AUDIO ALARM SYSTEM ---
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+        }
+        function playBeep(freq, duration, type = 'sine', volume = 0.1) {
+            if (!audioCtx) return;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+        function playTick() { playBeep(800, 0.1, 'sine', 0.05); }
+        function playAlarm() { 
+            playBeep(400, 0.4, 'square', 0.15); 
+            setTimeout(() => playBeep(400, 0.6, 'square', 0.15), 500); 
+        }
+
+        // --- SETUP LOGIC ---
+        function initSetup() {
+            checkTheme();
+            handlePCountChange(); 
+            loadHistory(); 
+        }
+
+        function handlePCountChange() {
+            const count = parseInt(document.getElementById('setup-pcount').value);
+            let checked = document.querySelectorAll('.color-tick:checked');
+            while(checked.length > count) {
+                checked[checked.length - 1].checked = false;
+                checked = document.querySelectorAll('.color-tick:checked');
+            }
+            if (checked.length < count) {
+                let allTicks = document.querySelectorAll('.color-tick');
+                for(let i=0; i<allTicks.length && document.querySelectorAll('.color-tick:checked').length < count; i++) {
+                    allTicks[i].checked = true;
+                }
+            }
+            validateAndBuild();
+        }
+
+        function handleColorTick(checkbox) {
+            const count = parseInt(document.getElementById('setup-pcount').value);
+            let checked = document.querySelectorAll('.color-tick:checked');
+            if (checked.length > count) { checkbox.checked = false; return; }
+            validateAndBuild();
+        }
+
+        function validateAndBuild() {
+            const count = parseInt(document.getElementById('setup-pcount').value);
+            const checked = document.querySelectorAll('.color-tick:checked');
+            const warning = document.getElementById('setup-warning');
+
+            if (checked.length < count) {
+                warning.style.display = 'block';
+                warning.innerText = `Please tick ${count - checked.length} more color(s).`;
+            } else {
+                warning.style.display = 'none';
+                activeColorList = Array.from(checked).map(cb => parseInt(cb.value));
+                buildGameUI(activeColorList);
+            }
+        }
+
+        function recalculateRowTotal(row) {
+            let birds = parseInt(row.querySelector('.birds-input').value) || 0;
+            let bonus = parseInt(row.querySelector('.bonus-input').value) || 0;
+            let round = parseInt(row.querySelector('.round-input').value) || 0;
+            let egg = parseInt(row.querySelector('.egg-input').value) || 0;
+            let food = parseInt(row.querySelector('.food-input').value) || 0;
+            let tucked = parseInt(row.querySelector('.tucked-input').value) || 0;
+            let nectar = parseInt(row.querySelector('.nectar-input').value) || 0;
+
+            let total = birds + bonus + round + egg + food + tucked + nectar;
+            row.querySelector('.final-input').value = total;
+        }
+
+        function buildGameUI(selectedColors) {
+            const scoreBody = document.getElementById('scoring-body');
+            const timerContainer = document.getElementById('timer-players');
+
+            scoreBody.innerHTML = '';
+            timerContainer.innerHTML = '';
+            
+            if(timerRunning) toggleGlobalTimer();
+            timerData = [];
+            activePlayer = 0;
+
+            selectedColors.forEach((colorIdx, loopIndex) => {
+                const cVar = pColors[colorIdx];
+                const borderColorStyle = (colorIdx === 2 || colorIdx === 5) ? 'border: 1px solid #777;' : '';
+                
+                const trScore = document.createElement('tr');
+                trScore.innerHTML = `
+                    <td><div class="color-dot" style="background-color:${cVar}; ${borderColorStyle}"></div><input type="text" class="player-name" data-player="${loopIndex}" placeholder="Player ${loopIndex+1}"></td>
+                    <td><input type="number" class="final-input highlight-col" min="0" placeholder="0" readonly style="background: rgba(41,128,185,0.05);"></td>
+                    <td><input type="number" class="score-component birds-input" min="0" placeholder="0" style="color:var(--leaf-green);"></td>
+                    <td><input type="number" class="score-component bonus-input" min="0" placeholder="0" style="color:#f1c40f;"></td>
+                    <td><input type="number" class="score-component round-input" min="0" placeholder="0" style="color:var(--sky-blue);"></td>
+                    <td><input type="number" class="score-component egg-input" min="0" placeholder="0" style="color:#e67e22;"></td>
+                    <td><input type="number" class="score-component food-input" min="0" placeholder="0" style="color:#d35400;"></td>
+                    <td><input type="number" class="score-component tucked-input" min="0" placeholder="0" style="color:#8e44ad;"></td>
+                    <td><input type="number" class="score-component nectar-input" min="0" placeholder="0" style="color:#e74c3c;"></td>
+                `;
+                scoreBody.appendChild(trScore);
+
+                const currentRow = trScore;
+                currentRow.querySelectorAll('.score-component').forEach(input => {
+                    input.addEventListener('input', () => recalculateRowTotal(currentRow));
+                });
+
+                timerContainer.innerHTML += `
+                    <div class="timer-row" id="timer-row-${loopIndex}" onclick="selectPlayer(${loopIndex})">
+                        <div class="timer-name">
+                            <div class="timer-dot-t" style="background-color:${cVar}; ${borderColorStyle}"></div>
+                            <div class="spin-emoji">🐦</div>
+                            <span id="t-name-${loopIndex}">Player ${loopIndex+1}</span>
+                        </div>
+                        <div class="timer-times">
+                            <div class="t-round" id="t-round-${loopIndex}">03:00</div>
+                            <div class="t-reserve" id="t-res-${loopIndex}">Res: 10:00</div>
+                        </div>
+                    </div>`;
+                
+                timerData.push({ round: ROUND_DEFAULT, reserve: 600 });
+            });
+
+            document.querySelectorAll('.player-name').forEach(input => { 
+                input.addEventListener('input', (e) => { 
+                    const idx = e.target.getAttribute('data-player');
+                    document.getElementById(`t-name-${idx}`).innerText = e.target.value || `Player ${parseInt(idx)+1}`;
+                }); 
+            });
+
+            updateTimerUI();
+        }
+
+        document.querySelectorAll('.collapsible-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('.toggle-icon');
+                if (content.style.maxHeight) { 
+                    content.style.maxHeight = null; content.classList.remove('expanded'); icon.innerText = '▼'; 
+                } else { 
+                    content.classList.add('expanded'); content.style.maxHeight = content.scrollHeight + 300 + "px"; icon.innerText = '▲'; 
+                }
+            });
+        });
+
+        // --- TIMER LOGIC ---
+        function formatSecs(s) {
+            let sign = s < 0 ? "-" : "";
+            let abs = Math.abs(s);
+            let mins = Math.floor(abs / 60).toString().padStart(2, '0');
+            let secs = (abs % 60).toString().padStart(2, '0');
+            return `${sign}${mins}:${secs}`;
+        }
+        function updateTimerUI() {
+            timerData.forEach((td, i) => {
+                document.getElementById(`timer-row-${i}`).classList.remove('active');
+                const roundEl = document.getElementById(`t-round-${i}`);
+                const resEl = document.getElementById(`t-res-${i}`);
+                roundEl.innerText = formatSecs(td.round);
+                resEl.innerText = `Res: ${formatSecs(td.reserve)}`;
+                if(td.round === 0) roundEl.classList.add('danger'); else roundEl.classList.remove('danger');
+                if(td.reserve < 0) resEl.classList.add('danger'); else resEl.classList.remove('danger');
+            });
+            document.getElementById(`timer-row-${activePlayer}`).classList.add('active');
+        }
+        function selectPlayer(id) { activePlayer = id; updateTimerUI(); }
+        function toggleGlobalTimer() {
+            initAudio(); 
+            const btn = document.getElementById('global-timer-btn');
+            if(timerRunning) {
+                clearInterval(timerInterval); timerRunning = false;
+                btn.innerText = "Resume Time"; btn.classList.remove('pause'); btn.classList.add('play');
+            } else {
+                timerRunning = true;
+                btn.innerText = "Pause Time"; btn.classList.remove('play'); btn.classList.add('pause');
+                timerInterval = setInterval(() => {
+                    let p = timerData[activePlayer];
+                    if (p.round > 0) {
+                        p.round--;
+                        if (p.round <= 10 && p.round > 0) playTick(); 
+                        else if (p.round === 0) playAlarm(); 
+                    } else { p.reserve--; }
+                    updateTimerUI();
+                }, 1000);
+            }
+            updateTimerUI();
+        }
+        function nextTurn() {
+            if (timerData[activePlayer].round > 0) timerData[activePlayer].reserve += timerData[activePlayer].round;
+            timerData[activePlayer].round = ROUND_DEFAULT; 
+            if(timerRunning) {
+                clearInterval(timerInterval); timerRunning = false;
+                const btn = document.getElementById('global-timer-btn');
+                btn.innerText = "Start Time"; btn.classList.remove('pause'); btn.classList.add('play');
+            }
+            updateTimerUI();
+        }
+        function openTimeEdit() {
+            if(timerRunning) toggleGlobalTimer(); 
+            let p = timerData[activePlayer];
+            document.getElementById('edit-round-m').value = Math.floor(p.round / 60);
+            document.getElementById('edit-round-s').value = p.round % 60;
+            let resSign = p.reserve < 0 ? -1 : 1;
+            let absRes = Math.abs(p.reserve);
+            document.getElementById('edit-res-m').value = Math.floor(absRes / 60) * resSign;
+            document.getElementById('edit-res-s').value = absRes % 60;
+            document.getElementById('time-modal').style.display = 'flex';
+        }
+        function saveTimeEdit() {
+            let rm = parseInt(document.getElementById('edit-round-m').value) || 0;
+            let rs = parseInt(document.getElementById('edit-round-s').value) || 0;
+            timerData[activePlayer].round = (rm * 60) + rs;
+            let rsm = parseInt(document.getElementById('edit-res-m').value) || 0;
+            let rss = parseInt(document.getElementById('edit-res-s').value) || 0;
+            let resSign = rsm < 0 || Object.is(rsm, -0) ? -1 : 1;
+            timerData[activePlayer].reserve = (rsm * 60) + (rss * resSign);
+            document.getElementById('time-modal').style.display = 'none';
+            updateTimerUI();
+        }
+        
+        // --- TIE-BREAKER LOGIC (Final Point -> Birds -> Bonus Cards -> End Round) ---
+        function getWinners(scores) {
+            let winners = [];
+            let maxP = -1, maxB = -1, maxBc = -1, maxEr = -1;
+            
+            scores.forEach((s, idx) => {
+                let p = parseInt(s.final) || 0;
+                let b = parseInt(s.birds) || 0;
+                let bc = parseInt(s.bonusCards) || 0;
+                let er = parseInt(s.endRound) || 0;
+                
+                if (p > maxP) { setMax(p, b, bc, er, idx); }
+                else if (p === maxP) {
+                    if (b > maxB) { setMax(p, b, bc, er, idx); }
+                    else if (b === maxB) {
+                        if (bc > maxBc) { setMax(p, b, bc, er, idx); }
+                        else if (bc === maxBc) {
+                            if (er > maxEr) { setMax(p, b, bc, er, idx); }
+                            else if (er === maxEr) { winners.push(idx); }
+                        }
+                    }
+                }
+            });
+            function setMax(p, b, bc, er, idx) {
+                maxP = p; maxB = b; maxBc = bc; maxEr = er;
+                winners = [idx];
+            }
+            return winners;
+        }
+
+        // --- AIVEN CLOUD SAVE LOGIC ---
         function saveGame() {
             let playersData = [];
-            document.querySelectorAll('#scoring-body tr').forEach((row, index) => {
-                const name = row.querySelector('.player-name').value;
-                if(name.trim() !== "") { 
-                    const inputs = row.querySelectorAll(`.p${index}`); 
-                    playersData.push({ name: name, birds: inputs[0].value || 0, bonus: inputs[1].value || 0, eor: inputs[2].value || 0, eggs: inputs[3].value || 0, food: inputs[4].value || 0, tucked: inputs[5].value || 0, final: document.getElementById(`final-${index}`).innerText }); 
+            document.querySelectorAll('#scoring-body tr').forEach((row) => {
+                const name = row.querySelector('.player-name').value.trim();
+                if(name !== "") { 
+                    playersData.push({ 
+                        name: name, 
+                        final: row.querySelector('.final-input').value || 0,
+                        birds: row.querySelector('.birds-input').value || 0,
+                        bonusCards: row.querySelector('.bonus-input').value || 0,
+                        endRound: row.querySelector('.round-input').value || 0,
+                        egg: row.querySelector('.egg-input').value || 0,
+                        foodCache: row.querySelector('.food-input').value || 0,
+                        tuckedCards: row.querySelector('.tucked-input').value || 0,
+                        nectar: row.querySelector('.nectar-input').value || 0
+                    }); 
                 }
             });
             if(playersData.length === 0) return alert("Please enter at least one player name and score!");
             
-            const gameRecord = { id: Date.now(), game: "Wingspan", party: document.getElementById('party-name').value || "Unknown Party", date: document.getElementById('game-date').value, scores: playersData };
+            const gameRecord = { 
+                id: Date.now(), 
+                game: "Wingspan", 
+                party: document.getElementById('party-name').value || "Unknown Sanctuary", 
+                date: document.getElementById('game-date').value, 
+                scores: playersData 
+            };
             
             fetch('/.netlify/functions/saveGame', { method: 'POST', body: JSON.stringify(gameRecord) })
             .then(response => { if (!response.ok) throw new Error("Network error"); return response.json(); })
@@ -137,7 +790,8 @@
         
         function showCelebration() {
             document.getElementById('celebration-modal').style.display = 'flex';
-            let duration = 2.5 * 1000; let animationEnd = Date.now() + duration; let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1001, colors: ['#2d4a22', '#87ceeb', '#f0ead6'] };
+            let duration = 2.5 * 1000; let animationEnd = Date.now() + duration; 
+            let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3001, colors: ['#27ae60', '#2980b9', '#f1c40f', '#ffffff'] };
             let interval = setInterval(function() {
                 let timeLeft = animationEnd - Date.now(); if (timeLeft <= 0) return clearInterval(interval); let particleCount = 50 * (timeLeft / duration);
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
@@ -145,39 +799,216 @@
             }, 250);
             setTimeout(() => { 
                 document.getElementById('celebration-modal').style.display = 'none'; 
-                document.querySelectorAll('input[type="number"], input[type="text"], #party-name').forEach(inp => inp.value = ''); 
-                document.querySelectorAll('.final-score').forEach(cell => cell.innerText = '0'); 
-                switchTab('history'); 
+                document.querySelectorAll('input[type="text"]:not(#party-name), input[type="number"]').forEach(inp => inp.value = ''); 
+                loadHistory(); 
             }, 3000);
         }
         
+        // --- HISTORY & 10 CHARTS LOGIC ---
+        function destroyOldCharts() {
+            chartInstances.forEach(c => c.destroy());
+            chartInstances = [];
+        }
+
         function loadHistory() {
             const container = document.getElementById('history-container'); 
-            container.innerHTML = "<p style='text-align:center; color: var(--sky-blue);'>Summoning records from the Cloud...</p>";
-            
+            container.innerHTML = "<p style='text-align:center; color: var(--forest-dark);'>Loading past games...</p>";
+            document.getElementById('charts-container').style.display = 'none';
+            destroyOldCharts();
+
             fetch('/.netlify/functions/getHistory?game=' + encodeURIComponent("Wingspan"))
             .then(response => response.json())
             .then(history => {
-                if(history.length === 0) { container.innerHTML = "<p style='text-align:center;'>No historical records found.</p>"; return; }
+                if(!history || history.length === 0) { 
+                    container.innerHTML = "<p style='text-align:center;'>No historical records found.</p>"; return; 
+                }
+
+                // 1. Render History Table
                 let html = '';
                 history.forEach(game => {
-                    let topScore = Math.max(...game.scores.map(p => parseInt(p.final)));
-                    html += `<div class="history-card"><div class="history-header"><h3>Party: ${game.party}</h3><h3>Date: ${game.date}</h3></div><div class="table-wrapper"><table><thead><tr><th>Player Name</th><th>Birds</th><th>Bonus Cards</th><th>End of Round</th><th>Eggs</th><th>Food Cache</th><th>Tucked Cards</th><th>Final Score</th></tr></thead><tbody>`;
-                    game.scores.forEach(player => { 
-                        let isWinner = parseInt(player.final) === topScore && game.scores.length > 1; let crown = isWinner ? ' 👑' : ''; let rowStyle = isWinner ? 'background: rgba(45, 74, 34, 0.4); font-weight: bold;' : '';
-                        html += `<tr style="${rowStyle}"><td class="readonly-cell">${player.name}${crown}</td><td class="readonly-cell">${player.birds}</td><td class="readonly-cell">${player.bonus}</td><td class="readonly-cell">${player.eor}</td><td class="readonly-cell">${player.eggs}</td><td class="readonly-cell">${player.food}</td><td class="readonly-cell">${player.tucked}</td><td class="readonly-cell" style="color:var(--sky-blue); font-size:1.2rem;">${player.final}</td></tr>`; 
+                    let winners = getWinners(game.scores);
+                    html += `<div class="history-card"><div class="history-header"><h3>🐦 ${game.party}</h3><h3>Date: ${game.date}</h3></div><div class="table-wrapper"><table><thead><tr><th>Player Name</th><th class="highlight-col">Final Point</th><th>Birds</th><th>Bonus Cards</th><th>End Round</th><th>Egg</th><th>Food Cache</th><th>Tucked Cars</th><th>Nectar</th></tr></thead><tbody>`;
+                    
+                    game.scores.forEach((player, idx) => { 
+                        let isWinner = winners.includes(idx); 
+                        let crown = isWinner ? ' 🐦' : ''; 
+                        let rowStyle = isWinner ? 'background: rgba(41, 128, 185, 0.15); font-weight: bold;' : '';
+                        
+                        html += `<tr style="${rowStyle}">
+                            <td class="readonly-cell">${player.name}${crown}</td>
+                            <td class="readonly-cell highlight-col">${player.final || 0}</td>
+                            <td class="readonly-cell" style="font-weight:normal;">${player.birds || 0}</td>
+                            <td class="readonly-cell" style="font-weight:normal;">${player.bonusCards || 0}</td>
+                            <td class="readonly-cell" style="font-weight:normal;">${player.endRound || 0}</td>
+                            <td class="readonly-cell" style="font-weight:normal;">${player.egg || 0}</td>
+                            <td class="readonly-cell" style="font-weight:normal;">${player.foodCache || 0}</td>
+                            <td class="readonly-cell" style="font-weight:normal;">${player.tuckedCards || 0}</td>
+                            <td class="readonly-cell" style="font-weight:normal;">${player.nectar || 0}</td>
+                        </tr>`; 
                     });
                     html += `</tbody></table></div></div>`;
                 });
                 container.innerHTML = html;
+
+                // 2. Crunch 10-Chart Analytics
+                document.getElementById('charts-container').style.display = 'grid';
+                
+                let playerStats = {}; 
+                let trendDates = [];
+                let trendWinningScores = [];
+                let trendMargins = [];
+                let runnerUpCounts = {};
+
+                history.reverse().forEach((game, index) => { 
+                    let winners = getWinners(game.scores);
+                    let matchWinScore = 0;
+
+                    let sortedScores = [...game.scores].sort((a,b) => (parseInt(b.final) || 0) - (parseInt(a.final) || 0));
+                    let topScore = sortedScores.length > 0 ? (parseInt(sortedScores[0].final) || 0) : 0;
+                    let secondScore = sortedScores.length > 1 ? (parseInt(sortedScores[1].final) || 0) : topScore;
+                    
+                    if (sortedScores.length > 1) {
+                        let runnerUpName = sortedScores[1].name;
+                        runnerUpCounts[runnerUpName] = (runnerUpCounts[runnerUpName] || 0) + 1;
+                    }
+
+                    game.scores.forEach((p, idx) => {
+                        let name = p.name;
+                        let score = parseInt(p.final) || 0;
+
+                        if(!playerStats[name]) playerStats[name] = { plays: 0, wins: 0, score: 0, maxScore: 0, b: 0, bc: 0, er: 0 };
+                        playerStats[name].plays++;
+                        playerStats[name].score += score;
+                        if(score > playerStats[name].maxScore) playerStats[name].maxScore = score;
+                        playerStats[name].b += parseInt(p.birds) || 0;
+                        playerStats[name].bc += parseInt(p.bonusCards) || 0;
+                        playerStats[name].er += parseInt(p.endRound) || 0;
+                        if(winners.includes(idx)) {
+                            playerStats[name].wins++;
+                            matchWinScore = score;
+                        }
+                    });
+
+                    trendDates.push(`${game.date} (#${index+1})`);
+                    trendWinningScores.push(matchWinScore || topScore);
+                    trendMargins.push(Math.abs(topScore - secondScore));
+                });
+
+                let pArray = Object.keys(playerStats).map(p => ({
+                    name: p,
+                    wins: playerStats[p].wins,
+                    plays: playerStats[p].plays,
+                    maxScore: playerStats[p].maxScore,
+                    winRate: ((playerStats[p].wins / playerStats[p].plays) * 100).toFixed(1),
+                    avgScore: (playerStats[p].score / playerStats[p].plays).toFixed(1),
+                    avgB: (playerStats[p].b / playerStats[p].plays).toFixed(1),
+                    avgBc: (playerStats[p].bc / playerStats[p].plays).toFixed(1),
+                    avgEr: (playerStats[p].er / playerStats[p].plays).toFixed(1)
+                }));
+
+                let ruArray = Object.keys(runnerUpCounts).map(r => ({
+                    name: r,
+                    count: runnerUpCounts[r]
+                })).sort((a,b) => b.count - a.count).slice(0, 6);
+
+                drawCharts(pArray, ruArray, trendDates, trendWinningScores, trendMargins);
             })
             .catch(error => { container.innerHTML = "<p style='text-align:center; color: red;'>Failed to load cloud history.</p>"; console.error(error); });
         }
-        
-        function switchTab(tab) {
-            document.getElementById('tab-new').classList.remove('active'); document.getElementById('tab-history').classList.remove('active');
-            if(tab === 'new') { document.getElementById('tab-new').classList.add('active'); document.getElementById('new-section').style.display = 'block'; document.getElementById('history-section').style.display = 'none'; } 
-            else { document.getElementById('tab-history').classList.add('active'); document.getElementById('new-section').style.display = 'none'; document.getElementById('history-section').style.display = 'block'; loadHistory(); }
+
+        function drawCharts(players, runnerUps, trendDates, trendScores, trendMargins) {
+            Chart.defaults.font.family = "'Playfair Display', serif";
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const tickColor = isDarkMode ? '#eaeded' : '#2c3e50';
+            const titleColor = isDarkMode ? '#5dade2' : '#1e8449';
+            const gridColor = isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+            const titleFont = { family: 'Cinzel', size: 18 };
+
+            const colors = ['#3498db', '#2ecc71', '#f1c40f', '#e74c3c', '#9b59b6', '#222222', '#2980b9'];
+
+            // 1. Score Trend (Line)
+            chartInstances.push(new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: { labels: trendDates, datasets: [{ label: 'Winning Score', data: trendScores, borderColor: '#27ae60', backgroundColor: 'rgba(39, 174, 96, 0.2)', borderWidth: 3, fill: true, tension: 0.3 }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: '1. Winning Score Timeline', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { display: false } } } }
+            }));
+
+            // 2. Top Players Comparison (Bar)
+            let topPlayers = [...players].sort((a,b) => b.avgScore - a.avgScore).slice(0, 8);
+            chartInstances.push(new Chart(document.getElementById('leaderBoardChart'), {
+                type: 'bar',
+                data: { labels: topPlayers.map(l => `${l.name} (${l.plays} plays)`), datasets: [{ data: topPlayers.map(l => l.avgScore), backgroundColor: '#2980b9' }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: '2. Top Players Comparison (Avg Score)', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { color: tickColor } } } }
+            }));
+
+            // 3. Most Wins (Bar)
+            let winData = [...players].sort((a,b) => b.wins - a.wins).slice(0, 6);
+            chartInstances.push(new Chart(document.getElementById('mostWinsChart'), {
+                type: 'bar',
+                data: { labels: winData.map(p => p.name), datasets: [{ label: 'Total Wins', data: winData.map(p => p.wins), backgroundColor: '#27ae60' }] },
+                options: { plugins: { legend: { display: false }, title: { display: true, text: '3. All-Time Most Wins', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor, stepSize: 1 }, grid: { color: gridColor } }, x: { ticks: { color: tickColor } } } }
+            }));
+
+            // 4. Win Rate (Doughnut)
+            let wrData = [...players].sort((a,b) => b.winRate - a.winRate).slice(0, 6);
+            chartInstances.push(new Chart(document.getElementById('winRateChart'), {
+                type: 'doughnut',
+                data: { labels: wrData.map(p => p.name), datasets: [{ data: wrData.map(p => p.winRate), backgroundColor: colors, borderColor: isDarkMode ? '#151d18' : '#fff', borderWidth: 2 }] },
+                options: { plugins: { legend: { position: 'right', labels: { color: tickColor } }, title: { display: true, text: '4. Win Rate (%)', color: titleColor, font: titleFont } } }
+            }));
+
+            // 5. Average Score (Horizontal Bar)
+            let avgData = [...players].sort((a,b) => b.avgScore - a.avgScore).slice(0, 6);
+            chartInstances.push(new Chart(document.getElementById('avgScoreChart'), {
+                type: 'bar',
+                data: { labels: avgData.map(p => p.name), datasets: [{ data: avgData.map(p => p.avgScore), backgroundColor: '#2980b9' }] },
+                options: { indexAxis: 'y', plugins: { legend: { display: false }, title: { display: true, text: '5. Average Score', color: titleColor, font: titleFont } }, scales: { x: { ticks: { color: tickColor }, grid: { color: gridColor } }, y: { ticks: { color: tickColor } } } }
+            }));
+
+            // 6. Play Count (Polar)
+            let pcData = [...players].sort((a,b) => b.plays - a.plays).slice(0, 6);
+            chartInstances.push(new Chart(document.getElementById('playCountChart'), {
+                type: 'polarArea',
+                data: { labels: pcData.map(p => p.name), datasets: [{ data: pcData.map(p => p.plays), backgroundColor: colors.map(c => c.replace('rgb', 'rgba').replace(')', ', 0.6)')), borderColor: isDarkMode ? '#151d18' : '#fff' }] },
+                options: { plugins: { legend: { position: 'right', labels: { color: tickColor } }, title: { display: true, text: '6. Most Games Played', color: titleColor, font: titleFont } }, scales: { r: { ticks: { display: false }, grid: { color: gridColor } } } }
+            }));
+
+            // 7. Peak Score per Player (Bar)
+            let maxData = [...players].sort((a,b) => b.maxScore - a.maxScore).slice(0, 6);
+            chartInstances.push(new Chart(document.getElementById('maxScoreChart'), {
+                type: 'bar',
+                data: { labels: maxData.map(p => p.name), datasets: [{ data: maxData.map(p => p.maxScore), backgroundColor: '#f1c40f' }] },
+                options: { plugins: { legend: { display: false }, title: { display: true, text: '7. Personal Best Score', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { color: tickColor } } } }
+            }));
+
+            // 8. Runner-Up / Heartbreak Tracker (Bar)
+            chartInstances.push(new Chart(document.getElementById('runnerUpChart'), {
+                type: 'bar',
+                data: { labels: runnerUps.map(r => r.name), datasets: [{ data: runnerUps.map(r => r.count), backgroundColor: '#9b59b6' }] },
+                options: { plugins: { legend: { display: false }, title: { display: true, text: '8. Runner-Up Tracker (Most 2nd Places)', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor, stepSize: 1 }, grid: { color: gridColor } }, x: { ticks: { color: tickColor } } } }
+            }));
+
+            // 9. Victory Margin Timeline (Line)
+            chartInstances.push(new Chart(document.getElementById('marginTrendChart'), {
+                type: 'line',
+                data: { labels: trendDates, datasets: [{ label: 'Victory Margin', data: trendMargins, borderColor: '#2980b9', backgroundColor: 'rgba(41, 128, 185, 0.2)', borderWidth: 3, fill: true, tension: 0.3 }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: '9. Victory Margins Over Time', color: titleColor, font: titleFont } }, scales: { y: { ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { display: false } } } }
+            }));
+
+            // 10. End-Game Component Tracking (Stacked Bar)
+            let resData = [...players].sort((a,b) => b.plays - a.plays).slice(0, 5);
+            chartInstances.push(new Chart(document.getElementById('resourceChart'), {
+                type: 'bar',
+                data: {
+                    labels: resData.map(p => p.name),
+                    datasets: [
+                        { label: 'Avg Birds', data: resData.map(p => p.avgB), backgroundColor: '#27ae60' },
+                        { label: 'Avg Bonus Cards', data: resData.map(p => p.avgBc), backgroundColor: '#f1c40f' },
+                        { label: 'Avg End Round', data: resData.map(p => p.avgEr), backgroundColor: '#2980b9' }
+                    ]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { labels: { color: tickColor } }, title: { display: true, text: '10. End-Game Component Tracking', color: titleColor, font: titleFont } }, scales: { x: { stacked: true, ticks: { color: tickColor } }, y: { stacked: true, ticks: { color: tickColor }, grid: { color: gridColor } } } }
+            }));
         }
     </script>
 </body>
